@@ -1,71 +1,75 @@
-# UploadPro
+# Non-Toxic Living
 
-A desktop video optimizer for Instagram and TikTok creators. Pre-processes videos to exact platform specs so they don't get crushed by server-side compression.
+A mobile-first utility app that helps users identify environmental toxins, harmful ingredients, and hidden dangers in every aspect of life—from food and cosmetics to furniture and household items.
 
 ## Project Status: Planning Phase
 
-This repository contains the strategy and planning documents for UploadPro.
+This repository contains the product strategy and planning documents for Non-Toxic Living.
 
 ## Documents
 
 | File | Description |
 |------|-------------|
-| [STRATEGY.md](./STRATEGY.md) | Full product strategy, market analysis, and technical approach |
-| [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | Detailed development plan with code examples |
-| [VALIDATION.md](./VALIDATION.md) | Market validation steps to complete before building |
+| [PRODUCT_SPEC.md](./PRODUCT_SPEC.md) | Feature specifications, user flows, and monetization strategy |
+| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | UI/UX guidelines, color palette, and design patterns |
+| [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md) | Tech stack, AI/ML requirements, and system architecture |
 
 ## The Problem
 
-Video editors export high-quality videos on desktop but Instagram/TikTok crush the quality during upload because:
+People want to avoid toxins in their daily lives but face significant barriers:
 
-1. Files don't match platform specs exactly
-2. Platform algorithms assume unoptimized casual uploads
-3. Desktop web upload experiences are afterthoughts
+1. **Information Overload**: Thousands of ingredients to research, constantly changing science
+2. **Label Limitations**: Products often lack clear ingredient lists (furniture, toys, cookware)
+3. **Fragmented Tools**: Existing apps only cover specific categories (food OR cosmetics)
+4. **Hidden Dangers**: Off-gassing, microplastics, EMFs, and processing methods are rarely discussed
+5. **No Action Path**: Knowing something is "bad" doesn't help without safe alternatives
 
 ## The Solution
 
-A native desktop app that:
+Non-Toxic Living provides:
 
-1. Analyzes your video file
-2. Re-encodes to exact platform specs (codec, bitrate, resolution)
-3. Outputs a file that platforms won't re-compress
-4. Includes thumbnail picker (missing from desktop web)
+- **Universal AI Scanner**: Point your camera at anything—food, cosmetics, furniture, cookware, toys
+- **Beyond Barcodes**: Visual recognition identifies products even without labels
+- **Instant Verdicts**: Clear "Safe", "Caution", or "Toxic" ratings with explanations
+- **Actionable Swaps**: Immediate suggestions for safe alternatives
+- **Expert Guidance**: Criteria aligned with rigorous health standards (including often-overlooked factors)
+
+## Core Features
+
+### AI-Powered Scanner
+- **OCR Mode**: Reads ingredient lists, nutrition facts, and material labels
+- **Visual Recognition**: Identifies products by packaging, logos, and object type
+- **Zero-Shot Analysis**: Can infer composition even without exact product data
+
+### Toxicity Analysis
+- **Ingredients**: Food additives, cosmetic chemicals, preservatives
+- **Materials**: Plastics, fabrics, coatings, foams
+- **Processing**: Inferred manufacturing and processing methods
+- **Environmental**: Off-gassing, microplastic shedding, EMF considerations
+
+### Smart Recommendations
+- Curated safe alternatives for toxic products
+- Personalized based on user preferences and budget
+- Affiliate partnerships with vetted non-toxic brands
 
 ## Tech Stack (Planned)
 
-- **Framework**: Electron + React + TypeScript
-- **Video Engine**: FFmpeg (bundled)
-- **Styling**: Tailwind CSS
-- **Distribution**: electron-builder (Mac DMG, Windows NSIS)
+- **Frontend**: React Native (Expo) - Cross-platform mobile
+- **Backend**: Node.js/Python serverless functions
+- **AI/ML**: GPT-4o or Gemini 1.5 Pro for multimodal analysis
+- **Database**: Firestore or PostgreSQL
+- **Cloud**: Firebase or AWS
 
-## Quick Start (Development)
+## Strategic Partner
 
-```bash
-# Clone the repo
-git clone https://github.com/[your-username]/uploadpro.git
-cd uploadpro
-
-# Install dependencies (after project is scaffolded)
-npm install
-
-# Run in development
-npm run dev
-
-# Build for distribution
-npm run build
-```
+Designed to align with the "Non-Toxic Dad" brand and methodology—utilizing rigorous, science-backed criteria that go beyond mainstream toxicity assessments.
 
 ## Roadmap
 
-- [ ] **Week 1-2**: Market validation (Reddit posts, landing page)
-- [ ] **Week 3-4**: Core FFmpeg processing engine
-- [ ] **Week 5-6**: User interface
-- [ ] **Week 7**: Beta testing
-- [ ] **Week 8**: Launch
-
-## Contributing
-
-This is currently a solo project in planning phase. Check back after MVP launch for contribution guidelines.
+- [ ] **Phase 1**: Product specification and design system
+- [ ] **Phase 2**: MVP development (core scanner + basic database)
+- [ ] **Phase 3**: Beta testing with early adopters
+- [ ] **Phase 4**: Launch and iterate
 
 ## License
 
