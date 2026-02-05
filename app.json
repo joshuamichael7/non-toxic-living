@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Non-Toxic Living",
+    "slug": "non-toxic-living",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "nontoxicliving",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAF9"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nontoxicliving.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FAFAF9"
+      },
+      "package": "com.nontoxicliving.app",
+      "permissions": ["android.permission.CAMERA"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Non-Toxic Living to access your camera to scan products."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -2,59 +2,170 @@
 
 ## Overview
 
-This document outlines the technical architecture for Non-Toxic Living, a mobile-first application that uses multimodal AI to identify toxins in everyday products.
+This document outlines the technical architecture for Non-Toxic Living, a mobile-first application that uses a hybrid OCR approach (device-native + AI) to identify toxins in everyday products.
+
+**Key Design Principles:**
+1. **Device-first OCR** - Use free, fast native OCR for text extraction
+2. **AI for analysis** - Only hit OpenAI for ingredient analysis and complex recognition
+3. **Cost efficiency** - Start with 4o-mini, escalate to 4o when needed
+4. **Offline capable** - Cache aggressively, work without network when possible
 
 ---
 
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         Mobile App (React Native)                    │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │
-│  │   Scanner   │  │  Dashboard  │  │   Profile   │  │   Search   │ │
-│  │   Screen    │  │   Screen    │  │   Screen    │  │   Screen   │ │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └─────┬──────┘ │
-│         │                │                │                │        │
-│  ┌──────┴────────────────┴────────────────┴────────────────┴──────┐ │
-│  │                    State Management (Zustand)                   │ │
-│  └──────────────────────────────┬──────────────────────────────────┘ │
-└─────────────────────────────────┼───────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        API Gateway (Firebase)                        │
-└──────────────┬────────────────────────────────────┬─────────────────┘
-               │                                    │
-               ▼                                    ▼
-┌──────────────────────────┐          ┌──────────────────────────────┐
-│   Cloud Functions        │          │   Firestore Database         │
-│   (Node.js/Python)       │          │                              │
-│  ┌────────────────────┐  │          │  ┌────────────────────────┐  │
-│  │  Scan Processor    │  │          │  │  Products Collection   │  │
-│  │  - OCR Pipeline    │  │          │  │  - Cached scan results │  │
-│  │  - AI Analysis     │  │          │  │  - Ingredient database │  │
-│  └────────────────────┘  │          │  └────────────────────────┘  │
-│  ┌────────────────────┐  │          │  ┌────────────────────────┐  │
-│  │  Swap Engine       │  │          │  │  Users Collection      │  │
-│  │  - Recommendations │  │          │  │  - Profiles            │  │
-│  │  - Affiliate links │  │          │  │  - Scan history        │  │
-│  └────────────────────┘  │          │  │  - Preferences         │  │
-└────────────┬─────────────┘          │  └────────────────────────┘  │
-             │                        │  ┌────────────────────────┐  │
-             ▼                        │  │  Ingredients Index     │  │
-┌──────────────────────────┐          │  │  - Toxicity ratings    │  │
-│   External AI Services   │          │  │  - Health impacts      │  │
-│  ┌────────────────────┐  │          │  └────────────────────────┘  │
-│  │  GPT-4o / Gemini   │  │          └──────────────────────────────┘
-│  │  Vision + Text     │  │
-│  └────────────────────┘  │
-│  ┌────────────────────┐  │
-│  │  Google Cloud      │  │
-│  │  Vision API (OCR)  │  │
-│  └────────────────────┘  │
-└──────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Mobile App (React Native / Expo)                     │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        OCR Pipeline (Device-First)                   │    │
+│  │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐  │    │
+│  │  │  Camera Capture │───▶│  Native OCR     │───▶│  Text Extracted │  │    │
+│  │  │  (expo-camera)  │    │  (iOS/Android)  │    │  (ingredients)  │  │    │
+│  │  └─────────────────┘    └─────────────────┘    └────────┬────────┘  │    │
+│  │                                                         │            │    │
+│  │                              ┌──────────────────────────┴──────┐     │    │
+│  │                              ▼                                 ▼     │    │
+│  │                    ┌─────────────────┐              ┌──────────────┐│    │
+│  │                    │ Text Confidence │              │ No Text/Low  ││    │
+│  │                    │     > 80%       │              │  Confidence  ││    │
+│  │                    └────────┬────────┘              └──────┬───────┘│    │
+│  │                             │                              │        │    │
+│  │                             ▼                              ▼        │    │
+│  │                    ┌─────────────────┐              ┌─────────────┐ │    │
+│  │                    │ Send TEXT only  │              │ Send IMAGE  │ │    │
+│  │                    │ to AI (cheap)   │              │ to AI (4o)  │ │    │
+│  │                    └─────────────────┘              └─────────────┘ │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌────────────────┐      │
+│  │   Scanner   │  │  Dashboard  │  │   Profile   │  │     Search     │      │
+│  │   Screen    │  │   Screen    │  │   Screen    │  │     Screen     │      │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └───────┬────────┘      │
+│         └────────────────┴────────────────┴─────────────────┘               │
+│                                    │                                         │
+│                    ┌───────────────┴───────────────┐                        │
+│                    │   State Management (Zustand)   │                        │
+│                    │   + React Query (server state) │                        │
+│                    └───────────────┬───────────────┘                        │
+└────────────────────────────────────┼────────────────────────────────────────┘
+                                     │
+                                     ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│                              Supabase                                       │
+│                                                                             │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────────────┐  │
+│  │   Auth           │  │   PostgreSQL     │  │   Edge Functions         │  │
+│  │   - Email/Pass   │  │   - users        │  │   - analyze-ingredients  │  │
+│  │   - Google       │  │   - scans        │  │   - get-swaps            │  │
+│  │   - Apple        │  │   - products     │  │   - search-products      │  │
+│  └──────────────────┘  │   - ingredients  │  └───────────┬──────────────┘  │
+│                        │   - swaps        │              │                  │
+│  ┌──────────────────┐  └──────────────────┘              │                  │
+│  │   Storage        │                                    │                  │
+│  │   - scan-images  │                                    ▼                  │
+│  │   - product-imgs │                      ┌──────────────────────────┐    │
+│  └──────────────────┘                      │   OpenAI API             │    │
+│                                            │   - GPT-4o-mini (default)│    │
+│  ┌──────────────────┐                      │   - GPT-4o (escalation)  │    │
+│  │   Realtime       │                      └──────────────────────────┘    │
+│  │   - scan updates │                                                       │
+│  └──────────────────┘                                                       │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Hybrid OCR Strategy
+
+The key to cost efficiency is using device OCR first, then AI only when necessary.
+
+### Decision Flow
+
+```typescript
+// src/services/ocr/OcrPipeline.ts
+
+export type OcrSource = 'device' | 'ai-mini' | 'ai-vision';
+
+export interface OcrResult {
+  text: string;
+  confidence: number;
+  source: OcrSource;
+  boundingBoxes?: BoundingBox[];
+}
+
+export async function processImage(imageUri: string): Promise<OcrResult> {
+  // Step 1: Try device OCR first (FREE)
+  const deviceResult = await performDeviceOcr(imageUri);
+
+  if (deviceResult.confidence > 0.8 && deviceResult.text.length > 20) {
+    // Good text extracted - use it directly
+    return { ...deviceResult, source: 'device' };
+  }
+
+  if (deviceResult.confidence > 0.5 && deviceResult.text.length > 10) {
+    // Partial text - send text to AI for cleanup/analysis (CHEAP)
+    return {
+      text: deviceResult.text,
+      confidence: deviceResult.confidence,
+      source: 'ai-mini'
+    };
+  }
+
+  // Step 2: Poor/no text - need full vision API (EXPENSIVE)
+  // This handles: curved bottles, low contrast, product-only scans
+  return { text: '', confidence: 0, source: 'ai-vision' };
+}
+```
+
+### Device OCR Implementation
+
+```typescript
+// src/services/ocr/DeviceOcr.ts
+
+import * as MLKit from 'expo-ml-kit'; // or react-native-mlkit-ocr
+
+// iOS: Uses Apple Vision framework
+// Android: Uses Google ML Kit
+
+export async function performDeviceOcr(imageUri: string): Promise<OcrResult> {
+  try {
+    const result = await MLKit.detectText(imageUri);
+
+    // Calculate overall confidence from blocks
+    const avgConfidence = result.blocks.reduce(
+      (sum, block) => sum + block.confidence, 0
+    ) / result.blocks.length;
+
+    // Extract full text
+    const fullText = result.blocks
+      .map(block => block.text)
+      .join('\n');
+
+    return {
+      text: fullText,
+      confidence: avgConfidence,
+      boundingBoxes: result.blocks.map(b => b.frame),
+    };
+  } catch (error) {
+    console.warn('Device OCR failed:', error);
+    return { text: '', confidence: 0 };
+  }
+}
+```
+
+### Cost Comparison
+
+| Scenario | OCR Method | AI Call | Est. Cost |
+|----------|------------|---------|-----------|
+| Clear label, good lighting | Device OCR | 4o-mini (text only) | ~$0.001 |
+| Curved bottle, readable | Device OCR | 4o-mini (text only) | ~$0.001 |
+| Low confidence text | Device OCR | 4o-mini (text cleanup) | ~$0.002 |
+| No text / product-only | None | 4o Vision | ~$0.02 |
+| Complex visual ID needed | None | 4o Vision | ~$0.03 |
+
+**Projected savings**: 70-80% cost reduction vs always using vision API.
 
 ---
 
@@ -64,744 +175,618 @@ This document outlines the technical architecture for Non-Toxic Living, a mobile
 
 | Component | Technology | Rationale |
 |-----------|------------|-----------|
-| **Framework** | React Native (Expo) | Cross-platform, large ecosystem, faster iteration |
-| **State Management** | Zustand | Lightweight, simple API, TypeScript-friendly |
-| **Navigation** | Expo Router | File-based routing, native feel |
-| **UI Components** | Custom + Tamagui | Performance, design system alignment |
-| **Camera** | expo-camera | Native performance, easy integration |
-| **Image Processing** | expo-image-manipulator | Compression before upload |
+| **Framework** | React Native (Expo SDK 52+) | Cross-platform, large ecosystem |
+| **Navigation** | Expo Router v4 | File-based routing, native feel |
+| **State (Client)** | Zustand | Lightweight, simple API |
+| **State (Server)** | TanStack Query | Caching, sync, offline support |
+| **Camera** | expo-camera | Native performance |
+| **OCR** | react-native-mlkit-ocr | Free device OCR (iOS Vision / Android ML Kit) |
 | **Animations** | Reanimated 3 | 60fps native animations |
-| **Styling** | NativeWind (Tailwind) | Rapid development, design system tokens |
+| **Styling** | NativeWind v4 | Tailwind for React Native |
+| **Forms** | React Hook Form + Zod | Validation, performance |
 
-### Backend Services
-
-| Component | Technology | Rationale |
-|-----------|------------|-----------|
-| **Cloud Platform** | Firebase | Integrated auth, database, functions, hosting |
-| **Serverless Functions** | Cloud Functions (Node.js) | Scalable, pay-per-use |
-| **Database** | Firestore | Real-time sync, offline support, flexible schema |
-| **Authentication** | Firebase Auth | Social logins, secure token management |
-| **Storage** | Cloud Storage | Image caching, user uploads |
-| **Analytics** | Firebase Analytics | User behavior, conversion tracking |
-
-### AI/ML Services
+### Backend (Supabase)
 
 | Component | Technology | Rationale |
 |-----------|------------|-----------|
-| **Multimodal Analysis** | GPT-4o or Gemini 1.5 Pro | Vision + text in single API call |
-| **OCR (Backup)** | Google Cloud Vision | High accuracy for curved surfaces |
-| **Embeddings** | OpenAI Embeddings | Product similarity search |
-| **Vector DB** | Pinecone (future) | Semantic product search |
+| **Database** | PostgreSQL | Relational, full-text search, JSONB |
+| **Auth** | Supabase Auth | Social logins, JWT, RLS |
+| **API** | PostgREST (auto-generated) | Instant CRUD APIs |
+| **Functions** | Edge Functions (Deno) | Serverless, low latency |
+| **Storage** | Supabase Storage | S3-compatible, CDN |
+| **Realtime** | Supabase Realtime | WebSocket subscriptions |
+
+### AI Services
+
+| Component | Technology | Usage |
+|-----------|------------|-------|
+| **Text Analysis** | GPT-4o-mini | Ingredient parsing, scoring (default) |
+| **Vision Analysis** | GPT-4o | Product recognition, complex labels |
+| **Embeddings** | text-embedding-3-small | Product similarity search |
 
 ---
 
-## Core Modules
+## Database Schema (PostgreSQL)
 
-### 1. Scanner Module
+```sql
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";  -- For fuzzy text search
 
-Handles image capture, preprocessing, and routing to appropriate AI analysis.
+-- Users table (extends Supabase auth.users)
+CREATE TABLE public.profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  display_name TEXT,
+  avatar_url TEXT,
+  subscription TEXT DEFAULT 'free' CHECK (subscription IN ('free', 'premium')),
+  preferences JSONB DEFAULT '{
+    "concernPriorities": ["chemicals"],
+    "dietaryRestrictions": [],
+    "budgetRange": "mid",
+    "familyMode": false,
+    "notifications": true
+  }',
+  stats JSONB DEFAULT '{
+    "totalScans": 0,
+    "toxinsAvoided": 0,
+    "swapsMade": 0,
+    "streakDays": 0,
+    "badges": []
+  }',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-```typescript
-// src/modules/scanner/types.ts
+-- Scans table (user scan history)
+CREATE TABLE public.scans (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES public.products(id),
+  score INTEGER CHECK (score >= 0 AND score <= 100),
+  verdict TEXT CHECK (verdict IN ('safe', 'caution', 'toxic')),
+  analysis JSONB NOT NULL,
+  ocr_source TEXT CHECK (ocr_source IN ('device', 'ai-mini', 'ai-vision')),
+  image_path TEXT,
+  saved_to_list TEXT CHECK (saved_to_list IN ('favorites', 'avoid')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-export type ScanMode = 'label' | 'product' | 'produce' | 'environment';
+-- Products table (cached product data)
+CREATE TABLE public.products (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  brand TEXT,
+  category TEXT NOT NULL,
+  barcode TEXT UNIQUE,
+  score INTEGER CHECK (score >= 0 AND score <= 100),
+  verdict TEXT CHECK (verdict IN ('safe', 'caution', 'toxic')),
+  analysis JSONB,
+  image_url TEXT,
+  scan_count INTEGER DEFAULT 0,
+  last_scanned TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-export interface ScanRequest {
-  imageBase64: string;
-  mode: ScanMode;
-  userId?: string;
-  hints?: string[]; // User-provided context
-}
+-- Ingredients table (toxicity database)
+CREATE TABLE public.ingredients (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  aliases TEXT[] DEFAULT '{}',
+  category TEXT CHECK (category IN (
+    'additive', 'preservative', 'sweetener', 'color',
+    'fragrance', 'material', 'pesticide', 'heavy_metal'
+  )),
+  toxicity_score INTEGER CHECK (toxicity_score >= 1 AND toxicity_score <= 10),
+  concerns TEXT[] DEFAULT '{}',
+  health_effects JSONB,
+  sources TEXT[] DEFAULT '{}',
+  safe_alternatives TEXT[] DEFAULT '{}',
+  common_products TEXT[] DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-export interface ScanResult {
-  id: string;
-  timestamp: Date;
-  score: number; // 0-100
-  verdict: 'safe' | 'caution' | 'toxic';
-  product?: ProductInfo;
-  analysis: ToxicityAnalysis;
-  swaps: SwapSuggestion[];
-}
+-- Swaps table (affiliate product recommendations)
+CREATE TABLE public.swaps (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  brand TEXT NOT NULL,
+  category TEXT NOT NULL,
+  score INTEGER CHECK (score >= 0 AND score <= 100),
+  price_cents INTEGER,
+  image_url TEXT,
+  affiliate_url TEXT,
+  affiliate_source TEXT CHECK (affiliate_source IN ('amazon', 'thrive', 'iherb', 'direct')),
+  badges TEXT[] DEFAULT '{}',
+  why_better TEXT,
+  replaces_ingredients TEXT[] DEFAULT '{}',
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-export interface ToxicityAnalysis {
-  summary: string;
-  dadsTake?: string;
-  concerns: Concern[];
-  positives: string[];
-  ingredients?: IngredientAnalysis[];
-  materials?: MaterialAnalysis[];
-}
+-- Indexes for performance
+CREATE INDEX idx_scans_user_id ON public.scans(user_id);
+CREATE INDEX idx_scans_created_at ON public.scans(created_at DESC);
+CREATE INDEX idx_products_barcode ON public.products(barcode);
+CREATE INDEX idx_products_category_score ON public.products(category, score DESC);
+CREATE INDEX idx_ingredients_name_trgm ON public.ingredients USING gin(name gin_trgm_ops);
+CREATE INDEX idx_ingredients_aliases ON public.ingredients USING gin(aliases);
+CREATE INDEX idx_swaps_category_score ON public.swaps(category, score DESC);
 
-export interface Concern {
-  ingredient: string;
-  severity: 'low' | 'medium' | 'high';
-  description: string;
-  category: 'carcinogen' | 'endocrine' | 'allergen' | 'irritant' | 'environmental';
-}
+-- Row Level Security
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.scans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ingredients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.swaps ENABLE ROW LEVEL SECURITY;
+
+-- Profiles: users can only access their own
+CREATE POLICY "Users can view own profile" ON public.profiles
+  FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Scans: users can only access their own
+CREATE POLICY "Users can view own scans" ON public.scans
+  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own scans" ON public.scans
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own scans" ON public.scans
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Products: publicly readable
+CREATE POLICY "Products are publicly readable" ON public.products
+  FOR SELECT USING (true);
+
+-- Ingredients: publicly readable
+CREATE POLICY "Ingredients are publicly readable" ON public.ingredients
+  FOR SELECT USING (true);
+
+-- Swaps: publicly readable (active only)
+CREATE POLICY "Active swaps are publicly readable" ON public.swaps
+  FOR SELECT USING (is_active = true);
 ```
 
+---
+
+## Edge Functions
+
+### analyze-ingredients
+
+Analyzes extracted text or image for toxicity.
+
 ```typescript
-// src/modules/scanner/ScannerService.ts
+// supabase/functions/analyze-ingredients/index.ts
 
-import { CameraView } from 'expo-camera';
-import * as ImageManipulator from 'expo-image-manipulator';
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import OpenAI from 'https://esm.sh/openai@4'
 
-export class ScannerService {
-  private cameraRef: CameraView | null = null;
+const openai = new OpenAI({ apiKey: Deno.env.get('OPENAI_API_KEY') })
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL')!,
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+)
 
-  async captureImage(): Promise<string> {
-    if (!this.cameraRef) throw new Error('Camera not initialized');
-
-    const photo = await this.cameraRef.takePictureAsync({
-      quality: 0.8,
-      base64: true,
-    });
-
-    // Compress and resize for API
-    const processed = await ImageManipulator.manipulateAsync(
-      photo.uri,
-      [{ resize: { width: 1024 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
-    );
-
-    return processed.base64!;
-  }
-
-  async analyzeImage(imageBase64: string, mode: ScanMode): Promise<ScanResult> {
-    const response = await fetch(`${API_URL}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${await getAuthToken()}`,
-      },
-      body: JSON.stringify({ imageBase64, mode }),
-    });
-
-    return response.json();
-  }
+interface AnalyzeRequest {
+  text?: string           // Extracted text from device OCR
+  imageBase64?: string    // Image for vision analysis
+  ocrSource: 'device' | 'ai-mini' | 'ai-vision'
+  userId?: string
 }
-```
 
-### 2. AI Analysis Pipeline
+serve(async (req) => {
+  const { text, imageBase64, ocrSource, userId } = await req.json() as AnalyzeRequest
 
-Server-side processing that orchestrates AI analysis.
+  let ingredientText = text
+  let model = 'gpt-4o-mini'  // Default to cheaper model
 
-```typescript
-// functions/src/analyze/index.ts
+  // If we have an image and need vision, use 4o
+  if (ocrSource === 'ai-vision' && imageBase64) {
+    model = 'gpt-4o'
 
-import { onCall } from 'firebase-functions/v2/https';
-import { OpenAI } from 'openai';
+    const visionResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a product identification expert. Extract:
+1. Product name and brand
+2. All ingredients or materials listed
+3. Any nutrition facts
+4. Product category
 
-const openai = new OpenAI();
-
-export const analyzeProduct = onCall(async (request) => {
-  const { imageBase64, mode } = request.data;
-
-  // Build dynamic prompt based on scan mode
-  const systemPrompt = buildSystemPrompt(mode);
-
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image_url',
-            image_url: {
-              url: `data:image/jpeg;base64,${imageBase64}`,
-              detail: 'high',
+Return JSON: { productName, brand, category, ingredients: string[], materials: string[], nutritionFacts: object }`
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'high' }
             },
-          },
-          {
-            type: 'text',
-            text: 'Analyze this product for toxicity concerns. Extract all visible text and identify the product.',
-          },
-        ],
-      },
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 2000,
-  });
+            { type: 'text', text: 'Identify this product and extract all visible information.' }
+          ]
+        }
+      ],
+      response_format: { type: 'json_object' },
+      max_tokens: 1500
+    })
 
-  const analysis = JSON.parse(response.choices[0].message.content);
+    const extracted = JSON.parse(visionResponse.choices[0].message.content!)
+    ingredientText = extracted.ingredients?.join(', ') || ''
+  }
 
-  // Enrich with our ingredient database
-  const enrichedAnalysis = await enrichWithDatabase(analysis);
+  // Look up ingredients in our database
+  const ingredientList = parseIngredients(ingredientText)
+  const { data: knownIngredients } = await supabase
+    .from('ingredients')
+    .select('*')
+    .or(ingredientList.map(i => `name.ilike.%${i}%,aliases.cs.{${i}}`).join(','))
 
-  // Calculate score
-  const score = calculateToxicityScore(enrichedAnalysis);
-
-  // Get swap suggestions
-  const swaps = await getSwapSuggestions(enrichedAnalysis, score);
-
-  // Cache result
-  await cacheResult(enrichedAnalysis, score);
-
-  return {
-    score,
-    verdict: getVerdict(score),
-    analysis: enrichedAnalysis,
-    swaps,
-  };
-});
-
-function buildSystemPrompt(mode: ScanMode): string {
-  const basePrompt = `You are a toxicity analysis expert aligned with the "Non-Toxic Dad" methodology.
-Analyze products with a rigorous, health-first perspective that considers:
+  // Analyze with AI
+  const analysisResponse = await openai.chat.completions.create({
+    model,
+    messages: [
+      {
+        role: 'system',
+        content: `You are a toxicity analysis expert aligned with the "Non-Toxic Dad" methodology.
+Analyze ingredients with a rigorous, health-first perspective considering:
 - Known carcinogens and endocrine disruptors
 - Ingredients often dismissed as "safe" but have emerging concerns
 - Processing methods that may introduce toxins
-- Off-gassing and material composition for non-food items
 
-Return JSON with: productName, brand, category, ingredients[], materials[], concerns[], positives[], overallRisk (1-10).`;
+Known ingredient data from our database:
+${JSON.stringify(knownIngredients, null, 2)}
 
-  const modeSpecific = {
-    label: 'Focus on reading and analyzing the ingredient list and nutrition facts.',
-    product: 'Identify the product by visual recognition. Infer likely ingredients based on product type.',
-    produce: 'Identify the produce type. Consider pesticide load (Dirty Dozen vs Clean Fifteen).',
-    environment: 'Assess materials, potential off-gassing, and overall environmental toxin risk.',
-  };
-
-  return `${basePrompt}\n\nMode: ${mode}\n${modeSpecific[mode]}`;
-}
-```
-
-### 3. Ingredient Database
-
-Pre-computed toxicity data for common ingredients.
-
-```typescript
-// functions/src/data/ingredients.ts
-
-export interface IngredientData {
-  name: string;
-  aliases: string[];
-  category: 'additive' | 'preservative' | 'sweetener' | 'color' | 'fragrance' | 'material';
-  toxicityScore: number; // 1-10 (10 = most toxic)
-  concerns: string[];
-  sources: string[]; // Scientific references
-  commonProducts: string[];
-  safeAlternatives: string[];
-}
-
-// Example entries
-export const ingredientDatabase: Record<string, IngredientData> = {
-  'red-40': {
-    name: 'Red 40',
-    aliases: ['Allura Red', 'FD&C Red No. 40', 'E129'],
-    category: 'color',
-    toxicityScore: 7,
-    concerns: [
-      'Linked to hyperactivity in children',
-      'Potential carcinogen (animal studies)',
-      'Banned in several European countries',
-    ],
-    sources: ['FDA CFSAN', 'CSPI Report 2023'],
-    commonProducts: ['Candy', 'Beverages', 'Cereals', 'Snacks'],
-    safeAlternatives: ['Beet juice', 'Paprika extract', 'Annatto'],
-  },
-  'titanium-dioxide': {
-    name: 'Titanium Dioxide',
-    aliases: ['TiO2', 'E171', 'CI 77891'],
-    category: 'additive',
-    toxicityScore: 6,
-    concerns: [
-      'Banned in EU for food use (2022)',
-      'Potential gut inflammation',
-      'Nanoparticle concerns',
-    ],
-    sources: ['EFSA Opinion 2021', 'EU Regulation 2022/63'],
-    commonProducts: ['Candy', 'Gum', 'Supplements', 'Sunscreen'],
-    safeAlternatives: ['Zinc oxide (non-nano)', 'Rice starch'],
-  },
-  // ... hundreds more entries
-};
-```
-
-### 4. Swap Engine
-
-Recommendation system for safe alternatives.
-
-```typescript
-// functions/src/swaps/SwapEngine.ts
-
-export interface SwapSuggestion {
-  id: string;
-  productName: string;
-  brand: string;
-  score: number;
-  imageUrl: string;
-  price: number;
-  affiliateUrl: string;
-  affiliateSource: 'amazon' | 'thrive' | 'iherb' | 'direct';
-  badges: ('dad-approved' | 'budget-friendly' | 'premium')[];
-  whyBetter: string;
-}
-
-export class SwapEngine {
-  async getSuggestions(
-    analysis: ToxicityAnalysis,
-    score: number,
-    userPreferences?: UserPreferences
-  ): Promise<SwapSuggestion[]> {
-    // Only suggest swaps for toxic/caution items
-    if (score > 66) return [];
-
-    const category = analysis.category;
-    const concerns = analysis.concerns.map(c => c.category);
-
-    // Query Firestore for safe alternatives
-    const swapsQuery = db.collection('products')
-      .where('category', '==', category)
-      .where('score', '>=', 70)
-      .orderBy('score', 'desc')
-      .limit(10);
-
-    const swaps = await swapsQuery.get();
-
-    let suggestions = swaps.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as SwapSuggestion[];
-
-    // Apply user preferences
-    if (userPreferences) {
-      suggestions = this.applyPreferences(suggestions, userPreferences);
-    }
-
-    // Sort by relevance and limit
-    return suggestions.slice(0, 5);
-  }
-
-  private applyPreferences(
-    suggestions: SwapSuggestion[],
-    prefs: UserPreferences
-  ): SwapSuggestion[] {
-    return suggestions.filter(s => {
-      if (prefs.maxPrice && s.price > prefs.maxPrice) return false;
-      if (prefs.preferOrganic && !s.badges.includes('organic')) return false;
-      return true;
-    });
-  }
-}
-```
-
-### 5. User Management
-
-Authentication and profile management.
-
-```typescript
-// src/modules/user/types.ts
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  displayName?: string;
-  subscription: 'free' | 'premium';
-  preferences: UserPreferences;
-  stats: UserStats;
-  createdAt: Date;
-}
-
-export interface UserPreferences {
-  concernPriorities: ('chemicals' | 'environmental' | 'allergens')[];
-  dietaryRestrictions: string[];
-  budgetRange: 'budget' | 'mid' | 'premium';
-  familyMode: boolean;
-  notifications: boolean;
-}
-
-export interface UserStats {
-  totalScans: number;
-  toxinsAvoided: number;
-  swapsMade: number;
-  streakDays: number;
-  badges: string[];
-}
-
-export interface ScanHistory {
-  id: string;
-  userId: string;
-  result: ScanResult;
-  savedToList?: 'favorites' | 'avoid';
-  createdAt: Date;
-}
-```
-
-```typescript
-// src/modules/user/useUser.ts
-
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface UserState {
-  user: UserProfile | null;
-  isLoading: boolean;
-  scanHistory: ScanHistory[];
-
-  setUser: (user: UserProfile) => void;
-  updatePreferences: (prefs: Partial<UserPreferences>) => void;
-  addScan: (result: ScanResult) => void;
-  incrementToxinsAvoided: (count: number) => void;
-}
-
-export const useUserStore = create<UserState>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      isLoading: true,
-      scanHistory: [],
-
-      setUser: (user) => set({ user, isLoading: false }),
-
-      updatePreferences: (prefs) => set((state) => ({
-        user: state.user ? {
-          ...state.user,
-          preferences: { ...state.user.preferences, ...prefs },
-        } : null,
-      })),
-
-      addScan: (result) => set((state) => ({
-        scanHistory: [
-          { id: result.id, userId: state.user?.id || '', result, createdAt: new Date() },
-          ...state.scanHistory.slice(0, 99), // Keep last 100
-        ],
-      })),
-
-      incrementToxinsAvoided: (count) => set((state) => ({
-        user: state.user ? {
-          ...state.user,
-          stats: {
-            ...state.user.stats,
-            toxinsAvoided: state.user.stats.toxinsAvoided + count,
-          },
-        } : null,
-      })),
-    }),
-    {
-      name: 'user-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
-);
-```
-
----
-
-## Database Schema
-
-### Firestore Collections
-
-```
-/users/{userId}
-  - email: string
-  - displayName: string
-  - subscription: 'free' | 'premium'
-  - preferences: object
-  - stats: object
-  - createdAt: timestamp
-
-/users/{userId}/scans/{scanId}
-  - productName: string
-  - score: number
-  - verdict: string
-  - analysis: object
-  - imageUrl: string (optional, stored in Cloud Storage)
-  - savedToList: 'favorites' | 'avoid' | null
-  - createdAt: timestamp
-
-/products/{productId}
-  - name: string
-  - brand: string
-  - category: string
-  - barcode: string (optional)
-  - score: number
-  - analysis: object
-  - imageUrl: string
-  - affiliateLinks: object
-  - scanCount: number
-  - lastScanned: timestamp
-  - createdAt: timestamp
-
-/ingredients/{ingredientId}
-  - name: string
-  - aliases: string[]
-  - category: string
-  - toxicityScore: number
-  - concerns: string[]
-  - sources: string[]
-  - updatedAt: timestamp
-
-/swaps/{categoryId}
-  - categoryName: string
-  - products: object[] (denormalized for fast reads)
-  - updatedAt: timestamp
-```
-
-### Indexes
-
-```
-// Compound indexes for efficient queries
-products: category + score (descending)
-products: barcode (unique)
-users/{userId}/scans: createdAt (descending)
-ingredients: name (for search)
-```
-
----
-
-## API Endpoints
-
-### Cloud Functions
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/analyze` | POST | Submit image for toxicity analysis |
-| `/products/{id}` | GET | Get cached product details |
-| `/products/barcode/{code}` | GET | Lookup by barcode |
-| `/swaps/{category}` | GET | Get swap suggestions for category |
-| `/search` | GET | Search products/ingredients |
-| `/user/stats` | GET | Get user statistics |
-| `/subscription/webhook` | POST | RevenueCat webhook handler |
-
-### Request/Response Examples
-
-```typescript
-// POST /analyze
-// Request
-{
-  "imageBase64": "...",
-  "mode": "label",
-  "hints": ["food", "snack"]
-}
-
-// Response
-{
-  "id": "scan_abc123",
-  "score": 34,
-  "verdict": "caution",
-  "product": {
-    "name": "Cheetos Crunchy",
-    "brand": "Frito-Lay",
-    "category": "snacks"
-  },
-  "analysis": {
-    "summary": "Contains several artificial additives and highly processed ingredients.",
-    "dadsTake": "I keep these out of my house. The artificial colors and MSG derivatives aren't worth it when there are better options.",
-    "concerns": [
+Return JSON: {
+  productName: string,
+  brand: string,
+  category: string,
+  score: number (0-100, higher = safer),
+  verdict: "safe" | "caution" | "toxic",
+  summary: string,
+  dadsTake: string (friendly advice in Non-Toxic Dad voice),
+  concerns: [{ ingredient, severity: "low"|"medium"|"high", description, category }],
+  positives: string[]
+}`
+      },
       {
-        "ingredient": "Yellow 6",
-        "severity": "medium",
-        "description": "Artificial color linked to hyperactivity"
+        role: 'user',
+        content: `Analyze these ingredients for toxicity:\n\n${ingredientText}`
       }
     ],
-    "positives": ["No trans fats listed"]
-  },
-  "swaps": [
-    {
-      "id": "prod_xyz",
-      "productName": "Lesser Evil Paleo Puffs",
-      "score": 82,
-      "price": 4.99,
-      "affiliateUrl": "https://..."
-    }
-  ]
+    response_format: { type: 'json_object' },
+    max_tokens: 1500
+  })
+
+  const analysis = JSON.parse(analysisResponse.choices[0].message.content!)
+
+  // Get swap suggestions if toxic/caution
+  let swaps = []
+  if (analysis.score < 67) {
+    const { data } = await supabase
+      .from('swaps')
+      .select('*')
+      .eq('category', analysis.category)
+      .gte('score', 70)
+      .order('score', { ascending: false })
+      .limit(5)
+    swaps = data || []
+  }
+
+  // Cache product if identifiable
+  if (analysis.productName && analysis.brand) {
+    await supabase.from('products').upsert({
+      name: analysis.productName,
+      brand: analysis.brand,
+      category: analysis.category,
+      score: analysis.score,
+      verdict: analysis.verdict,
+      analysis,
+      scan_count: 1,
+      last_scanned: new Date().toISOString()
+    }, { onConflict: 'name,brand' })
+  }
+
+  return new Response(JSON.stringify({
+    ...analysis,
+    swaps,
+    ocrSource,
+    model
+  }), {
+    headers: { 'Content-Type': 'application/json' }
+  })
+})
+
+function parseIngredients(text: string): string[] {
+  // Split by common delimiters and clean up
+  return text
+    .split(/[,;.]/)
+    .map(i => i.trim().toLowerCase())
+    .filter(i => i.length > 2 && i.length < 50)
 }
+```
+
+### get-swaps
+
+Fetch swap suggestions for a category.
+
+```typescript
+// supabase/functions/get-swaps/index.ts
+
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+serve(async (req) => {
+  const { category, concerns, limit = 5 } = await req.json()
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!
+  )
+
+  let query = supabase
+    .from('swaps')
+    .select('*')
+    .eq('is_active', true)
+    .gte('score', 70)
+    .order('score', { ascending: false })
+    .limit(limit)
+
+  if (category) {
+    query = query.eq('category', category)
+  }
+
+  // If specific concerns, prioritize swaps that address them
+  if (concerns?.length > 0) {
+    query = query.overlaps('replaces_ingredients', concerns)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+  }
+
+  return new Response(JSON.stringify(data), {
+    headers: { 'Content-Type': 'application/json' }
+  })
+})
 ```
 
 ---
 
-## Infrastructure
+## Mobile App Structure
 
-### Firebase Configuration
-
-```typescript
-// firebase.json
-{
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs20",
-    "region": "us-central1"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  }
-}
+```
+non-toxic-living/
+├── app/                          # Expo Router screens
+│   ├── (tabs)/
+│   │   ├── _layout.tsx          # Tab navigator
+│   │   ├── index.tsx            # Home/Dashboard
+│   │   ├── scan.tsx             # Scanner
+│   │   ├── search.tsx           # Search
+│   │   └── profile.tsx          # Profile
+│   ├── (auth)/
+│   │   ├── login.tsx
+│   │   └── register.tsx
+│   ├── result/[id].tsx          # Scan result detail
+│   ├── product/[id].tsx         # Product detail
+│   ├── _layout.tsx              # Root layout
+│   └── +not-found.tsx
+├── src/
+│   ├── components/
+│   │   ├── ui/                  # Base UI components
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   ├── ScoreBadge.tsx
+│   │   │   ├── BottomSheet.tsx
+│   │   │   └── index.ts
+│   │   ├── scanner/
+│   │   │   ├── CameraView.tsx
+│   │   │   ├── ScanOverlay.tsx
+│   │   │   └── ResultSheet.tsx
+│   │   ├── home/
+│   │   │   ├── InsightCard.tsx
+│   │   │   ├── RecentScans.tsx
+│   │   │   └── StatsCard.tsx
+│   │   └── swaps/
+│   │       ├── SwapCard.tsx
+│   │       └── SwapList.tsx
+│   ├── services/
+│   │   ├── ocr/
+│   │   │   ├── OcrPipeline.ts
+│   │   │   ├── DeviceOcr.ts
+│   │   │   └── types.ts
+│   │   ├── api/
+│   │   │   ├── supabase.ts
+│   │   │   ├── analyze.ts
+│   │   │   └── swaps.ts
+│   │   └── storage/
+│   │       └── images.ts
+│   ├── stores/
+│   │   ├── useUserStore.ts
+│   │   ├── useScanStore.ts
+│   │   └── useSettingsStore.ts
+│   ├── hooks/
+│   │   ├── useAnalyze.ts
+│   │   ├── useScans.ts
+│   │   ├── useSwaps.ts
+│   │   └── useAuth.ts
+│   ├── lib/
+│   │   ├── supabase.ts          # Supabase client init
+│   │   ├── queryClient.ts       # React Query setup
+│   │   └── utils.ts
+│   ├── constants/
+│   │   ├── colors.ts
+│   │   ├── typography.ts
+│   │   └── config.ts
+│   └── types/
+│       ├── database.ts          # Generated from Supabase
+│       ├── scan.ts
+│       └── product.ts
+├── assets/
+│   ├── images/
+│   └── fonts/
+├── supabase/
+│   ├── functions/
+│   │   ├── analyze-ingredients/
+│   │   └── get-swaps/
+│   ├── migrations/
+│   └── seed.sql
+├── app.json
+├── babel.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── package.json
+└── .env.local
 ```
 
-### Security Rules
+---
 
-```javascript
-// firestore.rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Users can only access their own data
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-
-      match /scans/{scanId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-    }
-
-    // Products are publicly readable
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if false; // Admin only via Cloud Functions
-    }
-
-    // Ingredients are publicly readable
-    match /ingredients/{ingredientId} {
-      allow read: if true;
-      allow write: if false;
-    }
-  }
-}
-```
-
-### Environment Variables
+## Environment Configuration
 
 ```bash
-# .env (Cloud Functions)
-OPENAI_API_KEY=sk-...
-GOOGLE_CLOUD_VISION_KEY=...
-REVENUECAT_WEBHOOK_SECRET=...
+# .env.local (mobile app)
+EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
 
-# Affiliate API Keys
-AMAZON_AFFILIATE_TAG=...
+# .env (Supabase Edge Functions)
+OPENAI_API_KEY=sk-...
+SUPABASE_URL=https://xxxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
+
+# Affiliate keys (Edge Functions)
+AMAZON_AFFILIATE_TAG=nontoxic-20
 THRIVE_AFFILIATE_ID=...
-IHERB_AFFILIATE_CODE=...
 ```
 
 ---
 
-## Performance Considerations
+## Performance & Cost Optimization
 
-### Image Optimization
-- Compress images client-side before upload (max 1024px width, 70% quality)
-- Cache processed results by image hash
-- Use Cloud Storage CDN for product images
+### Caching Strategy
 
-### Database Optimization
-- Denormalize swap suggestions for fast reads
-- Use Firestore offline persistence for scan history
-- Implement pagination for large lists
+```typescript
+// src/hooks/useAnalyze.ts
 
-### API Response Times
-- Target: < 3 seconds for full analysis
-- Cache common products (80% of scans are repeat products)
-- Use streaming responses for progressive UI updates
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-### Cost Optimization
-- GPT-4o Vision: ~$0.01-0.03 per scan
-- Implement daily scan limits for free tier
-- Cache aggressively to reduce API calls
+export function useAnalyze() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: analyzeImage,
+    onSuccess: (result) => {
+      // Cache by product name for quick lookups
+      if (result.productName) {
+        queryClient.setQueryData(
+          ['product', result.productName.toLowerCase()],
+          result
+        )
+      }
+    }
+  })
+}
+
+// Check cache before scanning
+export function useCachedProduct(barcode?: string) {
+  return useQuery({
+    queryKey: ['product', 'barcode', barcode],
+    queryFn: () => supabase
+      .from('products')
+      .select('*')
+      .eq('barcode', barcode)
+      .single(),
+    enabled: !!barcode,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+  })
+}
+```
+
+### Cost Projections
+
+| Daily Active Users | Scans/Day | Device OCR % | AI Calls | Est. Daily Cost |
+|-------------------|-----------|--------------|----------|-----------------|
+| 1,000 | 5,000 | 75% | 1,250 mini + 250 vision | ~$8 |
+| 10,000 | 50,000 | 75% | 12,500 mini + 2,500 vision | ~$80 |
+| 100,000 | 500,000 | 80% | 100k mini + 20k vision | ~$700 |
 
 ---
 
 ## Development Setup
 
-### Prerequisites
 ```bash
+# Prerequisites
 node >= 20.0.0
 npm >= 10.0.0
-expo-cli >= 6.0.0
-firebase-tools >= 13.0.0
-```
+Expo CLI (npx expo)
+Supabase CLI
 
-### Local Development
-```bash
-# Clone repository
+# Clone and install
 git clone https://github.com/[org]/non-toxic-living.git
 cd non-toxic-living
-
-# Install dependencies
 npm install
 
-# Start Expo development server
-npm run start
+# Set up environment
+cp .env.example .env.local
+# Add your Supabase credentials
 
-# Start Firebase emulators
-npm run emulators
+# Start Supabase locally
+npx supabase start
 
-# Run tests
-npm test
+# Run migrations
+npx supabase db push
+
+# Start Expo
+npx expo start
+
+# Run on device
+npx expo run:ios
+npx expo run:android
 ```
-
-### Project Structure
-```
-non-toxic-living/
-├── app/                    # Expo Router screens
-│   ├── (tabs)/
-│   │   ├── index.tsx      # Home/Dashboard
-│   │   ├── scan.tsx       # Scanner
-│   │   ├── search.tsx     # Search
-│   │   └── profile.tsx    # Profile
-│   ├── result/[id].tsx    # Scan result detail
-│   └── _layout.tsx        # Root layout
-├── src/
-│   ├── components/        # Reusable UI components
-│   ├── modules/           # Feature modules
-│   │   ├── scanner/
-│   │   ├── user/
-│   │   └── swaps/
-│   ├── hooks/             # Custom hooks
-│   ├── utils/             # Utilities
-│   └── constants/         # App constants
-├── functions/             # Cloud Functions
-│   ├── src/
-│   │   ├── analyze/
-│   │   ├── swaps/
-│   │   └── data/
-│   └── package.json
-├── assets/                # Images, fonts
-├── app.json              # Expo config
-├── firebase.json         # Firebase config
-└── package.json
-```
-
----
-
-## Testing Strategy
-
-### Unit Tests
-- Jest for business logic
-- Mock AI API responses
-- Test toxicity score calculations
-
-### Integration Tests
-- Test full scan flow with Firebase emulators
-- Verify Firestore read/write operations
-- Test authentication flows
-
-### E2E Tests
-- Detox for mobile E2E testing
-- Test camera permissions flow
-- Test purchase flow (sandbox)
 
 ---
 
 ## Deployment
 
 ### Mobile App
-1. Build with EAS Build: `eas build --platform all`
-2. Submit to App Store Connect and Google Play Console
-3. Staged rollout (10% → 50% → 100%)
+1. Configure EAS: `eas build:configure`
+2. Build: `eas build --platform all`
+3. Submit: `eas submit --platform all`
 
-### Backend
-1. Deploy functions: `firebase deploy --only functions`
-2. Deploy rules: `firebase deploy --only firestore:rules,storage:rules`
-3. Monitor via Firebase Console
+### Supabase
+1. Link project: `npx supabase link --project-ref xxxxx`
+2. Deploy functions: `npx supabase functions deploy`
+3. Push migrations: `npx supabase db push`
 
-### CI/CD
-- GitHub Actions for automated testing
-- EAS Build for automated mobile builds
-- Firebase Hosting for web admin dashboard (future)
+### CI/CD (GitHub Actions)
+
+```yaml
+name: Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+      - run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  build-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: eas build --platform all --non-interactive
+```
