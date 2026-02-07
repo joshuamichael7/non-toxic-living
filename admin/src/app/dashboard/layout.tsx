@@ -1,6 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
+import { SignOutButton } from '@/components/sign-out-button';
 
 export type AdminRole = 'owner' | 'manager';
 
@@ -16,8 +17,9 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  // Check admin role
-  const { data: profile } = await supabase
+  // Use service client to bypass RLS for admin role check
+  const serviceClient = await createServiceClient();
+  const { data: profile, error } = await serviceClient
     .from('profiles')
     .select('admin_role, display_name')
     .eq('id', user.id)
@@ -37,6 +39,10 @@ export default async function DashboardLayout({
             You don&apos;t have admin privileges. Contact the app owner to get access.
           </p>
           <p className="text-gray-400 text-xs mt-4">{user.email}</p>
+          {error && (
+            <p className="text-red-400 text-xs mt-2">Debug: {error.message}</p>
+          )}
+          <SignOutButton />
         </div>
       </div>
     );
