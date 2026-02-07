@@ -113,9 +113,10 @@ export default {
   'pipeline.cached': 'Cached',
 
   // Stats card
-  'stats.toxinsAvoided': 'Toxins Avoided',
-  'stats.thisWeek': 'This Week',
+  'stats.toxinsAvoided': 'Concerns',
+  'stats.thisWeek': 'Scans',
   'stats.dayStreak': 'Day Streak',
+  'stats.safeFound': 'Safe',
 
   // Recent scans
   'recentScans.noScans': 'No scans yet',

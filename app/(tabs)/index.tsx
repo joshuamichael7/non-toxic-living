@@ -144,11 +144,7 @@ export default function HomeScreen() {
 
         {/* Stats Row */}
         <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
-          <StatsCard
-            toxinsAvoided={12}
-            scansThisWeek={8}
-            streakDays={5}
-          />
+          <StatsCard />
         </View>
 
         {/* Category Pills - Glass style */}

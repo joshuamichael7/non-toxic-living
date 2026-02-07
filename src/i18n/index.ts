@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { getLocales } from 'expo-localization';
 
 import en from './locales/en';
 import es from './locales/es';
@@ -25,6 +24,7 @@ const resources = {
 // Detect device language, fall back to 'en'
 function getDeviceLanguage(): string {
   try {
+    const { getLocales } = require('expo-localization');
     const locales = getLocales();
     const deviceLang = locales[0]?.languageCode ?? 'en';
     return deviceLang in resources ? deviceLang : 'en';

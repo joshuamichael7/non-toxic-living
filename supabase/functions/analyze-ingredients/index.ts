@@ -323,19 +323,30 @@ CRITICAL RULES:
    - If you can't identify an ingredient, include it as-is
 4. NEVER assume what product it is based on partial information.
 
-Category classification:
-- "personal_care" = soap, shampoo, lotion, cosmetics, skincare, body wash
-- "cleaning" = household cleaners, dish soap, laundry detergent (NOT body soap)
-- "food" = edible products
-- "baby" = baby-specific products
+Category classification (be specific):
+- "soap" = body soap, hand soap, bar soap, body wash, liquid soap
+- "skincare" = lotions, moisturizers, sunscreen, serums, face wash
+- "haircare" = shampoo, conditioner, hair treatment
+- "oral_care" = toothpaste, mouthwash
+- "deodorant" = deodorant, antiperspirant
+- "personal_care" = other personal care not fitting above
+- "cleaning" = household cleaners, dish soap, surface spray
+- "laundry" = laundry detergent, fabric softener
+- "food" = edible products, meals, ingredients
+- "snack" = chips, crackers, bars, cookies
+- "beverage" = drinks, juice, soda
+- "condiment" = sauces, dressings, ketchup
+- "baby" = baby-specific products (non-food)
+- "baby_food" = baby food, formula
+- "cookware" = pans, pots, kitchen items
+- "storage" = food storage, containers
 - "household" = general home items
-- "cookware" = kitchen items
 
 Return JSON:
 {
   "productName": "exact name from label, or 'Unknown Product' if unreadable",
   "brand": "brand if visible, or 'Unknown'",
-  "category": "food|personal_care|household|baby|cookware|cleaning",
+  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|haircare|oral_care|deodorant|soap|cleaning|laundry|cookware|storage|supplement|baby|household",
   "language": "detected language",
   "ingredients": ["ingredient1", "ingredient2", ...],
   "readabilityNote": "any issues reading the label"
@@ -476,7 +487,7 @@ ${blocklist}
 {
   "productName": "product name in ${responseLang} (translate if needed)",
   "brand": "from input or 'Unknown'",
-  "category": "food|personal_care|household|baby|cookware|cleaning",
+  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|haircare|oral_care|deodorant|soap|cleaning|laundry|cookware|storage|supplement|baby|household",
   "score": 0-100 (higher = safer),
   "verdict": "safe|caution|toxic",
   "summary": "Brief analysis highlighting key concerns or positives",
@@ -637,6 +648,30 @@ function checkCacheFreshness(product: CachedProduct): boolean {
   return expiresAt > new Date()
 }
 
+// Category groups for fallback matching
+// When a product has a specific subcategory (e.g. "soap"), expand to related categories
+const CATEGORY_GROUPS: Record<string, string[]> = {
+  soap: ['soap', 'personal_care'],
+  skincare: ['skincare', 'personal_care'],
+  haircare: ['haircare', 'personal_care'],
+  oral_care: ['oral_care', 'personal_care'],
+  deodorant: ['deodorant', 'personal_care'],
+  personal_care: ['personal_care', 'soap', 'skincare', 'haircare', 'oral_care', 'deodorant'],
+  laundry: ['laundry', 'cleaning'],
+  cleaning: ['cleaning', 'laundry'],
+  beverage: ['beverage', 'food'],
+  snack: ['snack', 'food'],
+  condiment: ['condiment', 'food'],
+  dairy: ['dairy', 'food'],
+  baby_food: ['baby_food', 'baby', 'food'],
+  baby: ['baby', 'baby_food'],
+  food: ['food', 'snack', 'beverage', 'condiment', 'dairy'],
+}
+
+function getRelatedCategories(category: string): string[] {
+  return CATEGORY_GROUPS[category] || [category]
+}
+
 // Helper: Check if a swap matches a blocked product
 function isBlockedSwap(
   swap: { name: string; brand?: string },
@@ -691,10 +726,11 @@ async function getSwapRecommendations(
     }
 
     if (results.length === 0) {
+      const categories = getRelatedCategories(product.category || '')
       let query = supabase
         .from('swaps')
-        .select('id, name, brand, score, affiliate_url, why_better, available_stores')
-        .eq('category', product.category)
+        .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
+        .in('category', categories)
         .eq('is_active', true)
         .gte('score', 70)
         .order('score', { ascending: false })
@@ -710,8 +746,8 @@ async function getSwapRecommendations(
       if (store && (!data || data.length === 0)) {
         const { data: unfilteredData } = await supabase
           .from('swaps')
-          .select('id, name, brand, score, affiliate_url, why_better, available_stores')
-          .eq('category', product.category)
+          .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
+          .in('category', categories)
           .eq('is_active', true)
           .gte('score', 70)
           .order('score', { ascending: false })
@@ -719,6 +755,15 @@ async function getSwapRecommendations(
         results = unfilteredData || []
       } else {
         results = data || []
+      }
+
+      // Sort: prefer exact category match, then related
+      if (results.length > 0 && product.category) {
+        results.sort((a: any, b: any) => {
+          const aExact = a.category === product.category ? 0 : 1
+          const bExact = b.category === product.category ? 0 : 1
+          return aExact - bExact || b.score - a.score
+        })
       }
     }
 

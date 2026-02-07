@@ -1,6 +1,10 @@
+import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+
+import { useAuthStore } from '@/stores/useAuthStore';
+import { getUserScans } from '@/services/api/analyze';
 
 // Aerogel Design System Colors
 const colors = {
@@ -16,14 +20,23 @@ const colors = {
   cautionGlow: 'rgba(245, 158, 11, 0.15)',
 };
 
-interface StatsCardProps {
-  toxinsAvoided: number;
-  scansThisWeek: number;
-  streakDays: number;
-}
-
-export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCardProps) {
+export function StatsCard() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const [stats, setStats] = useState({ totalScans: 0, toxinsFound: 0, safeProducts: 0 });
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getUserScans(user.id, 50)
+      .then((scans) => {
+        const totalScans = scans.length;
+        const toxinsFound = scans.filter((s: any) => s.verdict === 'toxic' || s.verdict === 'caution').length;
+        const safeProducts = scans.filter((s: any) => s.verdict === 'safe').length;
+        setStats({ totalScans, toxinsFound, safeProducts });
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
   return (
     <View style={{
       backgroundColor: colors.glassSolid,
@@ -37,29 +50,7 @@ export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCar
       shadowRadius: 12,
     }}>
       <View style={{ flexDirection: 'row', gap: 16 }}>
-        {/* Toxins Avoided */}
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <View style={{
-            width: 48,
-            height: 48,
-            borderRadius: 16,
-            backgroundColor: colors.safeGlow,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 10,
-          }}>
-            <Ionicons name="shield-checkmark" size={24} color={colors.safe} />
-          </View>
-          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{toxinsAvoided}</Text>
-          <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
-            {t('stats.toxinsAvoided')}
-          </Text>
-        </View>
-
-        {/* Divider */}
-        <View style={{ width: 1, backgroundColor: colors.glassBorder, marginVertical: 8 }} />
-
-        {/* Scans This Week */}
+        {/* Total Scans */}
         <View style={{ flex: 1, alignItems: 'center' }}>
           <View style={{
             width: 48,
@@ -72,7 +63,7 @@ export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCar
           }}>
             <Ionicons name="scan" size={24} color={colors.oxygen} />
           </View>
-          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{scansThisWeek}</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{stats.totalScans}</Text>
           <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
             {t('stats.thisWeek')}
           </Text>
@@ -81,7 +72,7 @@ export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCar
         {/* Divider */}
         <View style={{ width: 1, backgroundColor: colors.glassBorder, marginVertical: 8 }} />
 
-        {/* Streak */}
+        {/* Toxins Found */}
         <View style={{ flex: 1, alignItems: 'center' }}>
           <View style={{
             width: 48,
@@ -92,11 +83,33 @@ export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCar
             justifyContent: 'center',
             marginBottom: 10,
           }}>
-            <Ionicons name="flame" size={24} color={colors.caution} />
+            <Ionicons name="warning" size={24} color={colors.caution} />
           </View>
-          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{streakDays}</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{stats.toxinsFound}</Text>
           <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
-            {t('stats.dayStreak')}
+            {t('stats.toxinsAvoided')}
+          </Text>
+        </View>
+
+        {/* Divider */}
+        <View style={{ width: 1, backgroundColor: colors.glassBorder, marginVertical: 8 }} />
+
+        {/* Safe Products */}
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            backgroundColor: colors.safeGlow,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            <Ionicons name="shield-checkmark" size={24} color={colors.safe} />
+          </View>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{stats.safeProducts}</Text>
+          <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
+            {t('stats.safeFound')}
           </Text>
         </View>
       </View>

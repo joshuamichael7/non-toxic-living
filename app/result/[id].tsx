@@ -298,8 +298,8 @@ export default function ResultScreen() {
                       shadowRadius: 8,
                     }}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink, flexShrink: 1 }} numberOfLines={2}>
                         {concern.ingredient}
                       </Text>
                       <View style={{
@@ -309,6 +309,7 @@ export default function ResultScreen() {
                         paddingHorizontal: 10,
                         borderWidth: 1,
                         borderColor: sConfig.borderColor,
+                        flexShrink: 0,
                       }}>
                         <Text style={{ fontSize: 11, fontWeight: '600', color: sConfig.color, textTransform: 'capitalize' }}>
                           {concern.severity}
@@ -329,7 +330,7 @@ export default function ResultScreen() {
             <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
               {t('result.positives')}
             </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <View style={{ gap: 8 }}>
               {result.positives.map((positive) => (
                 <View key={positive} style={{
                   backgroundColor: colors.safeLight,
@@ -341,8 +342,8 @@ export default function ResultScreen() {
                   borderWidth: 1,
                   borderColor: colors.safe,
                 }}>
-                  <Ionicons name="checkmark-circle" size={16} color={colors.safe} style={{ marginRight: 6 }} />
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.safe }}>{positive}</Text>
+                  <Ionicons name="checkmark-circle" size={16} color={colors.safe} style={{ marginRight: 6, flexShrink: 0 }} />
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.safe, flexShrink: 1 }}>{positive}</Text>
                 </View>
               ))}
             </View>
