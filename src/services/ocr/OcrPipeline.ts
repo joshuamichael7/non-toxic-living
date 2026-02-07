@@ -1,97 +1,101 @@
 import { performDeviceOcr } from './DeviceOcr';
-import type { OcrResult, OcrSource } from './types';
+import type { OcrResult, OcrSource, PipelineStep } from './types';
 
 // Confidence thresholds for routing decisions
-const HIGH_CONFIDENCE_THRESHOLD = 0.8;
-const LOW_CONFIDENCE_THRESHOLD = 0.5;
-const MIN_TEXT_LENGTH = 20;
-const MIN_PARTIAL_TEXT_LENGTH = 10;
+const HIGH_CONFIDENCE_THRESHOLD = 0.7;
+const LOW_CONFIDENCE_THRESHOLD = 0.3;
+const MIN_TEXT_LENGTH = 10;
+const MIN_PARTIAL_TEXT_LENGTH = 5;
 
 export interface ProcessImageResult {
   ocrResult: OcrResult;
   shouldSendImage: boolean;
   suggestedModel: 'gpt-4o-mini' | 'gpt-4o';
+  clientSteps: PipelineStep[];
 }
 
 /**
  * Hybrid OCR Pipeline
  *
  * 1. Try device OCR first (FREE)
- * 2. If high confidence text found, send text only to AI (CHEAP)
- * 3. If low/no confidence, send image to AI (EXPENSIVE)
+ * 2. If good text found, send text only to AI (CHEAP)
+ * 3. If low/no text, send image to server for cloud OCR fallback
  */
 export async function processImage(imageUri: string): Promise<ProcessImageResult> {
+  console.log('=== OCR Pipeline Start ===');
+
   // Step 1: Try device OCR first (FREE)
   const deviceResult = await performDeviceOcr(imageUri);
+  const clientSteps: PipelineStep[] = [...deviceResult.steps];
 
-  // High confidence + enough text = send text only (cheapest)
+  console.log('Pipeline decision:', {
+    textLength: deviceResult.text.length,
+    confidence: deviceResult.confidence,
+    bestScript: deviceResult.bestScript,
+  });
+
+  // High confidence + enough text = send text only (cheapest path)
   if (
-    deviceResult.confidence > HIGH_CONFIDENCE_THRESHOLD &&
-    deviceResult.text.length > MIN_TEXT_LENGTH
+    deviceResult.confidence >= HIGH_CONFIDENCE_THRESHOLD &&
+    deviceResult.text.length >= MIN_TEXT_LENGTH
   ) {
+    console.log('=== Pipeline: HIGH confidence → text only ===');
+    clientSteps.push({
+      name: 'Pipeline Decision',
+      status: 'success',
+      durationMs: 0,
+      detail: `High confidence (${deviceResult.confidence.toFixed(2)}) — sending text only`,
+    });
+
     return {
       ocrResult: { ...deviceResult, source: 'device' },
       shouldSendImage: false,
       suggestedModel: 'gpt-4o-mini',
+      clientSteps,
     };
   }
 
-  // Partial text found = send text to AI for cleanup (cheap)
+  // Partial text found = still send text only for AI cleanup
   if (
-    deviceResult.confidence > LOW_CONFIDENCE_THRESHOLD &&
-    deviceResult.text.length > MIN_PARTIAL_TEXT_LENGTH
+    deviceResult.confidence >= LOW_CONFIDENCE_THRESHOLD &&
+    deviceResult.text.length >= MIN_PARTIAL_TEXT_LENGTH
   ) {
+    console.log('=== Pipeline: PARTIAL confidence → text only (AI cleanup) ===');
+    clientSteps.push({
+      name: 'Pipeline Decision',
+      status: 'success',
+      durationMs: 0,
+      detail: `Partial confidence (${deviceResult.confidence.toFixed(2)}) — sending text for AI cleanup`,
+    });
+
     return {
       ocrResult: { ...deviceResult, source: 'ai-mini' },
       shouldSendImage: false,
       suggestedModel: 'gpt-4o-mini',
+      clientSteps,
     };
   }
 
-  // Poor/no text = need full vision API (expensive but necessary)
+  // No usable text — send image to server for cloud OCR fallback
+  // IMPORTANT: Still pass through any partial text (don't discard it)
+  console.log('=== Pipeline: LOW/NO confidence → sending image for server OCR ===');
+  clientSteps.push({
+    name: 'Pipeline Decision',
+    status: 'failed',
+    durationMs: 0,
+    detail: deviceResult.text.length > 0
+      ? `Low confidence (${deviceResult.confidence.toFixed(2)}, ${deviceResult.text.length} chars) — sending image + partial text`
+      : 'No text detected — sending image for cloud OCR',
+  });
+
   return {
-    ocrResult: { text: '', confidence: 0, source: 'ai-vision' },
+    ocrResult: {
+      text: deviceResult.text, // Preserve partial text — don't discard!
+      confidence: deviceResult.confidence,
+      source: 'ai-vision',
+    },
     shouldSendImage: true,
     suggestedModel: 'gpt-4o',
+    clientSteps,
   };
-}
-
-/**
- * Determine which AI model to use based on OCR result
- */
-export function selectModel(ocrSource: OcrSource): 'gpt-4o-mini' | 'gpt-4o' {
-  return ocrSource === 'ai-vision' ? 'gpt-4o' : 'gpt-4o-mini';
-}
-
-/**
- * Extract ingredients from OCR text
- * Looks for common patterns like "Ingredients:", "Contains:", etc.
- */
-export function extractIngredients(text: string): string[] {
-  // Find ingredients section
-  const patterns = [
-    /ingredients?:?\s*([\s\S]*?)(?=\n\n|nutrition|contains|allergen|$)/i,
-    /contains?:?\s*([\s\S]*?)(?=\n\n|nutrition|allergen|$)/i,
-  ];
-
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match && match[1]) {
-      return parseIngredientList(match[1]);
-    }
-  }
-
-  // If no clear section found, try to parse the whole text
-  return parseIngredientList(text);
-}
-
-/**
- * Parse a comma/semicolon separated ingredient list
- */
-function parseIngredientList(text: string): string[] {
-  return text
-    .split(/[,;.]/)
-    .map(i => i.trim().toLowerCase())
-    .filter(i => i.length > 2 && i.length < 50)
-    .filter(i => !i.match(/^\d+$/)); // Remove pure numbers
 }

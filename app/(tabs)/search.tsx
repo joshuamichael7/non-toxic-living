@@ -2,85 +2,135 @@ import { useState } from 'react';
 import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
-const POPULAR_SEARCHES = [
-  'Non-toxic sunscreen',
-  'Safe cookware',
-  'Clean shampoo',
-  'Organic snacks',
-  'PFAS-free products',
-  'Natural deodorant',
-];
-
-const CATEGORIES = [
-  { name: 'Food & Drinks', icon: 'nutrition-outline', color: '#10B981' },
-  { name: 'Personal Care', icon: 'body-outline', color: '#F59E0B' },
-  { name: 'Household', icon: 'home-outline', color: '#3B82F6' },
-  { name: 'Baby & Kids', icon: 'happy-outline', color: '#EC4899' },
-  { name: 'Cookware', icon: 'restaurant-outline', color: '#8B5CF6' },
-  { name: 'Cleaning', icon: 'sparkles-outline', color: '#06B6D4' },
-];
+// Aerogel Design System Colors
+const colors = {
+  canvas: '#E8E8E8',
+  glassSolid: '#F0F0F0',
+  glassBorder: 'rgba(255, 255, 255, 0.6)',
+  oxygen: '#0EA5E9',
+  oxygenGlow: 'rgba(14, 165, 233, 0.15)',
+  ink: '#1A1A1A',
+  inkSecondary: '#64748B',
+  inkMuted: '#94A3B8',
+};
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useTranslation();
+
+  const categories = [
+    { name: t('category.foodDrinks'), icon: 'nutrition-outline' as const },
+    { name: t('category.personalCare'), icon: 'body-outline' as const },
+    { name: t('category.household'), icon: 'home-outline' as const },
+    { name: t('category.babyKids'), icon: 'happy-outline' as const },
+    { name: t('category.cookware'), icon: 'restaurant-outline' as const },
+    { name: t('category.cleaning'), icon: 'sparkles-outline' as const },
+  ];
+
+  const popularSearches = [
+    t('search.nonToxicSunscreen'),
+    t('search.safeCookware'),
+    t('search.cleanShampoo'),
+    t('search.organicSnacks'),
+    t('search.pfasFree'),
+    t('search.naturalDeodorant'),
+  ];
 
   return (
-    <SafeAreaView className="flex-1 bg-stone-50" edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }} edges={['top']}>
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="px-6 pt-4 pb-2">
-          <Text className="text-2xl font-bold text-stone-900">Search</Text>
-          <Text className="text-stone-600 mt-1">
-            Find safe alternatives for any product
+        <View style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 }}>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: colors.ink }}>{t('search.title')}</Text>
+          <Text style={{ color: colors.inkSecondary, marginTop: 4, fontSize: 15 }}>
+            {t('search.subtitle')}
           </Text>
         </View>
 
         {/* Search Bar */}
-        <View className="px-6 py-4">
-          <View className="bg-white rounded-xl flex-row items-center px-4 shadow-sm border border-stone-200">
-            <Ionicons name="search" size={20} color="#A8A29E" />
+        <View style={{ paddingHorizontal: 24, paddingVertical: 16 }}>
+          <View style={{
+            backgroundColor: colors.glassSolid,
+            borderRadius: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+            borderWidth: 1,
+            borderColor: colors.glassBorder,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.04,
+            shadowRadius: 12,
+          }}>
+            <Ionicons name="search" size={20} color={colors.inkMuted} />
             <TextInput
-              className="flex-1 py-4 px-3 text-base text-stone-900"
-              placeholder="Search products or ingredients..."
-              placeholderTextColor="#A8A29E"
+              style={{
+                flex: 1,
+                paddingVertical: 16,
+                paddingHorizontal: 12,
+                fontSize: 16,
+                color: colors.ink,
+              }}
+              placeholder={t('search.placeholder')}
+              placeholderTextColor={colors.inkMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color="#A8A29E" />
+                <Ionicons name="close-circle" size={20} color={colors.inkMuted} />
               </Pressable>
             )}
           </View>
         </View>
 
         {/* Categories */}
-        <View className="px-6 mb-6">
-          <Text className="text-lg font-semibold text-stone-900 mb-3">
-            Browse Categories
+        <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+            {t('search.categories')}
           </Text>
-          <View className="flex-row flex-wrap gap-3">
-            {CATEGORIES.map((category) => (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {categories.map((category, index) => (
               <Pressable
                 key={category.name}
-                className="bg-white rounded-xl p-4 items-center shadow-sm border border-stone-100"
-                style={{ width: '30%' }}
+                style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 20,
+                  padding: 16,
+                  alignItems: 'center',
+                  width: '30%',
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.04,
+                  shadowRadius: 8,
+                }}
               >
                 <View
-                  className="w-12 h-12 rounded-full items-center justify-center mb-2"
-                  style={{ backgroundColor: `${category.color}20` }}
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 16,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 8,
+                    backgroundColor: index === 0 ? colors.oxygenGlow : colors.canvas,
+                  }}
                 >
                   <Ionicons
-                    name={category.icon as any}
+                    name={category.icon}
                     size={24}
-                    color={category.color}
+                    color={index === 0 ? colors.oxygen : colors.ink}
                   />
                 </View>
-                <Text className="text-xs font-medium text-stone-700 text-center">
+                <Text style={{ fontSize: 12, fontWeight: '600', color: colors.ink, textAlign: 'center' }}>
                   {category.name}
                 </Text>
               </Pressable>
@@ -89,18 +139,25 @@ export default function SearchScreen() {
         </View>
 
         {/* Popular Searches */}
-        <View className="px-6">
-          <Text className="text-lg font-semibold text-stone-900 mb-3">
-            Popular Searches
+        <View style={{ paddingHorizontal: 24 }}>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+            {t('search.popularSearches')}
           </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {POPULAR_SEARCHES.map((search) => (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            {popularSearches.map((search) => (
               <Pressable
                 key={search}
-                className="bg-white rounded-full px-4 py-2 border border-stone-200"
+                style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                }}
                 onPress={() => setSearchQuery(search)}
               >
-                <Text className="text-stone-700">{search}</Text>
+                <Text style={{ color: colors.ink, fontWeight: '500' }}>{search}</Text>
               </Pressable>
             ))}
           </View>

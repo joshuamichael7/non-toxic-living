@@ -1,3 +1,3 @@
-export { processImage, selectModel, extractIngredients } from './OcrPipeline';
+export { processImage } from './OcrPipeline';
 export { performDeviceOcr } from './DeviceOcr';
-export type { OcrResult, OcrSource, BoundingBox } from './types';
+export type { OcrResult, OcrSource, BoundingBox, PipelineStep, PipelineTrace } from './types';

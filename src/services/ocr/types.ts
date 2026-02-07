@@ -1,4 +1,4 @@
-export type OcrSource = 'device' | 'ai-mini' | 'ai-vision';
+export type OcrSource = 'device' | 'cloud' | 'ai-mini' | 'ai-vision';
 
 export interface BoundingBox {
   x: number;
@@ -18,4 +18,20 @@ export interface OcrBlock {
   text: string;
   confidence: number;
   frame: BoundingBox;
+}
+
+export interface PipelineStep {
+  name: string;
+  status: 'success' | 'skipped' | 'failed';
+  durationMs: number;
+  detail?: string;
+}
+
+export interface PipelineTrace {
+  steps: PipelineStep[];
+  extractedText: string;
+  totalDurationMs: number;
+  ocrSource: OcrSource;
+  analysisModel: string;
+  extractionModel?: string;
 }

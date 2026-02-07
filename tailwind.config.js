@@ -8,42 +8,56 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Background colors
-        stone: {
-          50: '#FAFAF9',
-          100: '#F5F5F4',
-          200: '#E7E5E4',
-          400: '#A8A29E',
-          600: '#57534E',
-          900: '#1C1917',
+        // Aerogel Design System
+        canvas: '#E8E8E8',
+        glass: {
+          DEFAULT: 'rgba(240, 240, 240, 0.65)',
+          solid: '#F0F0F0',
+          border: 'rgba(255, 255, 255, 0.6)',
         },
-        // Safety score colors
+        // Oxygen Blue (Primary)
+        oxygen: {
+          DEFAULT: '#0EA5E9',
+          deep: '#0284C7',
+          light: '#38BDF8',
+          glow: 'rgba(14, 165, 233, 0.3)',
+        },
+        // Text colors
+        ink: {
+          DEFAULT: '#1A1A1A',
+          secondary: '#64748B',
+          muted: '#94A3B8',
+        },
+        // Safety colors (clinical versions)
         safe: {
           DEFAULT: '#10B981',
-          light: '#D1FAE5',
+          light: 'rgba(16, 185, 129, 0.15)',
         },
         caution: {
           DEFAULT: '#F59E0B',
-          light: '#FEF3C7',
+          light: 'rgba(245, 158, 11, 0.15)',
         },
         toxic: {
-          DEFAULT: '#F43F5E',
-          light: '#FFE4E6',
-        },
-        // Primary accent
-        primary: {
-          DEFAULT: '#059669',
-          dark: '#047857',
+          DEFAULT: '#EF4444',
+          light: 'rgba(239, 68, 68, 0.15)',
         },
       },
       fontFamily: {
-        sans: ['Manrope', 'system-ui', 'sans-serif'],
+        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        mono: ['Space Mono', 'monospace'],
       },
       borderRadius: {
         'sm': '8px',
         'md': '12px',
-        'lg': '16px',
+        'lg': '20px',
         'xl': '24px',
+        '2xl': '32px',
+        'pill': '9999px',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px rgba(0, 0, 0, 0.03)',
+        'glow': '0 10px 30px -5px rgba(14, 165, 233, 0.3)',
+        'glow-lg': '0 15px 40px -5px rgba(14, 165, 233, 0.4)',
       },
     },
   },

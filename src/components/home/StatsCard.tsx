@@ -1,5 +1,20 @@
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+
+// Aerogel Design System Colors
+const colors = {
+  glassSolid: '#F0F0F0',
+  glassBorder: 'rgba(255, 255, 255, 0.6)',
+  oxygen: '#0EA5E9',
+  oxygenGlow: 'rgba(14, 165, 233, 0.15)',
+  ink: '#1A1A1A',
+  inkSecondary: '#64748B',
+  safe: '#10B981',
+  safeGlow: 'rgba(16, 185, 129, 0.15)',
+  caution: '#F59E0B',
+  cautionGlow: 'rgba(245, 158, 11, 0.15)',
+};
 
 interface StatsCardProps {
   toxinsAvoided: number;
@@ -8,35 +23,81 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ toxinsAvoided, scansThisWeek, streakDays }: StatsCardProps) {
+  const { t } = useTranslation();
   return (
-    <View className="bg-white rounded-2xl p-4 shadow-sm">
-      <View className="flex-row">
-        <View className="flex-1 items-center py-2">
-          <View className="w-12 h-12 bg-safe-light rounded-full items-center justify-center mb-2">
-            <Ionicons name="shield-checkmark" size={24} color="#10B981" />
+    <View style={{
+      backgroundColor: colors.glassSolid,
+      borderRadius: 24,
+      padding: 20,
+      borderWidth: 1,
+      borderColor: colors.glassBorder,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.04,
+      shadowRadius: 12,
+    }}>
+      <View style={{ flexDirection: 'row', gap: 16 }}>
+        {/* Toxins Avoided */}
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            backgroundColor: colors.safeGlow,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            <Ionicons name="shield-checkmark" size={24} color={colors.safe} />
           </View>
-          <Text className="text-2xl font-bold text-stone-900">{toxinsAvoided}</Text>
-          <Text className="text-stone-500 text-xs text-center">Toxins{'\n'}Avoided</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{toxinsAvoided}</Text>
+          <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
+            {t('stats.toxinsAvoided')}
+          </Text>
         </View>
 
-        <View className="w-px bg-stone-100" />
+        {/* Divider */}
+        <View style={{ width: 1, backgroundColor: colors.glassBorder, marginVertical: 8 }} />
 
-        <View className="flex-1 items-center py-2">
-          <View className="w-12 h-12 bg-primary/10 rounded-full items-center justify-center mb-2">
-            <Ionicons name="scan" size={24} color="#059669" />
+        {/* Scans This Week */}
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            backgroundColor: colors.oxygenGlow,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            <Ionicons name="scan" size={24} color={colors.oxygen} />
           </View>
-          <Text className="text-2xl font-bold text-stone-900">{scansThisWeek}</Text>
-          <Text className="text-stone-500 text-xs text-center">Scans{'\n'}This Week</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{scansThisWeek}</Text>
+          <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
+            {t('stats.thisWeek')}
+          </Text>
         </View>
 
-        <View className="w-px bg-stone-100" />
+        {/* Divider */}
+        <View style={{ width: 1, backgroundColor: colors.glassBorder, marginVertical: 8 }} />
 
-        <View className="flex-1 items-center py-2">
-          <View className="w-12 h-12 bg-caution-light rounded-full items-center justify-center mb-2">
-            <Ionicons name="flame" size={24} color="#F59E0B" />
+        {/* Streak */}
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 16,
+            backgroundColor: colors.cautionGlow,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 10,
+          }}>
+            <Ionicons name="flame" size={24} color={colors.caution} />
           </View>
-          <Text className="text-2xl font-bold text-stone-900">{streakDays}</Text>
-          <Text className="text-stone-500 text-xs text-center">Day{'\n'}Streak</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.ink }}>{streakDays}</Text>
+          <Text style={{ fontSize: 11, color: colors.inkSecondary, textAlign: 'center', marginTop: 2, fontWeight: '500' }}>
+            {t('stats.dayStreak')}
+          </Text>
         </View>
       </View>
     </View>

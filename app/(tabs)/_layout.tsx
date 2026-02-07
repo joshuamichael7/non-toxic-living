@@ -1,6 +1,18 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+
+// Aerogel Design System Colors
+const colors = {
+  canvas: '#E8E8E8',
+  glassSolid: '#F0F0F0',
+  glassBorder: 'rgba(255, 255, 255, 0.6)',
+  oxygen: '#0EA5E9',
+  oxygenGlow: 'rgba(14, 165, 233, 0.3)',
+  ink: '#1A1A1A',
+  inkMuted: '#94A3B8',
+};
 
 type TabIconProps = {
   name: keyof typeof Ionicons.glyphMap;
@@ -10,74 +22,86 @@ type TabIconProps = {
 
 function TabIcon({ name, color, focused }: TabIconProps) {
   return (
-    <View className={`items-center justify-center ${focused ? 'opacity-100' : 'opacity-60'}`}>
-      <Ionicons name={name} size={24} color={color} />
+    <View style={{
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 48,
+      height: 32,
+      borderRadius: 12,
+      backgroundColor: focused ? colors.oxygenGlow : 'transparent',
+    }}>
+      <Ionicons name={name} size={22} color={focused ? colors.oxygen : color} />
     </View>
   );
 }
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#059669',
-        tabBarInactiveTintColor: '#A8A29E',
+        tabBarActiveTintColor: colors.oxygen,
+        tabBarInactiveTintColor: colors.inkMuted,
         tabBarStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderTopWidth: 0,
+          backgroundColor: colors.glassSolid,
+          borderTopWidth: 1,
+          borderTopColor: colors.glassBorder,
           elevation: 0,
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
-          height: 85,
-          paddingTop: 10,
-          paddingBottom: 25,
+          shadowOpacity: 0.04,
+          shadowRadius: 12,
+          height: 88,
+          paddingTop: 12,
+          paddingBottom: 28,
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Manrope',
-          fontSize: 12,
-          fontWeight: '500',
+          fontSize: 11,
+          fontWeight: '600',
+          marginTop: 4,
+          letterSpacing: 0.2,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tab.home'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="home-outline" color={color} focused={focused} />
+            <TabIcon name={focused ? 'home' : 'home-outline'} color={color} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Scan',
+          title: t('tab.scan'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="scan-outline" color={color} focused={focused} />
+            <TabIcon name={focused ? 'scan' : 'scan-outline'} color={color} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Search',
+          title: t('tab.search'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="search-outline" color={color} focused={focused} />
+            <TabIcon name={focused ? 'search' : 'search-outline'} color={color} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tab.profile'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="person-outline" color={color} focused={focused} />
+            <TabIcon name={focused ? 'person' : 'person-outline'} color={color} focused={focused} />
           ),
         }}
       />
