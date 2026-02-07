@@ -45,8 +45,8 @@ const DEMO_RESULT = {
   ],
   positives: ['No trans fats', 'Gluten-free'],
   swaps: [
-    { id: '1', name: 'Lesser Evil Paleo Puffs', brand: 'Lesser Evil', score: 82, price_cents: 499 },
-    { id: '2', name: 'Hippeas Organic Chickpea Puffs', brand: 'Hippeas', score: 78, price_cents: 399 },
+    { id: '1', name: 'Lesser Evil Paleo Puffs', brand: 'Lesser Evil', score: 82 },
+    { id: '2', name: 'Hippeas Organic Chickpea Puffs', brand: 'Hippeas', score: 78 },
   ],
   ocrSource: 'device' as const,
   model: 'gpt-4o-mini',

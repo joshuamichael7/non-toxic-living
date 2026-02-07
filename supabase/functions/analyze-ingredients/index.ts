@@ -208,7 +208,7 @@ Deno.serve(async (req) => {
             dadsTake: cachedProduct.dads_take,
             concerns: cachedProduct.analysis?.concerns || [],
             positives: cachedProduct.analysis?.positives || [],
-            swaps: await getSwapRecommendations(supabase, cachedProduct, store),
+            swaps: await getSwapRecommendations(supabase, cachedProduct, store, blockedProducts || []),
             ocrSource,
             model: 'cached',
             cached: true,
@@ -580,10 +580,10 @@ ${ingredientText}`
     }
 
     // =========================================================================
-    // STEP 7: Get swap recommendations
+    // STEP 7: Get swap recommendations (filtered against blocklist)
     // =========================================================================
     const swaps = analysis.score < 67
-      ? await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store)
+      ? await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
       : []
 
     const totalDuration = Date.now() - requestStart
@@ -637,65 +637,102 @@ function checkCacheFreshness(product: CachedProduct): boolean {
   return expiresAt > new Date()
 }
 
+// Helper: Check if a swap matches a blocked product
+function isBlockedSwap(
+  swap: { name: string; brand?: string },
+  blockedProducts: Array<{ name: string; brand: string | null; reason: string }>
+): boolean {
+  const swapName = swap.name.toLowerCase()
+  const swapBrand = (swap.brand || '').toLowerCase()
+  return blockedProducts.some(blocked => {
+    const blockedName = blocked.name.toLowerCase()
+    const blockedBrand = (blocked.brand || '').toLowerCase()
+    // Match by name (substring match in either direction)
+    const nameMatch = swapName.includes(blockedName) || blockedName.includes(swapName)
+    // If blocked has a brand, also check brand
+    if (blockedBrand && nameMatch) return true
+    if (blockedBrand && swapBrand.includes(blockedBrand) && nameMatch) return true
+    if (!blockedBrand && nameMatch) return true
+    return false
+  })
+}
+
 // Helper: Get swap recommendations
 async function getSwapRecommendations(
   supabase: any,
   product: { category?: string; score?: number; embedding?: number[] | null },
-  store?: string
+  store?: string,
+  blockedProducts: Array<{ name: string; brand: string | null; reason: string }> = []
 ): Promise<any[]> {
   try {
+    let results: any[] = []
+
     if (product.embedding) {
       const { data, error } = await supabase.rpc('get_swap_recommendations', {
         product_category: product.category,
         product_embedding: product.embedding,
         min_score: 70,
-        match_count: 5,
+        match_count: 10, // Fetch extra to account for blocked items being filtered out
         filter_store: store || null,
       })
-      if (!error && data?.length > 0) return data
+      if (!error && data?.length > 0) results = data
 
       // If store filter returned no results, try without store filter
-      if (!error && store && (!data || data.length === 0)) {
+      if (!error && store && results.length === 0) {
         const { data: unfilteredData } = await supabase.rpc('get_swap_recommendations', {
           product_category: product.category,
           product_embedding: product.embedding,
           min_score: 70,
-          match_count: 5,
+          match_count: 10,
           filter_store: null,
         })
-        if (unfilteredData?.length > 0) return unfilteredData
+        if (unfilteredData?.length > 0) results = unfilteredData
       }
     }
 
-    let query = supabase
-      .from('swaps')
-      .select('id, name, brand, score, price_cents, affiliate_url, why_better, available_stores')
-      .eq('category', product.category)
-      .eq('is_active', true)
-      .gte('score', 70)
-      .order('score', { ascending: false })
-      .limit(5)
-
-    if (store) {
-      query = query.contains('available_stores', [store])
-    }
-
-    const { data } = await query
-
-    // If store filter returned no results, fall back to unfiltered
-    if (store && (!data || data.length === 0)) {
-      const { data: unfilteredData } = await supabase
+    if (results.length === 0) {
+      let query = supabase
         .from('swaps')
-        .select('id, name, brand, score, price_cents, affiliate_url, why_better, available_stores')
+        .select('id, name, brand, score, affiliate_url, why_better, available_stores')
         .eq('category', product.category)
         .eq('is_active', true)
         .gte('score', 70)
         .order('score', { ascending: false })
-        .limit(5)
-      return unfilteredData || []
+        .limit(10)
+
+      if (store) {
+        query = query.contains('available_stores', [store])
+      }
+
+      const { data } = await query
+
+      // If store filter returned no results, fall back to unfiltered
+      if (store && (!data || data.length === 0)) {
+        const { data: unfilteredData } = await supabase
+          .from('swaps')
+          .select('id, name, brand, score, affiliate_url, why_better, available_stores')
+          .eq('category', product.category)
+          .eq('is_active', true)
+          .gte('score', 70)
+          .order('score', { ascending: false })
+          .limit(10)
+        results = unfilteredData || []
+      } else {
+        results = data || []
+      }
     }
 
-    return data || []
+    // Post-process: filter out blocked products
+    if (blockedProducts.length > 0) {
+      const beforeCount = results.length
+      results = results.filter(swap => !isBlockedSwap(swap, blockedProducts))
+      if (results.length < beforeCount) {
+        console.log(`Blocklist filtered ${beforeCount - results.length} swap(s) from recommendations`)
+      }
+    }
+
+    // Return top 5 after filtering
+    return results.slice(0, 5)
   } catch (err) {
     console.warn('Failed to get swaps:', err)
     return []

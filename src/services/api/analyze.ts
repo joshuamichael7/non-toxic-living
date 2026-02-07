@@ -18,7 +18,6 @@ export interface Swap {
   name: string;
   brand: string;
   score: number;
-  price_cents?: number;
   image_url?: string;
   affiliate_url?: string;
   badges?: string[];

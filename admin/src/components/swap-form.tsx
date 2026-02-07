@@ -408,14 +408,14 @@ export function SwapForm({ initialData, isEditing }: Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Price (cents)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Reference Price (cents, optional)</label>
             <input
               type="number"
               min={0}
               value={form.price_cents ?? ''}
               onChange={(e) => update('price_cents', e.target.value ? parseInt(e.target.value) : null)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-              placeholder="e.g. 1299 ($12.99)"
+              placeholder="e.g. 1299 ($12.99) — not shown to users"
             />
           </div>
         </div>
