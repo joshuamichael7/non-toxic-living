@@ -115,6 +115,7 @@ export function IngredientsTable({ ingredients, totalPages, currentPage, search,
               <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Toxicity</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Concerns</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Sources</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -182,6 +183,14 @@ export function IngredientsTable({ ingredients, totalPages, currentPage, search,
                 </td>
                 <td className="px-4 py-3">
                   <span className="text-xs text-gray-400">{ing.sources.length} sources</span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <a
+                    href={`/dashboard/ingredients/${ing.id}`}
+                    className="text-sky-600 hover:text-sky-800 text-xs font-medium"
+                  >
+                    Edit
+                  </a>
                 </td>
               </tr>
             ))}

@@ -139,6 +139,14 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // Fetch blocked products list
+    const { data: blockedProducts } = await supabase
+      .from('blocked_products')
+      .select('name, brand, reason')
+    const blocklist = (blockedProducts || [])
+      .map(p => `- ${p.name}${p.brand ? ` (${p.brand})` : ''}: ${p.reason}`)
+      .join('\n')
+
     const body = await req.json() as AnalyzeRequest
     const { text, imageBase64, ocrSource, ocrConfidence = 0.8, barcode, userId, forceRefresh, clientSteps, language = 'en', store } = body
     const responseLang = LANGUAGE_NAMES[language] || 'English'
@@ -461,7 +469,10 @@ THE "dadsTake" FIELD: Write this as a dad talking to another parent — direct, 
 - "This is actually solid. Straightforward ingredients, nothing hidden. I'd feel good about my family using this daily."
 - "It's marketed as 'natural' but those PEGs and synthetic colors tell a different story. Fine for occasional use, but I'd swap it out for something cleaner for everyday."
 
-Return JSON:
+${blocklist ? `BLOCKED PRODUCTS — NEVER recommend these as alternatives, they have been flagged as unsafe or misleading:
+${blocklist}
+
+` : ''}Return JSON:
 {
   "productName": "product name in ${responseLang} (translate if needed)",
   "brand": "from input or 'Unknown'",

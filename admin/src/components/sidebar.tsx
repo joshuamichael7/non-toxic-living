@@ -33,6 +33,12 @@ const navItems: NavItem[] = [
     roles: ['owner', 'manager'],
   },
   {
+    href: '/dashboard/blocked',
+    label: 'Blocked Products',
+    icon: 'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636',
+    roles: ['owner', 'manager'],
+  },
+  {
     href: '/dashboard/users',
     label: 'Users',
     icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z',
