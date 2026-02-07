@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': 'التسوق في {{store}}',
   'store.clear': 'مسح',
 
+  // Scan - No label option
+  'scan.noLabel': 'لا توجد ملصق؟ صِفه',
+
+  // Describe screen
+  'describe.title': 'وصف المنتج',
+  'describe.productType': 'ما نوع المنتج؟',
+  'describe.brand': 'العلامة التجارية (اختياري)',
+  'describe.brandPlaceholder': 'مثال: IKEA, Pottery Barn...',
+  'describe.productName': 'اسم المنتج (اختياري)',
+  'describe.productNamePlaceholder': 'مثال: رف KALLAX، مرتبة فوم الذاكرة...',
+  'describe.materials': 'ماذا تعرف عن هذا المنتج؟',
+  'describe.materialsPlaceholder': 'مثال: بوليستر، فوم الذاكرة، بلاستيك خالٍ من BPA، فولاذ مقاوم للصدأ، خشب معالج...',
+  'describe.addPhoto': 'إضافة صورة (اختياري)',
+  'describe.removePhoto': 'إزالة',
+  'describe.analyze': 'تحليل المنتج',
+  'describe.selectType': 'الرجاء تحديد نوع المنتج',
+  'describe.type.furniture': 'أثاث',
+  'describe.type.mattress': 'مراتب ومفروشات',
+  'describe.type.clothing': 'ملابس ومنسوجات',
+  'describe.type.cookware': 'أدوات الطبخ',
+  'describe.type.toys': 'ألعاب',
+  'describe.type.fragrance': 'شموع ومعطرات',
+  'describe.type.paint': 'دهانات وصبغات',
+  'describe.type.garden': 'حديقة وفناء',
+  'describe.type.pet': 'منتجات الحيوانات الأليفة',
+  'describe.type.storage': 'تخزين الطعام',
+  'describe.type.household': 'منتجات منزلية أخرى',
+
+  // Pipeline debug - manual
+  'pipeline.manual': 'وصف يدوي',
+
   // Common
   'common.cancel': 'إلغاء',
   'common.save': 'حفظ',

@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': '{{store}}でお買い物中',
   'store.clear': 'クリア',
 
+  // Scan - No label option
+  'scan.noLabel': 'ラベルがありませんか？説明してください',
+
+  // Describe screen
+  'describe.title': '製品を説明',
+  'describe.productType': 'どんな種類の製品ですか？',
+  'describe.brand': 'ブランド（任意）',
+  'describe.brandPlaceholder': '例：IKEA, Pottery Barn...',
+  'describe.productName': '製品名（任意）',
+  'describe.productNamePlaceholder': '例：KALLAX 棚、メモリーフォームマットレス...',
+  'describe.materials': 'この製品について何を知っていますか？',
+  'describe.materialsPlaceholder': '例：ポリエステル、メモリーフォーム、BPAフリープラスチック、ステンレス鋼、処理木材...',
+  'describe.addPhoto': '写真を追加（任意）',
+  'describe.removePhoto': '削除',
+  'describe.analyze': '製品を分析',
+  'describe.selectType': '製品タイプを選択してください',
+  'describe.type.furniture': '家具',
+  'describe.type.mattress': 'マットレス・寝具',
+  'describe.type.clothing': '衣類・繊維製品',
+  'describe.type.cookware': '調理器具',
+  'describe.type.toys': 'おもちゃ',
+  'describe.type.fragrance': 'キャンドル・芳香剤',
+  'describe.type.paint': '塗料・染料',
+  'describe.type.garden': '庭園・屋外',
+  'describe.type.pet': 'ペット用品',
+  'describe.type.storage': '食品保存容器',
+  'describe.type.household': 'その他家庭用品',
+
+  // Pipeline debug - manual
+  'pipeline.manual': '手動説明',
+
   // Common
   'common.cancel': 'キャンセル',
   'common.save': '保存',

@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': '正在{{store}}购物',
   'store.clear': '清除',
 
+  // Scan - No label option
+  'scan.noLabel': '没有标签？描述一下',
+
+  // Describe screen
+  'describe.title': '描述产品',
+  'describe.productType': '什么类型的产品？',
+  'describe.brand': '品牌（可选）',
+  'describe.brandPlaceholder': '例如：IKEA, Pottery Barn...',
+  'describe.productName': '产品名称（可选）',
+  'describe.productNamePlaceholder': '例如：KALLAX架子, 记忆海绵床垫...',
+  'describe.materials': '您对这个产品了解什么？',
+  'describe.materialsPlaceholder': '例如：聚酯纤维, 记忆海绵, 无BPA塑料, 不锈钢, 处理木材...',
+  'describe.addPhoto': '添加照片（可选）',
+  'describe.removePhoto': '移除',
+  'describe.analyze': '分析产品',
+  'describe.selectType': '请选择产品类型',
+  'describe.type.furniture': '家具',
+  'describe.type.mattress': '床垫和床上用品',
+  'describe.type.clothing': '服装和纺织品',
+  'describe.type.cookware': '厨具',
+  'describe.type.toys': '玩具',
+  'describe.type.fragrance': '蜡烛和空气清新剂',
+  'describe.type.paint': '油漆和涂料',
+  'describe.type.garden': '花园和庭院',
+  'describe.type.pet': '宠物产品',
+  'describe.type.storage': '食品储存',
+  'describe.type.household': '其他家居用品',
+
+  // Pipeline debug - manual
+  'pipeline.manual': '手动描述',
+
   // Common
   'common.cancel': '取消',
   'common.save': '保存',

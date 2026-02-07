@@ -6,8 +6,13 @@ import { createClient } from '@/lib/supabase/client';
 
 const CATEGORIES = [
   'food', 'beverage', 'snack', 'condiment', 'dairy', 'baby_food',
-  'personal_care', 'skincare', 'haircare', 'oral_care', 'deodorant',
-  'cleaning', 'laundry', 'cookware', 'storage', 'supplement', 'other',
+  'personal_care', 'skincare', 'sunscreen', 'haircare', 'oral_care', 'deodorant', 'soap',
+  'makeup', 'nail_care',
+  'cleaning', 'laundry', 'fragrance',
+  'cookware', 'storage', 'supplement',
+  'baby', 'toys',
+  'household', 'furniture', 'mattress', 'paint', 'garden',
+  'pet', 'clothing', 'other',
 ];
 
 const AFFILIATE_SOURCES = ['amazon', 'thrive', 'iherb', 'direct', 'other'] as const;

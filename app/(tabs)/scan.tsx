@@ -268,6 +268,17 @@ export default function ScanScreen() {
           </Text>
         </Pressable>
 
+        {/* No-label option */}
+        <Pressable
+          onPress={() => router.push('/describe')}
+          style={{ marginTop: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Ionicons name="document-text-outline" size={18} color={colors.inkSecondary} style={{ marginRight: 6 }} />
+          <Text style={{ color: colors.inkSecondary, fontWeight: '600', fontSize: 15 }}>
+            {t('scan.noLabel')}
+          </Text>
+        </Pressable>
+
         {/* Tip */}
         <Text style={{
           fontSize: 13,

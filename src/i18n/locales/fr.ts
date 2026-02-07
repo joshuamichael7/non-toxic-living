@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': 'Achats chez {{store}}',
   'store.clear': 'Effacer',
 
+  // Scan - No label option
+  'scan.noLabel': 'Pas d\'étiquette ? Décrivez-le',
+
+  // Describe screen
+  'describe.title': 'Décrire le produit',
+  'describe.productType': 'Quel type de produit ?',
+  'describe.brand': 'Marque (facultatif)',
+  'describe.brandPlaceholder': 'ex., IKEA, Pottery Barn...',
+  'describe.productName': 'Nom du produit (facultatif)',
+  'describe.productNamePlaceholder': 'ex., étagère KALLAX, matelas à mémoire de forme...',
+  'describe.materials': 'Que savez-vous sur ce produit ?',
+  'describe.materialsPlaceholder': 'ex., polyester, mousse à mémoire de forme, plastique sans BPA, acier inoxydable, bois traité...',
+  'describe.addPhoto': 'Ajouter une photo (facultatif)',
+  'describe.removePhoto': 'Supprimer',
+  'describe.analyze': 'Analyser le produit',
+  'describe.selectType': 'Veuillez sélectionner un type de produit',
+  'describe.type.furniture': 'Meubles',
+  'describe.type.mattress': 'Matelas et literie',
+  'describe.type.clothing': 'Vêtements et textiles',
+  'describe.type.cookware': 'Ustensiles de cuisine',
+  'describe.type.toys': 'Jouets',
+  'describe.type.fragrance': 'Bougies et parfums d\'ambiance',
+  'describe.type.paint': 'Peinture et teinture',
+  'describe.type.garden': 'Jardin et extérieur',
+  'describe.type.pet': 'Produits pour animaux',
+  'describe.type.storage': 'Rangement alimentaire',
+  'describe.type.household': 'Autres articles ménagers',
+
+  // Pipeline debug - manual
+  'pipeline.manual': 'Description manuelle',
+
   // Common
   'common.cancel': 'Annuler',
   'common.save': 'Enregistrer',

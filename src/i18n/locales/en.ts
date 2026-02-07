@@ -157,6 +157,37 @@ export default {
   'store.shoppingAt': 'Shopping at {{store}}',
   'store.clear': 'Clear',
 
+  // Scan - No label option
+  'scan.noLabel': 'No label? Describe it',
+
+  // Describe screen
+  'describe.title': 'Describe Product',
+  'describe.productType': 'What type of product?',
+  'describe.brand': 'Brand (optional)',
+  'describe.brandPlaceholder': 'e.g., IKEA, Pottery Barn...',
+  'describe.productName': 'Product name (optional)',
+  'describe.productNamePlaceholder': 'e.g., KALLAX shelf, Memory foam mattress...',
+  'describe.materials': 'What do you know about this product?',
+  'describe.materialsPlaceholder': 'e.g., polyester, memory foam, BPA-free plastic, stainless steel, treated wood...',
+  'describe.addPhoto': 'Add photo (optional)',
+  'describe.removePhoto': 'Remove',
+  'describe.analyze': 'Analyze Product',
+  'describe.selectType': 'Please select a product type',
+  'describe.type.furniture': 'Furniture',
+  'describe.type.mattress': 'Mattress & Bedding',
+  'describe.type.clothing': 'Clothing & Textiles',
+  'describe.type.cookware': 'Cookware',
+  'describe.type.toys': 'Toys',
+  'describe.type.fragrance': 'Candles & Air',
+  'describe.type.paint': 'Paint & Stain',
+  'describe.type.garden': 'Garden & Yard',
+  'describe.type.pet': 'Pet Products',
+  'describe.type.storage': 'Food Storage',
+  'describe.type.household': 'Other Household',
+
+  // Pipeline debug - manual
+  'pipeline.manual': 'Manual Description',
+
   // Common
   'common.cancel': 'Cancel',
   'common.save': 'Save',

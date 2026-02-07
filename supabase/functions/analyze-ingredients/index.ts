@@ -80,7 +80,7 @@ const CACHE_TTL_DAYS = {
 interface AnalyzeRequest {
   text?: string
   imageBase64?: string
-  ocrSource: 'device' | 'cloud' | 'ai-mini' | 'ai-vision'
+  ocrSource: 'device' | 'cloud' | 'ai-mini' | 'ai-vision' | 'manual'
   ocrConfidence?: number
   barcode?: string
   userId?: string
@@ -249,9 +249,21 @@ Deno.serve(async (req) => {
     let ingredientText = text || ''
     let actualOcrSource = ocrSource
     let extractionModel: string | null = null
+    const isManualInput = ocrSource === 'manual'
 
-    // Log what the client sent
-    if (ingredientText) {
+    // For manual input, skip all OCR and use the text directly
+    if (isManualInput) {
+      pipelineSteps.push({
+        name: 'Manual Input',
+        status: ingredientText ? 'success' : 'failed',
+        durationMs: 0,
+        detail: ingredientText
+          ? `User-described product (${ingredientText.length} chars)`
+          : 'No product description provided',
+      })
+      console.log('Manual input:', ingredientText.substring(0, 200))
+    } else if (ingredientText) {
+      // Log what the client sent
       pipelineSteps.push({
         name: 'Client OCR Text',
         status: 'success',
@@ -261,8 +273,8 @@ Deno.serve(async (req) => {
       console.log('Using client-provided text:', ingredientText.substring(0, 200))
     }
 
-    // If device OCR failed or returned no text, try Google Cloud Vision
-    if (!ingredientText && imageBase64) {
+    // If device OCR failed or returned no text, try Google Cloud Vision (skip for manual input)
+    if (!isManualInput && !ingredientText && imageBase64) {
       console.log('No text from device — trying Google Cloud Vision...')
       const gcvStart = Date.now()
       const visionResult = await extractTextWithGoogleVision(imageBase64)
@@ -325,28 +337,41 @@ CRITICAL RULES:
 
 Category classification (be specific):
 - "soap" = body soap, hand soap, bar soap, body wash, liquid soap
-- "skincare" = lotions, moisturizers, sunscreen, serums, face wash
+- "skincare" = lotions, moisturizers, serums, face wash, face cream
+- "sunscreen" = sunscreen, sunblock, SPF products, UV protection
 - "haircare" = shampoo, conditioner, hair treatment
 - "oral_care" = toothpaste, mouthwash
 - "deodorant" = deodorant, antiperspirant
-- "personal_care" = other personal care not fitting above
+- "makeup" = foundation, lipstick, mascara, eyeshadow, blush, concealer, color cosmetics
+- "nail_care" = nail polish, nail polish remover, cuticle treatments
+- "personal_care" = other personal care not fitting above subcategories
 - "cleaning" = household cleaners, dish soap, surface spray
 - "laundry" = laundry detergent, fabric softener
+- "fragrance" = candles, air fresheners, room sprays, reed diffusers, perfume, cologne, incense
 - "food" = edible products, meals, ingredients
 - "snack" = chips, crackers, bars, cookies
 - "beverage" = drinks, juice, soda
 - "condiment" = sauces, dressings, ketchup
+- "dairy" = milk, cheese, yogurt, butter
+- "supplement" = vitamins, dietary supplements, protein powder
 - "baby" = baby-specific products (non-food)
 - "baby_food" = baby food, formula
+- "toys" = children's toys, play items, craft supplies
 - "cookware" = pans, pots, kitchen items
 - "storage" = food storage, containers
-- "household" = general home items
+- "pet" = pet food, pet treats, pet shampoo, pet care products
+- "clothing" = clothing, textiles, fabric items, shoes
+- "furniture" = furniture, wood treatment, upholstery
+- "mattress" = mattresses, bedding, pillows, mattress toppers
+- "paint" = paint, stain, varnish, sealant, adhesive
+- "garden" = pesticides, herbicides, fertilizers, garden chemicals, insect repellent
+- "household" = general home items not fitting above
 
 Return JSON:
 {
   "productName": "exact name from label, or 'Unknown Product' if unreadable",
   "brand": "brand if visible, or 'Unknown'",
-  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|haircare|oral_care|deodorant|soap|cleaning|laundry|cookware|storage|supplement|baby|household",
+  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|sunscreen|haircare|oral_care|deodorant|soap|makeup|nail_care|cleaning|laundry|fragrance|cookware|storage|supplement|baby|toys|household|furniture|mattress|paint|garden|pet|clothing",
   "language": "detected language",
   "ingredients": ["ingredient1", "ingredient2", ...],
   "readabilityNote": "any issues reading the label"
@@ -452,7 +477,14 @@ PRIORITY: Extract as many ingredients as possible, even if you can't identify th
       messages: [
         {
           role: 'system',
-          content: `You are an ingredient safety analyst aligned with the Non-Toxic Dad methodology — an approach developed by an environmental scientist who specializes in identifying heavy metals, endocrine disruptors, and hidden industrial chemicals in everyday products.
+          content: `${isManualInput ? `IMPORTANT: The user has described a product WITHOUT an ingredient label. They provided the product type and any known materials/composition. You should:
+1. Analyze based on TYPICAL materials, chemicals, and treatments commonly found in this type of product.
+2. Flag common hidden toxins for this product category (e.g., flame retardants in furniture/mattresses, PFAS in cookware/textiles, VOCs in paint, lead in toys, formaldehyde in pressed wood).
+3. If specific materials are mentioned, evaluate those directly. If not, list the most common concerns for the product type.
+4. Be clear about what is KNOWN (user-stated) vs what is TYPICAL/ASSUMED for the product category.
+5. Score conservatively — without a full ingredient list, lean toward caution rather than assuming safety.
+
+` : ''}You are an ingredient safety analyst aligned with the Non-Toxic Dad methodology — an approach developed by an environmental scientist who specializes in identifying heavy metals, endocrine disruptors, and hidden industrial chemicals in everyday products.
 
 ANALYSIS PRINCIPLES:
 1. FOCUS ON INGREDIENTS, not product name. If product name is unknown, infer product TYPE from ingredients (soap, shampoo, lotion, food, etc.)
@@ -487,7 +519,7 @@ ${blocklist}
 {
   "productName": "product name in ${responseLang} (translate if needed)",
   "brand": "from input or 'Unknown'",
-  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|haircare|oral_care|deodorant|soap|cleaning|laundry|cookware|storage|supplement|baby|household",
+  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|sunscreen|haircare|oral_care|deodorant|soap|makeup|nail_care|cleaning|laundry|fragrance|cookware|storage|supplement|baby|toys|household|furniture|mattress|paint|garden|pet|clothing",
   "score": 0-100 (higher = safer),
   "verdict": "safe|caution|toxic",
   "summary": "Brief analysis highlighting key concerns or positives",
@@ -498,7 +530,11 @@ ${blocklist}
         },
         {
           role: 'user',
-          content: `${productContext.length > 0 ? productContext.join('\n') + '\n\n' : ''}Analyze these ingredients:
+          content: isManualInput
+            ? `${productContext.length > 0 ? productContext.join('\n') + '\n\n' : ''}The user has described the following product (no ingredient label available):
+
+${ingredientText}`
+            : `${productContext.length > 0 ? productContext.join('\n') + '\n\n' : ''}Analyze these ingredients:
 
 ${ingredientText}`
         }
@@ -537,7 +573,8 @@ ${ingredientText}`
     // =========================================================================
     // STEP 5: Cache the product
     // =========================================================================
-    const cacheTtl = ocrConfidence > 0.8 ? CACHE_TTL_DAYS.high :
+    const cacheTtl = isManualInput ? CACHE_TTL_DAYS.low :
+                     ocrConfidence > 0.8 ? CACHE_TTL_DAYS.high :
                      ocrConfidence > 0.5 ? CACHE_TTL_DAYS.medium :
                      CACHE_TTL_DAYS.low
 
@@ -651,21 +688,39 @@ function checkCacheFreshness(product: CachedProduct): boolean {
 // Category groups for fallback matching
 // When a product has a specific subcategory (e.g. "soap"), expand to related categories
 const CATEGORY_GROUPS: Record<string, string[]> = {
+  // Personal care subcategories
   soap: ['soap', 'personal_care'],
-  skincare: ['skincare', 'personal_care'],
+  skincare: ['skincare', 'personal_care', 'sunscreen'],
+  sunscreen: ['sunscreen', 'skincare', 'personal_care'],
   haircare: ['haircare', 'personal_care'],
   oral_care: ['oral_care', 'personal_care'],
   deodorant: ['deodorant', 'personal_care'],
-  personal_care: ['personal_care', 'soap', 'skincare', 'haircare', 'oral_care', 'deodorant'],
+  makeup: ['makeup', 'personal_care', 'skincare'],
+  nail_care: ['nail_care', 'personal_care'],
+  personal_care: ['personal_care', 'soap', 'skincare', 'sunscreen', 'haircare', 'oral_care', 'deodorant', 'makeup', 'nail_care'],
+  // Cleaning subcategories
   laundry: ['laundry', 'cleaning'],
   cleaning: ['cleaning', 'laundry'],
+  fragrance: ['fragrance', 'household'],
+  // Food subcategories
   beverage: ['beverage', 'food'],
   snack: ['snack', 'food'],
   condiment: ['condiment', 'food'],
   dairy: ['dairy', 'food'],
-  baby_food: ['baby_food', 'baby', 'food'],
-  baby: ['baby', 'baby_food'],
   food: ['food', 'snack', 'beverage', 'condiment', 'dairy'],
+  // Baby/kids subcategories
+  baby_food: ['baby_food', 'baby', 'food'],
+  baby: ['baby', 'baby_food', 'toys'],
+  toys: ['toys', 'baby'],
+  // Household subcategories
+  furniture: ['furniture', 'household'],
+  mattress: ['mattress', 'household', 'furniture'],
+  paint: ['paint', 'household'],
+  garden: ['garden', 'household'],
+  household: ['household', 'fragrance', 'furniture', 'mattress', 'paint', 'garden'],
+  // Standalone categories
+  pet: ['pet'],
+  clothing: ['clothing'],
 }
 
 function getRelatedCategories(category: string): string[] {

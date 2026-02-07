@@ -67,7 +67,7 @@ export interface Database {
           score: number;
           verdict: 'safe' | 'caution' | 'toxic';
           analysis: Json;
-          ocr_source: 'device' | 'cloud' | 'ai-mini' | 'ai-vision';
+          ocr_source: 'device' | 'cloud' | 'ai-mini' | 'ai-vision' | 'manual';
           ocr_confidence: number | null;
           image_path: string | null;
           barcode: string | null;
@@ -87,7 +87,7 @@ export interface Database {
           score: number;
           verdict: 'safe' | 'caution' | 'toxic';
           analysis: Json;
-          ocr_source: 'device' | 'cloud' | 'ai-mini' | 'ai-vision';
+          ocr_source: 'device' | 'cloud' | 'ai-mini' | 'ai-vision' | 'manual';
           ocr_confidence?: number | null;
           image_path?: string | null;
           barcode?: string | null;

@@ -507,6 +507,7 @@ function PipelineDebug({ result }: { result: any }) {
       case 'cloud': return 'Google Cloud Vision';
       case 'ai-mini': return 'GPT-4o-mini';
       case 'ai-vision': return 'GPT-4o Vision';
+      case 'manual': return t('pipeline.manual');
       default: return source;
     }
   };

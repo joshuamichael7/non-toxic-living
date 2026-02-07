@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': 'Comprando en {{store}}',
   'store.clear': 'Borrar',
 
+  // Scan - No label option
+  'scan.noLabel': '¿Sin etiqueta? Descríbelo',
+
+  // Describe screen
+  'describe.title': 'Describir producto',
+  'describe.productType': '¿Qué tipo de producto?',
+  'describe.brand': 'Marca (opcional)',
+  'describe.brandPlaceholder': 'ej., IKEA, Pottery Barn...',
+  'describe.productName': 'Nombre del producto (opcional)',
+  'describe.productNamePlaceholder': 'ej., estantería KALLAX, colchón de espuma viscoelástica...',
+  'describe.materials': '¿Qué sabes sobre este producto?',
+  'describe.materialsPlaceholder': 'ej., poliéster, espuma viscoelástica, plástico libre de BPA, acero inoxidable, madera tratada...',
+  'describe.addPhoto': 'Añadir foto (opcional)',
+  'describe.removePhoto': 'Eliminar',
+  'describe.analyze': 'Analizar producto',
+  'describe.selectType': 'Por favor selecciona un tipo de producto',
+  'describe.type.furniture': 'Muebles',
+  'describe.type.mattress': 'Colchón y ropa de cama',
+  'describe.type.clothing': 'Ropa y textiles',
+  'describe.type.cookware': 'Utensilios de cocina',
+  'describe.type.toys': 'Juguetes',
+  'describe.type.fragrance': 'Velas y ambientador',
+  'describe.type.paint': 'Pintura y barniz',
+  'describe.type.garden': 'Jardín y patio',
+  'describe.type.pet': 'Productos para mascotas',
+  'describe.type.storage': 'Almacenamiento de alimentos',
+  'describe.type.household': 'Otros artículos del hogar',
+
+  // Pipeline debug - manual
+  'pipeline.manual': 'Descripción manual',
+
   // Common
   'common.cancel': 'Cancelar',
   'common.save': 'Guardar',

@@ -1,4 +1,4 @@
-export type OcrSource = 'device' | 'cloud' | 'ai-mini' | 'ai-vision';
+export type OcrSource = 'device' | 'cloud' | 'ai-mini' | 'ai-vision' | 'manual';
 
 export interface BoundingBox {
   x: number;

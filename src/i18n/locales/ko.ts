@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': '{{store}}에서 쇼핑 중',
   'store.clear': '지우기',
 
+  // Scan - No label option
+  'scan.noLabel': '라벨이 없나요? 설명하세요',
+
+  // Describe screen
+  'describe.title': '제품 설명',
+  'describe.productType': '어떤 종류의 제품인가요?',
+  'describe.brand': '브랜드 (선택사항)',
+  'describe.brandPlaceholder': '예: IKEA, Pottery Barn...',
+  'describe.productName': '제품명 (선택사항)',
+  'describe.productNamePlaceholder': '예: KALLAX 선반, 메모리폼 매트리스...',
+  'describe.materials': '이 제품에 대해 알고 있는 것은?',
+  'describe.materialsPlaceholder': '예: 폴리에스터, 메모리폼, BPA 프리 플라스틱, 스테인리스 스틸, 처리된 목재...',
+  'describe.addPhoto': '사진 추가 (선택사항)',
+  'describe.removePhoto': '제거',
+  'describe.analyze': '제품 분석',
+  'describe.selectType': '제품 유형을 선택해주세요',
+  'describe.type.furniture': '가구',
+  'describe.type.mattress': '매트리스 및 침구',
+  'describe.type.clothing': '의류 및 섬유',
+  'describe.type.cookware': '조리기구',
+  'describe.type.toys': '장난감',
+  'describe.type.fragrance': '캔들 및 방향제',
+  'describe.type.paint': '페인트 및 염색제',
+  'describe.type.garden': '정원 및 야드',
+  'describe.type.pet': '반려동물 제품',
+  'describe.type.storage': '식품 보관',
+  'describe.type.household': '기타 가정용품',
+
+  // Pipeline debug - manual
+  'pipeline.manual': '수동 설명',
+
   // Common
   'common.cancel': '취소',
   'common.save': '저장',

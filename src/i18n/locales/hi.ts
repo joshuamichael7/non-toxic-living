@@ -156,6 +156,37 @@ export default {
   'store.shoppingAt': '{{store}} में खरीदारी',
   'store.clear': 'मिटाएं',
 
+  // Scan - No label option
+  'scan.noLabel': 'कोई लेबल नहीं? इसका वर्णन करें',
+
+  // Describe screen
+  'describe.title': 'उत्पाद का वर्णन करें',
+  'describe.productType': 'किस प्रकार का उत्पाद है?',
+  'describe.brand': 'ब्रांड (वैकल्पिक)',
+  'describe.brandPlaceholder': 'उदा., IKEA, Pottery Barn...',
+  'describe.productName': 'उत्पाद का नाम (वैकल्पिक)',
+  'describe.productNamePlaceholder': 'उदा., KALLAX शेल्फ, मेमोरी फोम गद्दा...',
+  'describe.materials': 'आप इस उत्पाद के बारे में क्या जानते हैं?',
+  'describe.materialsPlaceholder': 'उदा., पॉलिएस्टर, मेमोरी फोम, BPA-मुक्त प्लास्टिक, स्टेनलेस स्टील, उपचारित लकड़ी...',
+  'describe.addPhoto': 'फोटो जोड़ें (वैकल्पिक)',
+  'describe.removePhoto': 'हटाएं',
+  'describe.analyze': 'उत्पाद का विश्लेषण करें',
+  'describe.selectType': 'कृपया उत्पाद प्रकार चुनें',
+  'describe.type.furniture': 'फर्नीचर',
+  'describe.type.mattress': 'गद्दे और बिस्तर',
+  'describe.type.clothing': 'कपड़े और वस्त्र',
+  'describe.type.cookware': 'बर्तन',
+  'describe.type.toys': 'खिलौने',
+  'describe.type.fragrance': 'मोमबत्तियां और वायु शोधक',
+  'describe.type.paint': 'पेंट और रंग',
+  'describe.type.garden': 'बगीचा और आंगन',
+  'describe.type.pet': 'पालतू उत्पाद',
+  'describe.type.storage': 'खाद्य भंडारण',
+  'describe.type.household': 'अन्य घरेलू सामान',
+
+  // Pipeline debug - manual
+  'pipeline.manual': 'मैनुअल विवरण',
+
   // Common
   'common.cancel': 'रद्द करें',
   'common.save': 'सहेजें',
