@@ -111,27 +111,105 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* Hero example interaction */}
-          <div
-            className="mt-16 mx-auto max-w-md rounded-3xl border p-6 text-left"
-            style={{ borderColor: 'var(--color-site-border-light)', background: 'var(--color-site-surface)' }}
-          >
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm" style={{ background: 'rgba(14, 165, 233, 0.12)', color: 'var(--color-oxygen)' }}>
-                📷
-              </div>
-              <div>
-                <p className="text-sm text-[--site-text-muted]">You scanned:</p>
-                <p className="mt-1 text-sm font-medium text-[--site-text]">&quot;Sodium Lauryl Sulfate, Parabens, Fragrance, Triclosan...&quot;</p>
-              </div>
-            </div>
-            <div className="mt-4 flex items-start gap-3">
-              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm" style={{ background: 'rgba(239, 68, 68, 0.12)', color: 'var(--color-toxic)' }}>
-                ⚠️
-              </div>
-              <div>
-                <p className="text-sm font-medium" style={{ color: 'var(--color-toxic)' }}>Score: 23/100 — Toxic</p>
-                <p className="mt-1 text-sm text-[--site-text-secondary]">4 ingredients flagged. 2 safer alternatives found.</p>
+          {/* Phone mockup showing actual app result screen */}
+          <div className="mt-16 flex justify-center">
+            {/* Phone frame */}
+            <div
+              className="relative w-[280px] sm:w-[320px] rounded-[40px] border-[6px] p-2 overflow-hidden"
+              style={{ borderColor: '#333', background: '#E8E8E8' }}
+            >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[26px] rounded-b-2xl z-10" style={{ background: '#333' }} />
+
+              {/* Screen content */}
+              <div className="rounded-[32px] overflow-hidden" style={{ background: '#E8E8E8' }}>
+                {/* Status bar area */}
+                <div className="h-[42px]" />
+
+                {/* App header */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                    <span className="text-[10px]" style={{ color: '#1A1A1A' }}>✕</span>
+                  </div>
+                  <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Scan Result</span>
+                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                    <span className="text-[10px]" style={{ color: '#1A1A1A' }}>↗</span>
+                  </div>
+                </div>
+
+                {/* Score hero card */}
+                <div className="mx-3 mt-2 rounded-[24px] p-5 flex flex-col items-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                  {/* Score ring */}
+                  <div
+                    className="w-[80px] h-[80px] rounded-[28px] flex items-center justify-center mb-3"
+                    style={{
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      border: '3px solid #F59E0B',
+                      boxShadow: '0 6px 16px rgba(245, 158, 11, 0.3)',
+                    }}
+                  >
+                    <span className="text-[32px] font-extrabold" style={{ color: '#F59E0B' }}>34</span>
+                  </div>
+                  <p className="text-[16px] font-extrabold text-center" style={{ color: '#1A1A1A' }}>Cheetos Crunchy</p>
+                  <p className="text-[10px] font-medium mt-0.5" style={{ color: '#64748B' }}>Frito-Lay</p>
+                  <div className="mt-2 flex items-center gap-1 rounded-[8px] px-2.5 py-1" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
+                    <span className="text-[9px]">⚠️</span>
+                    <span className="text-[9px] font-bold" style={{ color: '#F59E0B' }}>Caution</span>
+                  </div>
+                </div>
+
+                {/* Summary card */}
+                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(14, 165, 233, 0.3)' }}>
+                      <span className="text-[8px]">📋</span>
+                    </div>
+                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Summary</span>
+                  </div>
+                  <p className="text-[9px] leading-[14px] font-medium" style={{ color: '#1A1A1A' }}>
+                    Contains several artificial additives and highly processed ingredients that may have negative health effects.
+                  </p>
+                </div>
+
+                {/* Expert take card (oxygen blue) */}
+                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5" style={{ background: '#0EA5E9', boxShadow: '0 6px 16px rgba(14, 165, 233, 0.3)' }}>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                      <span className="text-[8px]">💬</span>
+                    </div>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-white">Expert Take</span>
+                  </div>
+                  <p className="text-[9px] leading-[14px] font-medium text-white">
+                    &quot;I keep these out of my house. The artificial colors and MSG derivatives aren&apos;t worth it when there are better options.&quot;
+                  </p>
+                </div>
+
+                {/* Concerns peek */}
+                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5 mb-4" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
+                      <span className="text-[8px]">⚠️</span>
+                    </div>
+                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Flagged Ingredients</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
+                      <span className="text-[9px] font-semibold" style={{ color: '#F59E0B' }}>Yellow 6</span>
+                      <span className="text-[7px]" style={{ color: '#64748B' }}>Medium</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
+                      <span className="text-[9px] font-semibold" style={{ color: '#F59E0B' }}>Red 40</span>
+                      <span className="text-[7px]" style={{ color: '#64748B' }}>Medium</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                      <span className="text-[9px] font-semibold" style={{ color: '#64748B' }}>MSG</span>
+                      <span className="text-[7px]" style={{ color: '#94A3B8' }}>Low</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom safe area */}
+                <div className="h-[20px]" />
               </div>
             </div>
           </div>
