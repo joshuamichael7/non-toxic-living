@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': 'تسجيل الدخول',
   'auth.signUp': 'إنشاء حساب',
+  'auth.name': 'الاسم',
+  'auth.nameRequired': 'الاسم مطلوب',
   'auth.email': 'البريد الإلكتروني',
   'auth.password': 'كلمة المرور',
   'auth.confirmPassword': 'تأكيد كلمة المرور',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': 'تم النسخ!',
   'coupon.deals': 'العروض والخصومات',
 
+  // Deals
+  'deals.title': 'العروض والخصومات',
+  'deals.shopNow': 'تسوّق الآن',
+  'deals.showAtCheckout': 'أظهر عند الدفع',
+  'deals.useInStore': 'استخدم في المتجر',
+  'deals.shopOnline': 'تسوّق عبر الإنترنت',
+  'deals.codeCopied': 'تم نسخ الرمز!',
+
   // Subscription
   'subscription.title': 'اختر خطتك',
   'subscription.subtitle': 'افتح المزيد من عمليات المسح والميزات المميزة',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': 'يتجدد خلال {{days}} أيام',
   'quota.upgradePro': 'الترقية إلى Pro',
   'quota.dismiss': 'ربما لاحقًا',
+  'quota.scanUsage': 'استخدام المسح',
+  'quota.scansThisMonth': 'عملية مسح هذا الشهر',
+  'quota.resetsOn': 'يتجدد في {{date}}',
+  'quota.upgradePrompt': 'هل أوشكت عمليات المسح على النفاد؟',
+  'quota.upgrade': 'ترقية',
 
   // Common
   'common.cancel': 'إلغاء',

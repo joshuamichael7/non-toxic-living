@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.nontoxicliving.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis."
+        "NSCameraUsageDescription": "Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -43,15 +44,7 @@
           "cameraPermission": "Allow Non-Toxic Living to access your camera to scan products."
         }
       ],
-      "expo-localization",
-      [
-        "react-native-purchases",
-        {
-          "ios": {
-            "usesStoreKit2": true
-          }
-        }
-      ]
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

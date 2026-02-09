@@ -16,6 +16,7 @@ const CATEGORIES = [
 ];
 
 const DISCOUNT_TYPES = ['percent', 'fixed', 'free_shipping', 'bogo', 'other'] as const;
+const REDEMPTION_TYPES = ['online', 'in_store', 'both'] as const;
 
 interface CouponData {
   id?: string;
@@ -32,6 +33,10 @@ interface CouponData {
   expires_at: string;
   max_redemptions: number | null;
   is_active: boolean;
+  sort_order: number;
+  redemption_type: string;
+  barcode_image_url: string;
+  store_name: string;
 }
 
 const emptyCoupon: CouponData = {
@@ -48,6 +53,10 @@ const emptyCoupon: CouponData = {
   expires_at: '',
   max_redemptions: null,
   is_active: true,
+  sort_order: 100,
+  redemption_type: 'online',
+  barcode_image_url: '',
+  store_name: '',
 };
 
 interface Props {
@@ -92,6 +101,10 @@ export function CouponForm({ initialData, isEditing }: Props) {
       expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
       max_redemptions: form.max_redemptions,
       is_active: form.is_active,
+      sort_order: form.sort_order,
+      redemption_type: form.redemption_type,
+      barcode_image_url: form.barcode_image_url.trim() || null,
+      store_name: form.store_name.trim() || null,
     };
 
     let result;
@@ -261,6 +274,62 @@ export function CouponForm({ initialData, isEditing }: Props) {
             placeholder="https://..."
           />
         </div>
+      </section>
+
+      {/* Display & Redemption Settings */}
+      <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Display & Redemption</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order (Priority)</label>
+            <input
+              type="number"
+              min={0}
+              value={form.sort_order}
+              onChange={(e) => update('sort_order', parseInt(e.target.value) || 100)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
+            <p className="text-xs text-gray-400 mt-1">Lower numbers appear first. Default is 100.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Redemption Type</label>
+            <select
+              value={form.redemption_type}
+              onChange={(e) => update('redemption_type', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            >
+              {REDEMPTION_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type === 'online' ? 'Online Only' : type === 'in_store' ? 'In-Store Only' : 'Both (Online + In-Store)'}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {(form.redemption_type === 'in_store' || form.redemption_type === 'both') && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+              <input
+                type="text"
+                value={form.store_name}
+                onChange={(e) => update('store_name', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="e.g. Target, Whole Foods"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Barcode Image URL</label>
+              <input
+                type="url"
+                value={form.barcode_image_url}
+                onChange={(e) => update('barcode_image_url', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="https://... (optional barcode/QR image)"
+              />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Validity Period */}

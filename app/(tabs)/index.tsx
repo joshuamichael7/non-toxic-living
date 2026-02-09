@@ -4,9 +4,9 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import { InsightCard } from '@/components/home/InsightCard';
 import { StatsCard } from '@/components/home/StatsCard';
 import { RecentScans } from '@/components/home/RecentScans';
+import { DealsCarousel } from '@/components/home/DealsCarousel';
 
 // Aerogel Design System Colors
 const colors = {
@@ -186,36 +186,8 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Insight Cards */}
-        <View style={{ marginBottom: 24 }}>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, paddingHorizontal: 24, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-            {t('home.insights')}
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 24, gap: 12 }}
-          >
-            <InsightCard
-              title={t('insight.didYouKnow')}
-              description={t('insight.didYouKnowDesc')}
-              icon="alert-circle-outline"
-              color="caution"
-            />
-            <InsightCard
-              title={t('insight.tipOfDay')}
-              description={t('insight.tipOfDayDesc')}
-              icon="bulb-outline"
-              color="primary"
-            />
-            <InsightCard
-              title={t('insight.trendingConcern')}
-              description={t('insight.trendingConcernDesc')}
-              icon="trending-up-outline"
-              color="toxic"
-            />
-          </ScrollView>
-        </View>
+        {/* Deals & Discounts */}
+        <DealsCarousel />
 
         {/* Recent Scans */}
         <View style={{ paddingHorizontal: 24 }}>

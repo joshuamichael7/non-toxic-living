@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': 'साइन इन',
   'auth.signUp': 'साइन अप',
+  'auth.name': 'नाम',
+  'auth.nameRequired': 'नाम आवश्यक है',
   'auth.email': 'ईमेल',
   'auth.password': 'पासवर्ड',
   'auth.confirmPassword': 'पासवर्ड की पुष्टि करें',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': 'कॉपी किया गया!',
   'coupon.deals': 'ऑफर और छूट',
 
+  // Deals
+  'deals.title': 'ऑफर और छूट',
+  'deals.shopNow': 'अभी खरीदें',
+  'deals.showAtCheckout': 'चेकआउट पर दिखाएं',
+  'deals.useInStore': 'स्टोर में उपयोग करें',
+  'deals.shopOnline': 'ऑनलाइन खरीदें',
+  'deals.codeCopied': 'कोड कॉपी किया गया!',
+
   // Subscription
   'subscription.title': 'अपनी योजना चुनें',
   'subscription.subtitle': 'अधिक स्कैन और प्रीमियम सुविधाएं अनलॉक करें',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': '{{days}} दिनों में रीसेट होगा',
   'quota.upgradePro': 'Pro में अपग्रेड करें',
   'quota.dismiss': 'बाद में',
+  'quota.scanUsage': 'स्कैन उपयोग',
+  'quota.scansThisMonth': 'इस महीने के स्कैन',
+  'quota.resetsOn': '{{date}} को रीसेट होगा',
+  'quota.upgradePrompt': 'स्कैन कम हो रहे हैं?',
+  'quota.upgrade': 'अपग्रेड करें',
 
   // Common
   'common.cancel': 'रद्द करें',

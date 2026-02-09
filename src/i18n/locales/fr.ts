@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': 'Se connecter',
   'auth.signUp': 'S\'inscrire',
+  'auth.name': 'Nom',
+  'auth.nameRequired': 'Le nom est requis',
   'auth.email': 'E-mail',
   'auth.password': 'Mot de passe',
   'auth.confirmPassword': 'Confirmer le mot de passe',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': 'Copié !',
   'coupon.deals': 'Offres et réductions',
 
+  // Deals
+  'deals.title': 'Offres et Réductions',
+  'deals.shopNow': 'Acheter Maintenant',
+  'deals.showAtCheckout': 'Montrer à la Caisse',
+  'deals.useInStore': 'Utiliser en Magasin',
+  'deals.shopOnline': 'Acheter en Ligne',
+  'deals.codeCopied': 'Code Copié !',
+
   // Subscription
   'subscription.title': 'Choisissez votre forfait',
   'subscription.subtitle': 'Débloquez plus de scans et des fonctionnalités premium',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': 'Renouvellement dans {{days}} jours',
   'quota.upgradePro': 'Passer à Pro',
   'quota.dismiss': 'Peut-être plus tard',
+  'quota.scanUsage': 'Utilisation des Scans',
+  'quota.scansThisMonth': 'scans ce mois-ci',
+  'quota.resetsOn': 'Renouvellement le {{date}}',
+  'quota.upgradePrompt': 'Bientôt à court de scans ?',
+  'quota.upgrade': 'Passer au Niveau Supérieur',
 
   // Common
   'common.cancel': 'Annuler',

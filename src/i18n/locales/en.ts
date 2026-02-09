@@ -133,6 +133,8 @@ export default {
   // Auth
   'auth.signIn': 'Sign In',
   'auth.signUp': 'Sign Up',
+  'auth.name': 'Name',
+  'auth.nameRequired': 'Name is required',
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.confirmPassword': 'Confirm Password',
@@ -261,6 +263,14 @@ export default {
   'coupon.copied': 'Copied!',
   'coupon.deals': 'Deals & Discounts',
 
+  // Deals
+  'deals.title': 'Deals & Discounts',
+  'deals.shopNow': 'Shop Now',
+  'deals.showAtCheckout': 'Show at Checkout',
+  'deals.useInStore': 'Use In Store',
+  'deals.shopOnline': 'Shop Online',
+  'deals.codeCopied': 'Code Copied!',
+
   // Subscription
   'subscription.title': 'Choose Your Plan',
   'subscription.subtitle': 'Unlock more scans and premium features',
@@ -315,6 +325,11 @@ export default {
   'quota.resetsIn': 'Resets in {{days}} days',
   'quota.upgradePro': 'Upgrade Now',
   'quota.dismiss': 'Maybe later',
+  'quota.scanUsage': 'Scan Usage',
+  'quota.scansThisMonth': 'scans this month',
+  'quota.resetsOn': 'Resets {{date}}',
+  'quota.upgradePrompt': 'Running low on scans?',
+  'quota.upgrade': 'Upgrade',
 
   // Common
   'common.cancel': 'Cancel',

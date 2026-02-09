@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': '登录',
   'auth.signUp': '注册',
+  'auth.name': '姓名',
+  'auth.nameRequired': '请输入姓名',
   'auth.email': '电子邮件',
   'auth.password': '密码',
   'auth.confirmPassword': '确认密码',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': '已复制！',
   'coupon.deals': '优惠和折扣',
 
+  // Deals
+  'deals.title': '优惠和折扣',
+  'deals.shopNow': '立即购买',
+  'deals.showAtCheckout': '结账时出示',
+  'deals.useInStore': '到店使用',
+  'deals.shopOnline': '在线购买',
+  'deals.codeCopied': '优惠码已复制！',
+
   // Subscription
   'subscription.title': '选择您的计划',
   'subscription.subtitle': '解锁更多扫描次数和高级功能',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': '{{days}} 天后重置',
   'quota.upgradePro': '升级到 Pro',
   'quota.dismiss': '以后再说',
+  'quota.scanUsage': '扫描使用情况',
+  'quota.scansThisMonth': '本月扫描次数',
+  'quota.resetsOn': '{{date}}重置',
+  'quota.upgradePrompt': '扫描次数快用完了？',
+  'quota.upgrade': '升级',
 
   // Common
   'common.cancel': '取消',

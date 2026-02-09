@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': '로그인',
   'auth.signUp': '회원가입',
+  'auth.name': '이름',
+  'auth.nameRequired': '이름을 입력해주세요',
   'auth.email': '이메일',
   'auth.password': '비밀번호',
   'auth.confirmPassword': '비밀번호 확인',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': '복사됨!',
   'coupon.deals': '특가 및 할인',
 
+  // Deals
+  'deals.title': '특가 및 할인',
+  'deals.shopNow': '지금 구매',
+  'deals.showAtCheckout': '결제 시 제시',
+  'deals.useInStore': '매장에서 사용',
+  'deals.shopOnline': '온라인 구매',
+  'deals.codeCopied': '코드가 복사되었습니다!',
+
   // Subscription
   'subscription.title': '플랜 선택',
   'subscription.subtitle': '더 많은 스캔과 프리미엄 기능을 잠금 해제하세요',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': '{{days}}일 후 초기화',
   'quota.upgradePro': 'Pro로 업그레이드',
   'quota.dismiss': '나중에',
+  'quota.scanUsage': '스캔 사용량',
+  'quota.scansThisMonth': '이번 달 스캔',
+  'quota.resetsOn': '{{date}}에 초기화',
+  'quota.upgradePrompt': '스캔 횟수가 부족한가요?',
+  'quota.upgrade': '업그레이드',
 
   // Common
   'common.cancel': '취소',

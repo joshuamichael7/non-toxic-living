@@ -49,6 +49,10 @@ export default async function EditCouponPage({
           expires_at: formatDatetimeLocal(coupon.expires_at),
           max_redemptions: coupon.max_redemptions,
           is_active: coupon.is_active,
+          sort_order: coupon.sort_order ?? 100,
+          redemption_type: coupon.redemption_type || 'online',
+          barcode_image_url: coupon.barcode_image_url || '',
+          store_name: coupon.store_name || '',
         }}
       />
     </div>

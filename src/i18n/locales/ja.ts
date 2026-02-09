@@ -132,6 +132,8 @@ export default {
   // Auth
   'auth.signIn': 'サインイン',
   'auth.signUp': 'サインアップ',
+  'auth.name': '名前',
+  'auth.nameRequired': '名前は必須です',
   'auth.email': 'メールアドレス',
   'auth.password': 'パスワード',
   'auth.confirmPassword': 'パスワード確認',
@@ -206,6 +208,14 @@ export default {
   'coupon.copied': 'コピーしました！',
   'coupon.deals': 'お得情報と割引',
 
+  // Deals
+  'deals.title': 'お得情報と割引',
+  'deals.shopNow': '今すぐ購入',
+  'deals.showAtCheckout': 'レジで提示',
+  'deals.useInStore': '店舗で使用',
+  'deals.shopOnline': 'オンラインで購入',
+  'deals.codeCopied': 'コードをコピーしました！',
+
   // Subscription
   'subscription.title': 'プランを選択',
   'subscription.subtitle': 'より多くのスキャンとプレミアム機能をアンロック',
@@ -260,6 +270,11 @@ export default {
   'quota.resetsIn': '{{days}} 日後にリセット',
   'quota.upgradePro': 'Proにアップグレード',
   'quota.dismiss': 'また後で',
+  'quota.scanUsage': 'スキャン使用状況',
+  'quota.scansThisMonth': '今月のスキャン',
+  'quota.resetsOn': '{{date}}にリセット',
+  'quota.upgradePrompt': 'スキャン回数が少なくなっていませんか？',
+  'quota.upgrade': 'アップグレード',
 
   // Common
   'common.cancel': 'キャンセル',

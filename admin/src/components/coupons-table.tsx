@@ -26,6 +26,9 @@ interface Coupon {
   is_active: boolean;
   expires_at: string | null;
   created_at: string;
+  impressions: number;
+  clicks: number;
+  redemption_type: string;
 }
 
 interface Props {
@@ -135,6 +138,10 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Clicks</th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">CTR</th>
               <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
               <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
               <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -143,7 +150,7 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
           <tbody className="divide-y divide-gray-50">
             {coupons.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-gray-400 text-sm">
+                <td colSpan={12} className="px-4 py-12 text-center text-gray-400 text-sm">
                   No coupons found. Add your first coupon!
                 </td>
               </tr>
@@ -169,6 +176,26 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
                 <td className="px-4 py-3">
                   <span className="text-sm text-gray-600">
                     {formatDiscount(coupon.discount_type, coupon.discount_value)}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                    coupon.redemption_type === 'online' ? 'bg-blue-50 text-blue-700' :
+                    coupon.redemption_type === 'in_store' ? 'bg-amber-50 text-amber-700' :
+                    'bg-purple-50 text-purple-700'
+                  }`}>
+                    {coupon.redemption_type === 'online' ? 'Online' : coupon.redemption_type === 'in_store' ? 'In-Store' : 'Both'}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <span className="text-sm text-gray-600">{(coupon.impressions || 0).toLocaleString()}</span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <span className="text-sm text-gray-600">{(coupon.clicks || 0).toLocaleString()}</span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <span className="text-sm text-gray-600">
+                    {coupon.impressions > 0 ? ((coupon.clicks / coupon.impressions) * 100).toFixed(1) + '%' : '—'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-center">

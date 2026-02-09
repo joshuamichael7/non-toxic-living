@@ -9,6 +9,7 @@ import { getScanLogs, getUserScans } from '@/services/api/analyze';
 import { usePreferencesStore, SUPPORTED_LANGUAGES } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { ScanQuotaTracker } from '@/components/profile/ScanQuotaTracker';
 
 // Aerogel Design System Colors
 const colors = {
@@ -115,7 +116,7 @@ export default function ProfileScreen() {
               </View>
               <View style={{ marginLeft: 16, flex: 1 }}>
                 <Text style={{ fontSize: 18, fontWeight: '700', color: colors.ink }}>
-                  {user ? user.email : t('profile.guestUser')}
+                  {user?.user_metadata?.display_name || user?.email || t('profile.guestUser')}
                 </Text>
                 <Text style={{ color: colors.inkSecondary, fontSize: 14, marginTop: 2 }}>
                   {tier === 'power' ? t('profile.powerPlan') : tier === 'pro' ? t('profile.proPlan') : t('profile.freePlan')}
@@ -190,6 +191,9 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
+
+        {/* Scan Quota */}
+        {user && <ScanQuotaTracker />}
 
         {/* Menu Items */}
         <View style={{ paddingHorizontal: 24 }}>
