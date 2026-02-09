@@ -219,12 +219,20 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <a
-                    href={`/dashboard/coupons/${coupon.id}`}
-                    className="text-sky-600 hover:text-sky-800 text-xs font-medium"
-                  >
-                    Edit
-                  </a>
+                  <div className="flex items-center justify-end gap-3">
+                    <a
+                      href={`/dashboard/coupons/${coupon.id}`}
+                      className="text-sky-600 hover:text-sky-800 text-xs font-medium"
+                    >
+                      Edit
+                    </a>
+                    <a
+                      href={`/dashboard/featured/new?from_coupon=${coupon.id}`}
+                      className="text-violet-600 hover:text-violet-800 text-xs font-medium"
+                    >
+                      Create Deal
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}

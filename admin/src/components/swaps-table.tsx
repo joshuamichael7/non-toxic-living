@@ -236,6 +236,12 @@ export function SwapsTable({ swaps, totalPages, currentPage, search, category, a
                     >
                       Edit
                     </a>
+                    <a
+                      href={`/dashboard/featured/new?swap_id=${swap.id}`}
+                      className="text-violet-600 hover:text-violet-800 text-xs font-medium"
+                    >
+                      Create Deal
+                    </a>
                     <button
                       onClick={() => blockProduct(swap)}
                       disabled={blockingId === swap.id}
