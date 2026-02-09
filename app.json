@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nontoxicliving.app",
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis.",
         "ITSAppUsesNonExemptEncryption": false

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { SwapSearchInput } from '@/components/swap-search-input';
 
 const ITEM_TYPES = ['coupon', 'product', 'sponsored'] as const;
 const REDEMPTION_TYPES = ['online', 'in_store', 'both'] as const;
@@ -27,6 +28,8 @@ interface FeaturedData {
   starts_at: string;
   expires_at: string;
   is_active: boolean;
+  swap_id: string | null;
+  product_id: string | null;
 }
 
 const emptyItem: FeaturedData = {
@@ -48,19 +51,23 @@ const emptyItem: FeaturedData = {
   starts_at: new Date().toISOString().slice(0, 16),
   expires_at: '',
   is_active: true,
+  swap_id: null,
+  product_id: null,
 };
 
 interface Props {
   initialData?: FeaturedData;
   isEditing?: boolean;
+  linkedSwapName?: string | null;
 }
 
-export function FeaturedForm({ initialData, isEditing }: Props) {
+export function FeaturedForm({ initialData, isEditing, linkedSwapName }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FeaturedData>(initialData || emptyItem);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkedSwapDisplay, setLinkedSwapDisplay] = useState<string | null>(linkedSwapName || null);
 
   const update = (field: keyof FeaturedData, value: FeaturedData[keyof FeaturedData]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -99,6 +106,8 @@ export function FeaturedForm({ initialData, isEditing }: Props) {
       starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : new Date().toISOString(),
       expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
       is_active: form.is_active,
+      swap_id: form.swap_id || null,
+      product_id: form.product_id || null,
     };
 
     let result;
@@ -203,6 +212,31 @@ export function FeaturedForm({ initialData, isEditing }: Props) {
             placeholder="Longer description (optional)..."
           />
         </div>
+      </section>
+
+      {/* Linked Product */}
+      <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Linked Product</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Optionally link this featured item to an existing product in the database.
+          This connects deals to search results and product pages.
+        </p>
+        <SwapSearchInput
+          value={form.swap_id}
+          displayName={linkedSwapDisplay}
+          onSelect={(swap) => {
+            update('swap_id', swap.id);
+            setLinkedSwapDisplay(`${swap.name} (${swap.brand})`);
+            // Auto-populate empty fields
+            if (!form.brand_name) update('brand_name', swap.brand);
+            if (!form.title) update('title', swap.name);
+            if (!form.image_url && swap.image_url) update('image_url', swap.image_url);
+          }}
+          onClear={() => {
+            update('swap_id', null);
+            setLinkedSwapDisplay(null);
+          }}
+        />
       </section>
 
       {/* Media & Action */}

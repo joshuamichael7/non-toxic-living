@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': '店舗で使用',
   'deals.shopOnline': 'オンラインで購入',
   'deals.codeCopied': 'コードをコピーしました！',
+  'deals.noneAvailable': '現在利用可能なディールはありません',
 
   // Featured
   'featured.title': '注目',

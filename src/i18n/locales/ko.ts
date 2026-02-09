@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': '매장에서 사용',
   'deals.shopOnline': '온라인 구매',
   'deals.codeCopied': '코드가 복사되었습니다!',
+  'deals.noneAvailable': '현재 이용 가능한 딜이 없습니다',
 
   // Featured
   'featured.title': '추천',

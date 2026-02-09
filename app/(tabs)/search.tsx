@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { searchCombined } from '@/services/api/analyze';
 import type { CombinedSearchResult } from '@/services/api/analyze';
+import { getFeaturedDeals, getDealsForSwapIds, trackClick, type FeaturedDeal } from '@/services/api/featured';
 
 // Aerogel Design System Colors
 const colors = {
@@ -24,6 +25,8 @@ const colors = {
   cautionLight: 'rgba(245, 158, 11, 0.15)',
   toxic: '#EF4444',
   toxicLight: 'rgba(239, 68, 68, 0.15)',
+  purple: '#8B5CF6',
+  purpleGlow: 'rgba(139, 92, 246, 0.15)',
 };
 
 export default function SearchScreen() {
@@ -32,6 +35,9 @@ export default function SearchScreen() {
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedSwap, setSelectedSwap] = useState<CombinedSearchResult | null>(null);
+  const [dealsResults, setDealsResults] = useState<FeaturedDeal[]>([]);
+  const [showingDeals, setShowingDeals] = useState(false);
+  const [dealMap, setDealMap] = useState<Map<string, { discount_text: string | null; badge_text: string | null; coupon_code: string | null }>>(new Map());
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -40,15 +46,40 @@ export default function SearchScreen() {
     if (!trimmed && !categories) return;
     setSearching(true);
     setHasSearched(true);
+    setShowingDeals(false);
+    setDealsResults([]);
     try {
       const data = await searchCombined(trimmed, 20, categories);
       setResults(data);
+      // Fetch deal badges for swap results in parallel
+      const swapIds = data.filter(r => r.source === 'swap').map(r => r.id);
+      if (swapIds.length > 0) {
+        getDealsForSwapIds(swapIds).then(setDealMap).catch(() => {});
+      } else {
+        setDealMap(new Map());
+      }
     } catch {
       setResults([]);
     } finally {
       setSearching(false);
     }
   }, []);
+
+  const handleDealsCategory = useCallback(async () => {
+    setSearchQuery(t('coupon.deals'));
+    setSearching(true);
+    setHasSearched(true);
+    setShowingDeals(true);
+    setResults([]);
+    try {
+      const deals = await getFeaturedDeals(20);
+      setDealsResults(deals);
+    } catch {
+      setDealsResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, [t]);
 
   const handleClear = () => {
     setSearchQuery('');
@@ -71,6 +102,7 @@ export default function SearchScreen() {
   };
 
   const categories = [
+    { name: t('coupon.deals'), icon: 'pricetag-outline' as const, dbCategories: ['__deals__'] as string[], isDeals: true },
     { name: t('category.foodDrinks'), icon: 'nutrition-outline' as const, dbCategories: ['food', 'snack', 'beverage', 'condiment', 'dairy'] },
     { name: t('category.personalCare'), icon: 'body-outline' as const, dbCategories: ['personal_care', 'soap', 'skincare', 'sunscreen', 'haircare', 'oral_care', 'deodorant', 'makeup', 'nail_care'] },
     { name: t('category.household'), icon: 'home-outline' as const, dbCategories: ['household', 'furniture', 'mattress', 'paint', 'garden', 'fragrance'] },
@@ -150,6 +182,102 @@ export default function SearchScreen() {
               {t('search.searching')}
             </Text>
           </View>
+        ) : hasSearched && showingDeals ? (
+          /* Deals Results */
+          dealsResults.length > 0 ? (
+            <View style={{ paddingHorizontal: 24 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('coupon.deals')} ({dealsResults.length})
+              </Text>
+              <View style={{ gap: 10 }}>
+                {dealsResults.map((deal) => (
+                  <Pressable
+                    key={deal.id}
+                    onPress={() => {
+                      trackClick(deal.id);
+                      if (deal.action_url) Linking.openURL(deal.action_url);
+                    }}
+                    style={{
+                      backgroundColor: colors.glassSolid,
+                      borderRadius: 20,
+                      padding: 16,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: colors.glassBorder,
+                    }}
+                  >
+                    {/* Discount badge */}
+                    <View style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 16,
+                      backgroundColor: colors.purpleGlow,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 14,
+                      borderWidth: 2,
+                      borderColor: colors.purple,
+                    }}>
+                      <Ionicons name="pricetag" size={22} color={colors.purple} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 15, fontWeight: '600', color: colors.ink, marginBottom: 2 }} numberOfLines={1}>
+                        {deal.title}
+                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        {deal.brand_name && (
+                          <Text style={{ fontSize: 13, color: colors.inkSecondary }} numberOfLines={1}>
+                            {deal.brand_name}
+                          </Text>
+                        )}
+                        {deal.discount_text && (
+                          <View style={{
+                            backgroundColor: colors.purpleGlow,
+                            borderRadius: 6,
+                            paddingHorizontal: 6,
+                            paddingVertical: 2,
+                          }}>
+                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.purple }}>{deal.discount_text}</Text>
+                          </View>
+                        )}
+                        {deal.linked_swap && (
+                          <View style={{
+                            backgroundColor: colors.safeLight,
+                            borderRadius: 6,
+                            paddingHorizontal: 6,
+                            paddingVertical: 2,
+                            borderWidth: 1,
+                            borderColor: colors.safe,
+                          }}>
+                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.safe }}>SAFE PICK</Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : (
+            <View style={{ paddingHorizontal: 24, paddingTop: 40, alignItems: 'center' }}>
+              <View style={{
+                width: 80,
+                height: 80,
+                backgroundColor: colors.glassSolid,
+                borderRadius: 24,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+              }}>
+                <Ionicons name="pricetag-outline" size={36} color={colors.inkMuted} />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: colors.ink, textAlign: 'center', marginBottom: 8 }}>
+                {t('deals.noneAvailable')}
+              </Text>
+            </View>
+          )
         ) : hasSearched ? (
           results.length > 0 ? (
             <View style={{ paddingHorizontal: 24 }}>
@@ -160,6 +288,7 @@ export default function SearchScreen() {
                 {results.map((item) => {
                   const verdict = (item.verdict || 'caution') as keyof typeof verdictConfig;
                   const vConfig = verdictConfig[verdict] || verdictConfig.caution;
+                  const deal = item.source === 'swap' ? dealMap.get(item.id) : undefined;
                   return (
                     <Pressable
                       key={`${item.source}-${item.id}`}
@@ -191,7 +320,7 @@ export default function SearchScreen() {
                         <Text style={{ fontSize: 15, fontWeight: '600', color: colors.ink, marginBottom: 2 }} numberOfLines={1}>
                           {item.name}
                         </Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                           <Text style={{ fontSize: 13, color: colors.inkSecondary }} numberOfLines={1}>
                             {item.brand || ''}
                           </Text>
@@ -205,6 +334,18 @@ export default function SearchScreen() {
                               borderColor: colors.safe,
                             }}>
                               <Text style={{ fontSize: 10, fontWeight: '700', color: colors.safe }}>SAFE PICK</Text>
+                            </View>
+                          )}
+                          {deal && (
+                            <View style={{
+                              backgroundColor: colors.purpleGlow,
+                              borderRadius: 6,
+                              paddingHorizontal: 6,
+                              paddingVertical: 2,
+                            }}>
+                              <Text style={{ fontSize: 10, fontWeight: '700', color: colors.purple }}>
+                                {deal.discount_text || 'DEAL'}
+                              </Text>
                             </View>
                           )}
                         </View>
@@ -248,8 +389,12 @@ export default function SearchScreen() {
                   <Pressable
                     key={category.name}
                     onPress={() => {
-                      setSearchQuery(category.name);
-                      handleSearch(category.name, category.dbCategories);
+                      if ('isDeals' in category && category.isDeals) {
+                        handleDealsCategory();
+                      } else {
+                        setSearchQuery(category.name);
+                        handleSearch(category.name, category.dbCategories);
+                      }
                     }}
                     style={{
                       backgroundColor: colors.glassSolid,

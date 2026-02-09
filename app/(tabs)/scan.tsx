@@ -71,6 +71,15 @@ export default function ScanScreen() {
     setError(null);
 
     try {
+      // Request camera permission
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        setScanStage('error');
+        setScanError(t('scan.cameraPermissionDenied', 'Camera permission is required to scan products.'));
+        isCapturingRef.current = false;
+        return;
+      }
+
       // Open native camera
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ['images'],

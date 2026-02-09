@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': 'स्टोर में उपयोग करें',
   'deals.shopOnline': 'ऑनलाइन खरीदें',
   'deals.codeCopied': 'कोड कॉपी किया गया!',
+  'deals.noneAvailable': 'अभी कोई डील उपलब्ध नहीं है',
 
   // Featured
   'featured.title': 'विशेष',

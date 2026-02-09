@@ -270,6 +270,7 @@ export default {
   'deals.useInStore': 'Use In Store',
   'deals.shopOnline': 'Shop Online',
   'deals.codeCopied': 'Code Copied!',
+  'deals.noneAvailable': 'No deals available right now',
 
   // Featured
   'featured.title': 'Featured',

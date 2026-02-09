@@ -39,9 +39,21 @@ export async function initializePurchases(userId?: string): Promise<void> {
 export async function getOfferings(): Promise<PurchasesOffering | null> {
   try {
     const offerings = await Purchases.getOfferings();
-    return offerings.current;
+    const current = offerings.current;
+    if (current) {
+      console.log('[Offerings] Current offering:', current.identifier);
+      console.log('[Offerings] Packages:', current.availablePackages.map(p => ({
+        id: p.identifier,
+        productId: p.product.identifier,
+        price: p.product.priceString,
+        subscriptionPeriod: p.product.subscriptionPeriod,
+      })));
+    } else {
+      console.log('[Offerings] No current offering found');
+    }
+    return current;
   } catch (error) {
-    console.error('Failed to get offerings:', error);
+    console.error('[Offerings] Failed to get offerings:', error);
     return null;
   }
 }
@@ -54,14 +66,31 @@ export async function getOfferings(): Promise<PurchasesOffering | null> {
 export async function purchasePackage(
   pkg: PurchasesPackage,
 ): Promise<CustomerInfo | null> {
+  console.log('[Purchase] Starting purchase:', {
+    packageId: pkg.identifier,
+    productId: pkg.product.identifier,
+    price: pkg.product.priceString,
+    offeringId: pkg.offeringIdentifier,
+  });
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
+    console.log('[Purchase] Success:', {
+      activeEntitlements: Object.keys(customerInfo.entitlements.active),
+    });
     // Sync to Supabase as safety net (webhook is authoritative)
     const tier = getTierFromCustomerInfo(customerInfo);
     const expiresAt = getExpirationFromCustomerInfo(customerInfo);
     await syncToSupabase(tier, expiresAt);
     return customerInfo;
   } catch (error: any) {
+    console.log('[Purchase] Error:', {
+      code: error.code,
+      message: error.message,
+      userCancelled: error.userCancelled,
+      underlyingErrorMessage: error.underlyingErrorMessage,
+      readableErrorCode: error.readableErrorCode,
+      raw: JSON.stringify(error, null, 2),
+    });
     if (error.userCancelled) {
       return null;
     }

@@ -11,6 +11,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { StorePrompt } from '@/components/swaps/StorePrompt';
 import { getScanById, saveScanToList, getSwapsForProduct, getProductById } from '@/services/api/analyze';
 import { CouponCard } from '@/components/swaps/CouponCard';
+import { getDealsForProduct, type FeaturedDeal } from '@/services/api/featured';
+import { FeaturedCard } from '@/components/home/FeaturedCard';
 import type { AnalysisResult, Concern, Swap } from '@/services/api/analyze';
 
 // Aerogel Design System Colors
@@ -86,6 +88,7 @@ export default function ResultScreen() {
   const [sessionStore, setSessionStore] = useState<string | null>(null);
   const [filteredSwaps, setFilteredSwaps] = useState<Swap[] | null>(null);
   const [loadingSwaps, setLoadingSwaps] = useState(false);
+  const [deals, setDeals] = useState<FeaturedDeal[]>([]);
 
   // Load scan from DB when viewing a past scan, or product from products table
   useEffect(() => {
@@ -158,6 +161,20 @@ export default function ResultScreen() {
       setScanId(null);
     }
   }, [id, currentResult]);
+
+  // Fetch deals for this product
+  useEffect(() => {
+    const source = id === 'scan' && currentResult ? currentResult : id === 'demo' ? DEMO_RESULT : dbResult;
+    if (!source) return;
+
+    const idStr = id as string;
+    const productId = idStr.startsWith('product-') ? idStr.replace('product-', '') : '';
+    const category = source.category || '';
+
+    if (productId || category) {
+      getDealsForProduct(productId, category).then(setDeals).catch(() => {});
+    }
+  }, [id, dbResult, currentResult]);
 
   // Re-fetch swaps when session store changes
   useEffect(() => {
@@ -522,6 +539,24 @@ export default function ResultScreen() {
                 </View>
               ))}
             </View>
+          </View>
+        )}
+
+        {/* Deals & Discounts */}
+        {deals.length > 0 && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, paddingHorizontal: 20, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              {t('coupon.deals')}
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+            >
+              {deals.map((deal) => (
+                <FeaturedCard key={deal.id} item={deal} />
+              ))}
+            </ScrollView>
           </View>
         )}
 

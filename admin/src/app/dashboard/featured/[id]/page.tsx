@@ -20,6 +20,16 @@ export default async function EditFeaturedPage({
     notFound();
   }
 
+  let linkedSwapName: string | null = null;
+  if (item.swap_id) {
+    const { data: swap } = await supabase
+      .from('swaps')
+      .select('name, brand')
+      .eq('id', item.swap_id)
+      .single();
+    if (swap) linkedSwapName = `${swap.name} (${swap.brand})`;
+  }
+
   const formatDatetimeLocal = (isoString: string | null) => {
     if (!isoString) return '';
     return new Date(isoString).toISOString().slice(0, 16);
@@ -33,6 +43,7 @@ export default async function EditFeaturedPage({
       </div>
       <FeaturedForm
         isEditing
+        linkedSwapName={linkedSwapName}
         initialData={{
           id: item.id,
           type: item.type,
@@ -53,6 +64,8 @@ export default async function EditFeaturedPage({
           starts_at: formatDatetimeLocal(item.starts_at),
           expires_at: formatDatetimeLocal(item.expires_at),
           is_active: item.is_active,
+          swap_id: item.swap_id || null,
+          product_id: item.product_id || null,
         }}
       />
     </div>

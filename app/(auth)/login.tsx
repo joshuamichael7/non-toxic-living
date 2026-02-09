@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,8 +44,6 @@ export default function LoginScreen() {
     const result = await signIn(email.trim(), password);
     if (result.error) {
       setError(t('auth.signInError'));
-    } else {
-      router.back();
     }
   };
 
@@ -55,22 +53,8 @@ export default function LoginScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: 'center' }}>
-          {/* Back button */}
-          <Pressable
-            onPress={() => router.back()}
-            style={{ position: 'absolute', top: 16, left: 24, zIndex: 10 }}
-          >
-            <View style={{
-              width: 44, height: 44, borderRadius: 14,
-              backgroundColor: colors.glassSolid, borderWidth: 1,
-              borderColor: colors.glassBorder,
-              alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Ionicons name="arrow-back" size={24} color={colors.ink} />
-            </View>
-          </Pressable>
-
           {/* Logo/Title */}
           <View style={{ alignItems: 'center', marginBottom: 40 }}>
             <View style={{
@@ -172,6 +156,7 @@ export default function LoginScreen() {
             </Pressable>
           </View>
         </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': 'استخدم في المتجر',
   'deals.shopOnline': 'تسوّق عبر الإنترنت',
   'deals.codeCopied': 'تم نسخ الرمز!',
+  'deals.noneAvailable': 'لا توجد عروض متاحة حالياً',
 
   // Featured
   'featured.title': 'مميز',

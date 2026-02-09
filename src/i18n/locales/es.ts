@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': 'Usar en Tienda',
   'deals.shopOnline': 'Comprar en Línea',
   'deals.codeCopied': '¡Código Copiado!',
+  'deals.noneAvailable': 'No hay ofertas disponibles en este momento',
 
   // Featured
   'featured.title': 'Destacados',

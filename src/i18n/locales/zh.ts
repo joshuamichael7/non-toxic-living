@@ -215,6 +215,7 @@ export default {
   'deals.useInStore': '到店使用',
   'deals.shopOnline': '在线购买',
   'deals.codeCopied': '优惠码已复制！',
+  'deals.noneAvailable': '目前没有可用的优惠',
 
   // Featured
   'featured.title': '精选',

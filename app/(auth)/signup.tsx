@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,7 @@ export default function SignUpScreen() {
   const router = useRouter();
   const { signUp, isLoading } = useAuthStore();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,6 +36,10 @@ export default function SignUpScreen() {
   const handleSignUp = async () => {
     setError(null);
 
+    if (!name.trim()) {
+      setError(t('auth.nameRequired', 'Name is required'));
+      return;
+    }
     if (!email.trim()) {
       setError(t('auth.emailRequired'));
       return;
@@ -52,7 +57,7 @@ export default function SignUpScreen() {
       return;
     }
 
-    const result = await signUp(email.trim(), password);
+    const result = await signUp(email.trim(), password, name.trim());
     if (result.error) {
       setError(t('auth.signUpError'));
     } else {
@@ -96,22 +101,12 @@ export default function SignUpScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: 'center' }}>
-          {/* Back button */}
-          <Pressable
-            onPress={() => router.back()}
-            style={{ position: 'absolute', top: 16, left: 24, zIndex: 10 }}
-          >
-            <View style={{
-              width: 44, height: 44, borderRadius: 14,
-              backgroundColor: colors.glassSolid, borderWidth: 1,
-              borderColor: colors.glassBorder,
-              alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Ionicons name="arrow-back" size={24} color={colors.ink} />
-            </View>
-          </Pressable>
-
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, justifyContent: 'center' }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           {/* Title */}
           <View style={{ alignItems: 'center', marginBottom: 32 }}>
             <View style={{
@@ -142,6 +137,22 @@ export default function SignUpScreen() {
                 <Text style={{ color: colors.error, marginLeft: 8, flex: 1, fontWeight: '500' }}>{error}</Text>
               </View>
             )}
+
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+              {t('auth.name', 'Name')}
+            </Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.canvas, borderRadius: 14, paddingHorizontal: 16,
+                paddingVertical: 14, fontSize: 16, color: colors.ink, marginBottom: 16,
+              }}
+              placeholder={t('auth.name', 'Name')}
+              placeholderTextColor={colors.inkMuted}
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              autoCorrect={false}
+            />
 
             <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
               {t('auth.email')}
@@ -217,7 +228,7 @@ export default function SignUpScreen() {
           </View>
 
           {/* Sign In link */}
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24, paddingBottom: 40 }}>
             <Text style={{ color: colors.inkSecondary, fontSize: 15 }}>
               {t('auth.hasAccount')}{' '}
             </Text>
@@ -227,7 +238,8 @@ export default function SignUpScreen() {
               </Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

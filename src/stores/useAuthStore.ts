@@ -11,7 +11,7 @@ interface AuthState {
 
   initialize: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ error?: string }>;
+  signUp: (email: string, password: string, name?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   clearError: () => void;
 }
@@ -44,25 +44,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signIn: async (email: string, password: string) => {
+    console.log('[Auth] signIn called with email:', email);
     set({ isLoading: true, error: null });
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    console.log('[Auth] signInWithPassword result:', { error: error?.message, hasSession: !!data?.session, userId: data?.session?.user?.id });
 
     if (error) {
+      console.log('[Auth] signIn error:', error.message);
       set({ isLoading: false, error: error.message });
       return { error: error.message };
     }
 
-    set({ isLoading: false });
+    console.log('[Auth] Setting user in store:', data.session?.user?.id);
+    set({
+      isLoading: false,
+      session: data.session,
+      user: data.session?.user ?? null,
+    });
+    console.log('[Auth] Store user after set:', get().user?.id);
     return {};
   },
 
-  signUp: async (email: string, password: string) => {
+  signUp: async (email: string, password: string, name?: string) => {
     set({ isLoading: true, error: null });
     const language = usePreferencesStore.getState().language;
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { language } },
+      options: { data: { language, display_name: name } },
     });
 
     if (error) {
