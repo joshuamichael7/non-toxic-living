@@ -10,7 +10,7 @@ const MIN_PARTIAL_TEXT_LENGTH = 5;
 export interface ProcessImageResult {
   ocrResult: OcrResult;
   shouldSendImage: boolean;
-  suggestedModel: 'gpt-4o-mini' | 'gpt-4o';
+  suggestedModel: 'gpt-4o-mini';
   clientSteps: PipelineStep[];
 }
 
@@ -95,7 +95,7 @@ export async function processImage(imageUri: string): Promise<ProcessImageResult
       source: 'ai-vision',
     },
     shouldSendImage: true,
-    suggestedModel: 'gpt-4o',
+    suggestedModel: 'gpt-4o-mini',
     clientSteps,
   };
 }

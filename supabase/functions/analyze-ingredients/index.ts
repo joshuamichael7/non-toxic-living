@@ -461,74 +461,23 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Last resort: GPT-4o vision EXTRACTION ONLY (not analysis)
+    // Extract structured info from image using gpt-4o-mini if we have an image but no text
     let extractedInfo: { productName?: string; brand?: string; ingredients?: string[]; category?: string; language?: string } = {}
 
     if (!ingredientText && imageBase64) {
-      console.log('No text from Cloud Vision — falling back to GPT-4o extraction...')
+      console.log('No text from Cloud Vision — falling back to GPT-4o-mini vision extraction...')
       const extractStart = Date.now()
-      extractionModel = 'gpt-4o'
+      extractionModel = 'gpt-4o-mini'
 
       try {
         const visionResponse = await openai.chat.completions.create({
-          model: 'gpt-4o',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
-              content: `You are an ingredient extraction expert. Your PRIMARY job is to extract the INGREDIENT LIST from product labels.
-
-CRITICAL RULES:
-1. FOCUS ON INGREDIENTS - The ingredient list is the most important thing. Look for text starting with "Ingredients:", "성분:", "成分", or similar.
-2. DO NOT GUESS the product name if you cannot clearly read it. Use "Unknown Product" instead of guessing.
-3. If the label is in Korean, Chinese, Japanese, or another non-Latin script:
-   - Try to transliterate or translate the product name if you CAN read it
-   - For ingredients, provide the English name if you recognize the chemical/ingredient
-   - If you can't identify an ingredient, include it as-is
-4. NEVER assume what product it is based on partial information.
-
-Category classification (be specific):
-- "soap" = body soap, hand soap, bar soap, body wash, liquid soap
-- "skincare" = lotions, moisturizers, serums, face wash, face cream
-- "sunscreen" = sunscreen, sunblock, SPF products, UV protection
-- "haircare" = shampoo, conditioner, hair treatment
-- "oral_care" = toothpaste, mouthwash
-- "deodorant" = deodorant, antiperspirant
-- "makeup" = foundation, lipstick, mascara, eyeshadow, blush, concealer, color cosmetics
-- "nail_care" = nail polish, nail polish remover, cuticle treatments
-- "personal_care" = other personal care not fitting above subcategories
-- "cleaning" = household cleaners, dish soap, surface spray
-- "laundry" = laundry detergent, fabric softener
-- "fragrance" = candles, air fresheners, room sprays, reed diffusers, perfume, cologne, incense
-- "food" = edible products, meals, ingredients
-- "snack" = chips, crackers, bars, cookies
-- "beverage" = drinks, juice, soda
-- "condiment" = sauces, dressings, ketchup
-- "dairy" = milk, cheese, yogurt, butter
-- "supplement" = vitamins, dietary supplements, protein powder
-- "baby" = baby-specific products (non-food)
-- "baby_food" = baby food, formula
-- "toys" = children's toys, play items, craft supplies
-- "cookware" = pans, pots, kitchen items
-- "storage" = food storage, containers
-- "pet" = pet food, pet treats, pet shampoo, pet care products
-- "clothing" = clothing, textiles, fabric items, shoes
-- "furniture" = furniture, wood treatment, upholstery
-- "mattress" = mattresses, bedding, pillows, mattress toppers
-- "paint" = paint, stain, varnish, sealant, adhesive
-- "garden" = pesticides, herbicides, fertilizers, garden chemicals, insect repellent
-- "household" = general home items not fitting above
-
-Return JSON:
-{
-  "productName": "exact name from label, or 'Unknown Product' if unreadable",
-  "brand": "brand if visible, or 'Unknown'",
-  "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|sunscreen|haircare|oral_care|deodorant|soap|makeup|nail_care|cleaning|laundry|fragrance|cookware|storage|supplement|baby|toys|household|furniture|mattress|paint|garden|pet|clothing",
-  "language": "detected language",
-  "ingredients": ["ingredient1", "ingredient2", ...],
-  "readabilityNote": "any issues reading the label"
-}
-
-PRIORITY: Extract as many ingredients as possible, even if you can't identify the product name.`
+              content: `You are an ingredient extraction expert. Extract the INGREDIENT LIST from this product label image.
+Return JSON: { "productName": "name or Unknown Product", "brand": "brand or Unknown", "category": "food|personal_care|cleaning|etc", "language": "detected language", "ingredients": ["ingredient1", ...], "readabilityNote": "any issues" }
+Focus on finding text starting with "Ingredients:", "성분:", "成분", or similar. Extract as many ingredients as possible.`
             },
             {
               role: 'user',
@@ -537,7 +486,7 @@ PRIORITY: Extract as many ingredients as possible, even if you can't identify th
                   type: 'image_url',
                   image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'high' }
                 },
-                { type: 'text', text: 'Extract the ingredient list from this product label. Focus on finding and reading ALL ingredients. If you cannot read the product name clearly, say "Unknown Product" - do not guess.' }
+                { type: 'text', text: 'Extract the ingredient list from this product label.' }
               ]
             }
           ],
@@ -551,18 +500,18 @@ PRIORITY: Extract as many ingredients as possible, even if you can't identify th
         const extractDuration = Date.now() - extractStart
 
         pipelineSteps.push({
-          name: 'GPT-4o Vision Extraction',
+          name: 'GPT-4o-mini Vision Extraction',
           status: ingredientText ? 'success' : 'failed',
           durationMs: extractDuration,
           detail: ingredientText
             ? `Extracted ${extractedInfo.ingredients?.length || 0} ingredients (${extractedInfo.language || 'unknown'} label)`
             : 'Could not extract ingredients',
         })
-        console.log('GPT-4o extracted:', extractedInfo.productName, '-', ingredientText.substring(0, 100))
+        console.log('GPT-4o-mini extracted:', extractedInfo.productName, '-', ingredientText.substring(0, 100))
       } catch (visionErr) {
         const extractDuration = Date.now() - extractStart
         pipelineSteps.push({
-          name: 'GPT-4o Vision Extraction',
+          name: 'GPT-4o-mini Vision Extraction',
           status: 'failed',
           durationMs: extractDuration,
           detail: `Error: ${visionErr instanceof Error ? visionErr.message : 'Unknown'}`,
@@ -571,7 +520,7 @@ PRIORITY: Extract as many ingredients as possible, even if you can't identify th
       }
     } else if (ingredientText) {
       pipelineSteps.push({
-        name: 'GPT-4o Vision Extraction',
+        name: 'Vision Extraction',
         status: 'skipped',
         durationMs: 0,
         detail: 'Text already available from earlier OCR step',
