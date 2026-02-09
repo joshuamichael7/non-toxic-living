@@ -209,6 +209,7 @@ Deno.serve(async (req) => {
             concerns: cachedProduct.analysis?.concerns || [],
             positives: cachedProduct.analysis?.positives || [],
             swaps: await getSwapRecommendations(supabase, cachedProduct, store, blockedProducts || []),
+            coupons: await getCouponsForCategory(supabase, cachedProduct.category),
             ocrSource,
             model: 'cached',
             cached: true,
@@ -243,6 +244,65 @@ Deno.serve(async (req) => {
     }
 
     // =========================================================================
+    // STEP 1.5: Check scan quota (skip for cached results — already returned above)
+    // =========================================================================
+    if (userId) {
+      const quotaStart = Date.now()
+      try {
+        const { data: quotaResult, error: quotaError } = await supabase.rpc(
+          'check_and_increment_scan_quota',
+          { user_uuid: userId }
+        )
+
+        if (quotaError) {
+          console.warn('Quota check failed (allowing scan):', quotaError)
+          pipelineSteps.push({
+            name: 'Quota Check',
+            status: 'failed',
+            durationMs: Date.now() - quotaStart,
+            detail: `Quota check error: ${quotaError.message}`,
+          })
+        } else if (quotaResult && quotaResult.length > 0) {
+          const quota = quotaResult[0]
+          pipelineSteps.push({
+            name: 'Quota Check',
+            status: quota.allowed ? 'success' : 'failed',
+            durationMs: Date.now() - quotaStart,
+            detail: `${quota.scans_used}/${quota.scans_limit} scans used`,
+          })
+
+          if (!quota.allowed) {
+            console.log('Quota exceeded for user:', userId, quota)
+            return new Response(JSON.stringify({
+              error: 'quota_exceeded',
+              scansUsed: quota.scans_used,
+              scansLimit: quota.scans_limit,
+              resetsAt: quota.resets_at,
+              pipelineTrace: {
+                steps: pipelineSteps,
+                extractedText: '',
+                totalDurationMs: Date.now() - requestStart,
+                ocrSource,
+                analysisModel: 'none',
+              },
+            }), {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('Quota check exception (allowing scan):', err)
+        pipelineSteps.push({
+          name: 'Quota Check',
+          status: 'failed',
+          durationMs: Date.now() - quotaStart,
+          detail: 'Quota check exception — allowing scan',
+        })
+      }
+    }
+
+    // =========================================================================
     // STEP 2: Ensure we have ingredient text
     // This is strictly OCR/extraction — NO analysis here
     // =========================================================================
@@ -251,7 +311,7 @@ Deno.serve(async (req) => {
     let extractionModel: string | null = null
     const isManualInput = ocrSource === 'manual'
 
-    // For manual input, skip all OCR and use the text directly
+    // For manual input, use the text directly but also extract text from photo if provided
     if (isManualInput) {
       pipelineSteps.push({
         name: 'Manual Input',
@@ -262,6 +322,97 @@ Deno.serve(async (req) => {
           : 'No product description provided',
       })
       console.log('Manual input:', ingredientText.substring(0, 200))
+
+      // If user also attached a photo, extract text from it to supplement the description
+      if (imageBase64) {
+        console.log('Manual scan has photo — extracting text...')
+        let photoText = ''
+
+        // Try Google Cloud Vision first (cheapest, ~$0.0015/image)
+        const gcvStart = Date.now()
+        const visionResult = await extractTextWithGoogleVision(imageBase64)
+        const gcvDuration = Date.now() - gcvStart
+
+        if (visionResult.text && visionResult.text.length > 10) {
+          photoText = visionResult.text
+          pipelineSteps.push({
+            name: 'Photo Text Extraction (GCV)',
+            status: 'success',
+            durationMs: gcvDuration,
+            detail: `Extracted ${visionResult.text.length} chars from photo`,
+          })
+          console.log('GCV extracted from manual photo:', photoText.substring(0, 200))
+        } else {
+          pipelineSteps.push({
+            name: 'Photo Text Extraction (GCV)',
+            status: visionResult.text ? 'failed' : 'skipped',
+            durationMs: gcvDuration,
+            detail: visionResult.text
+              ? `Only ${visionResult.text.length} chars — too short`
+              : (Deno.env.get('GOOGLE_CLOUD_API_KEY') ? 'No text detected' : 'API key not configured'),
+          })
+
+          // Fallback: GPT-4o-mini vision (supports images, ~$0.001 with detail:low)
+          const miniStart = Date.now()
+          try {
+            const miniResponse = await openai.chat.completions.create({
+              model: 'gpt-4o-mini',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'Extract ALL visible text from this product image. Include brand names, product names, ingredient lists, material labels, care instructions, warnings, and any other text. Return only the extracted text, nothing else.'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'image_url',
+                      image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'low' }
+                    },
+                    { type: 'text', text: 'Extract all text visible on this product.' }
+                  ]
+                }
+              ],
+              max_tokens: 1000,
+            })
+
+            const miniText = miniResponse.choices[0]?.message?.content || ''
+            const miniDuration = Date.now() - miniStart
+
+            if (miniText.length > 10) {
+              photoText = miniText
+              pipelineSteps.push({
+                name: 'Photo Text Extraction (GPT-4o-mini)',
+                status: 'success',
+                durationMs: miniDuration,
+                detail: `Extracted ${miniText.length} chars from photo`,
+              })
+              console.log('GPT-4o-mini extracted from manual photo:', miniText.substring(0, 200))
+            } else {
+              pipelineSteps.push({
+                name: 'Photo Text Extraction (GPT-4o-mini)',
+                status: 'failed',
+                durationMs: miniDuration,
+                detail: 'Could not extract meaningful text from photo',
+              })
+            }
+          } catch (miniErr) {
+            pipelineSteps.push({
+              name: 'Photo Text Extraction (GPT-4o-mini)',
+              status: 'failed',
+              durationMs: Date.now() - miniStart,
+              detail: `Error: ${miniErr instanceof Error ? miniErr.message : 'Unknown'}`,
+            })
+            console.error('GPT-4o-mini vision error:', miniErr)
+          }
+        }
+
+        // Append extracted text to user's description
+        if (photoText) {
+          ingredientText += '\n\nText from photo:\n' + photoText
+          console.log('Appended photo text, total length:', ingredientText.length)
+        }
+      }
     } else if (ingredientText) {
       // Log what the client sent
       pipelineSteps.push({
@@ -601,38 +752,108 @@ ${ingredientText}`
       scan_count: 1,
     }
 
-    const { data: savedProduct, error: saveError } = await supabase
-      .from('products')
-      .upsert(productData, {
-        onConflict: barcode ? 'barcode' : undefined,
-        ignoreDuplicates: false
-      })
-      .select('id')
-      .single()
+    let savedProduct: { id: string } | null = null
+    const DEDUP_SIMILARITY_THRESHOLD = 0.92
 
-    if (saveError) {
-      console.warn('Failed to cache product:', saveError)
+    if (barcode) {
+      // Upsert by barcode (most reliable dedup)
+      const { data, error: saveError } = await supabase
+        .from('products')
+        .upsert(productData, { onConflict: 'barcode', ignoreDuplicates: false })
+        .select('id')
+        .single()
+      if (saveError) console.warn('Failed to cache product:', saveError)
+      else savedProduct = data
+    } else if (embedding) {
+      // Embedding-based dedup: find semantically similar existing product
+      try {
+        const { data: matches } = await supabase.rpc('search_products_semantic', {
+          query_embedding: embedding,
+          match_threshold: DEDUP_SIMILARITY_THRESHOLD,
+          match_count: 1,
+        })
+
+        if (matches && matches.length > 0) {
+          // Found a near-duplicate — update existing product with fresh analysis
+          const match = matches[0]
+          console.log(`Dedup: embedding match (${match.similarity.toFixed(3)}): "${match.name}" → updating`)
+
+          const { data: existing } = await supabase
+            .from('products')
+            .select('scan_count')
+            .eq('id', match.id)
+            .single()
+
+          const { data, error: updateError } = await supabase
+            .from('products')
+            .update({
+              ...productData,
+              scan_count: (existing?.scan_count || 0) + 1,
+            })
+            .eq('id', match.id)
+            .select('id')
+            .single()
+          if (updateError) console.warn('Failed to update product:', updateError)
+          else savedProduct = data
+        } else {
+          // No similar product found — insert new
+          const { data, error: insertError } = await supabase
+            .from('products')
+            .insert(productData)
+            .select('id')
+            .single()
+          if (insertError) console.warn('Failed to insert product:', insertError)
+          else savedProduct = data
+        }
+      } catch (err) {
+        console.warn('Embedding dedup failed, inserting new:', err)
+        const { data, error: insertError } = await supabase
+          .from('products')
+          .insert(productData)
+          .select('id')
+          .single()
+        if (insertError) console.warn('Failed to insert product:', insertError)
+        else savedProduct = data
+      }
     } else {
-      console.log('Product cached:', savedProduct?.id)
+      // No barcode and no embedding — just insert
+      const { data, error: insertError } = await supabase
+        .from('products')
+        .insert(productData)
+        .select('id')
+        .single()
+      if (insertError) console.warn('Failed to insert product:', insertError)
+      else savedProduct = data
     }
 
+    if (savedProduct) console.log('Product cached:', savedProduct.id)
+
     // =========================================================================
-    // STEP 6: Track the scan
+    // STEP 6: Get swap recommendations + coupons (filtered against blocklist)
+    // =========================================================================
+    const swaps = analysis.score < 67
+      ? await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
+      : []
+
+    // Fetch matching coupons for this category
+    const coupons = await getCouponsForCategory(supabase, analysis.category)
+
+    // =========================================================================
+    // STEP 7: Track the scan
     // =========================================================================
     if (userId) {
       await trackScan(supabase, userId, {
         id: savedProduct?.id,
         ...analysis,
-        analysis: { concerns: analysis.concerns, positives: analysis.positives }
+        analysis: {
+          concerns: analysis.concerns,
+          positives: analysis.positives,
+          summary: analysis.summary,
+          dadsTake: analysis.dadsTake,
+          swaps,
+        }
       }, actualOcrSource, ocrConfidence, false)
     }
-
-    // =========================================================================
-    // STEP 7: Get swap recommendations (filtered against blocklist)
-    // =========================================================================
-    const swaps = analysis.score < 67
-      ? await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
-      : []
 
     const totalDuration = Date.now() - requestStart
     console.log(`=== Edge Function Complete (${totalDuration}ms) ===`)
@@ -640,6 +861,7 @@ ${ingredientText}`
     return new Response(JSON.stringify({
       ...analysis,
       swaps,
+      coupons,
       ocrSource: actualOcrSource,
       model: analysisModel,
       cached: false,
@@ -865,6 +1087,31 @@ async function trackScan(
     console.log('Scan tracked for user:', userId)
   } catch (err) {
     console.warn('Failed to track scan:', err)
+  }
+}
+
+// Helper: Get coupons for a product category
+async function getCouponsForCategory(supabase: any, category: string): Promise<any[]> {
+  try {
+    const categories = getRelatedCategories(category)
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('id, brand_name, title, description, coupon_code, discount_type, discount_value, category, redemption_url, badge_text, expires_at')
+      .in('category', categories)
+      .eq('is_active', true)
+      .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(3)
+
+    if (error) {
+      console.warn('Failed to fetch coupons:', error)
+      return []
+    }
+
+    return data || []
+  } catch (err) {
+    console.warn('Coupon fetch error:', err)
+    return []
   }
 }
 

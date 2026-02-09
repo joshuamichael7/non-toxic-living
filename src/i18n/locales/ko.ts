@@ -87,7 +87,15 @@ export default {
   'result.positives': '긍정적 요소',
   'result.betterAlternatives': '더 나은 대안',
   'result.save': '저장',
+  'result.saved': '저장됨!',
   'result.scanAgain': '다시 스캔',
+
+  // Swap details
+  'swap.safetyScore': '안전 점수',
+  'swap.whyBetter': '왜 더 나은지',
+  'swap.availableAt': '구매처',
+  'swap.shopNow': '지금 구매',
+  'swap.close': '닫기',
 
   // Verdicts
   'verdict.safe': '안전',
@@ -155,6 +163,7 @@ export default {
   'store.change': '변경',
   'store.shoppingAt': '{{store}}에서 쇼핑 중',
   'store.clear': '지우기',
+  'store.findAtStore': '매장에서 찾기',
 
   // Scan - No label option
   'scan.noLabel': '라벨이 없나요? 설명하세요',
@@ -172,6 +181,7 @@ export default {
   'describe.removePhoto': '제거',
   'describe.analyze': '제품 분석',
   'describe.selectType': '제품 유형을 선택해주세요',
+  'describe.type.food': '식품 및 음료',
   'describe.type.furniture': '가구',
   'describe.type.mattress': '매트리스 및 침구',
   'describe.type.clothing': '의류 및 섬유',
@@ -187,10 +197,128 @@ export default {
   // Pipeline debug - manual
   'pipeline.manual': '수동 설명',
 
+  // Coupons
+  'coupon.partnerDeal': '파트너 특가',
+  'coupon.freeShipping': '무료배송',
+  'coupon.bogo': '1+1',
+  'coupon.expiresIn': '{{days}}일 남음',
+  'coupon.redeem': '특가 이용하기',
+  'coupon.copied': '복사됨!',
+  'coupon.deals': '특가 및 할인',
+
+  // Subscription
+  'subscription.title': '플랜 선택',
+  'subscription.subtitle': '더 많은 스캔과 프리미엄 기능을 잠금 해제하세요',
+  'subscription.monthly': '월간',
+  'subscription.annual': '연간',
+  'subscription.perMonth': '/월',
+  'subscription.perYear': '/년',
+  'subscription.subscribe': '구독하기',
+  'subscription.current': '현재',
+  'subscription.currentPlan': '{{plan}} 플랜',
+  'subscription.goPremium': '프리미엄으로 업그레이드',
+  'subscription.goPremiumDesc': '더 많은 스캔, 상세 보고서 등',
+  'subscription.managePlan': '구독 관리',
+  'subscription.restorePurchases': '구매 복원',
+  'subscription.restoring': '복원 중...',
+  'subscription.restored': '구매가 복원되었습니다!',
+  'subscription.restoreNone': '이전 구매 내역이 없습니다',
+  'subscription.cancelAnytime': '언제든 취소 가능합니다. 구독은 취소할 때까지 자동 갱신됩니다.',
+  'subscription.purchaseError': '구매에 실패했습니다. 다시 시도해주세요.',
+  'subscription.processing': '처리 중...',
+  'subscription.oneMonthFree': '1개월 무료',
+
+  // Tiers
+  'tier.free': '무료',
+  'tier.pro': 'Pro',
+  'tier.power': 'Power',
+  'tier.freeDesc': '시작하기',
+  'tier.proDesc': '가장 인기',
+  'tier.powerDesc': '파워 유저용',
+
+  // Features
+  'feature.freeScans': '월 5회 스캔',
+  'feature.basicAnalysis': '기본 성분 분석',
+  'feature.proScans': '월 200회 스캔',
+  'feature.detailedReports': '상세 안전 보고서',
+  'feature.prioritySupport': '우선 지원',
+  'feature.powerScans': '월 500회 스캔',
+  'feature.allProFeatures': 'Pro의 모든 기능',
+  'feature.familySharing': '가족 공유',
+  'feature.exportReports': '스캔 보고서 내보내기',
+
+  // Pricing fallbacks
+  'price.free': '무료',
+
+  // Profile plan labels
+  'profile.proPlan': 'Pro 플랜',
+  'profile.powerPlan': 'Power 플랜',
+
+  // Quota
+  'quota.title': '스캔 한도에 도달했습니다',
+  'quota.description': '이번 달 {{limit}}회 중 {{used}}회 스캔을 사용했습니다.',
+  'quota.resetsIn': '{{days}}일 후 초기화',
+  'quota.upgradePro': 'Pro로 업그레이드',
+  'quota.dismiss': '나중에',
+
   // Common
   'common.cancel': '취소',
   'common.save': '저장',
   'common.close': '닫기',
   'common.error': '오류',
   'common.loading': '로딩 중...',
+
+  // Search results
+  'search.results': '결과',
+  'search.searching': '검색 중...',
+  'search.noResults': '결과를 찾을 수 없습니다',
+  'search.noResultsDesc': '다른 검색어를 시도하거나 카테고리를 둘러보세요',
+
+  // History screen
+  'history.title': '스캔 기록',
+  'history.all': '전체',
+  'history.favorites': '즐겨찾기',
+  'history.avoid': '피하기',
+  'history.empty': '아직 스캔이 없습니다',
+  'history.emptyDesc': '스캔한 제품이 여기에 표시됩니다',
+  'history.emptyFavorites': '아직 즐겨찾기가 없습니다',
+  'history.emptyFavoritesDesc': '좋아하는 제품을 저장하면 여기에서 찾을 수 있습니다',
+  'history.emptyAvoid': '피할 항목이 없습니다',
+  'history.emptyAvoidDesc': '피하고 싶은 제품이 여기에 표시됩니다',
+
+  // Notifications screen
+  'notifications.title': '알림',
+  'notifications.productAlerts': '제품 알림',
+  'notifications.productAlertsDesc': '리콜 및 안전 업데이트에 대한 알림 받기',
+  'notifications.scanReminders': '스캔 리마인더',
+  'notifications.scanRemindersDesc': '구매 전 제품 스캔 리마인더',
+  'notifications.ingredientWarnings': '성분 경고',
+  'notifications.ingredientWarningsDesc': '새로 주의가 필요한 성분에 대한 알림',
+  'notifications.weeklyReport': '주간 보고서',
+  'notifications.weeklyReportDesc': '스캔 활동 주간 요약',
+
+  // Help screen
+  'help.title': '도움말 및 지원',
+  'help.faq': '자주 묻는 질문',
+  'help.faq1Q': '스캐너는 어떻게 작동하나요?',
+  'help.faq1A': '성분 라벨에 카메라를 대세요. AI가 텍스트를 읽고 각 성분의 잠재적 건강 우려를 분석하여 0-100의 안전 점수를 제공합니다.',
+  'help.faq2Q': '결과는 얼마나 정확한가요?',
+  'help.faq2A': '분석은 과학 연구와 규제 데이터베이스를 기반으로 합니다. 정확성을 위해 노력하지만, 의료 결정은 항상 의료 전문가와 상담하세요.',
+  'help.faq3Q': '라벨이 없는 제품도 스캔할 수 있나요?',
+  'help.faq3A': '네! "라벨이 없나요? 설명하세요" 옵션을 사용하여 가구, 조리기구 또는 성분 목록이 없는 기타 제품을 수동으로 설명할 수 있습니다.',
+  'help.faq4Q': '점수는 무엇을 의미하나요?',
+  'help.faq4A': '67-100은 안전(녹색), 34-66은 주의(노란색), 0-33은 피하기(빨간색)입니다. 점수는 성분 독성, 규제 상태 및 잠재적 건강 영향을 고려합니다.',
+  'help.contact': '문의하기',
+  'help.emailSupport': '이메일 지원',
+  'help.reportProblem': '문제 신고',
+  'help.appFeedback': '앱 피드백',
+
+  // About screen
+  'about.title': '정보',
+  'about.appName': 'Non-Toxic Living',
+  'about.missionTitle': '우리의 미션',
+  'about.mission': '우리는 모든 사람이 자신의 제품에 무엇이 들어있는지 알 권리가 있다고 믿습니다. 유해한 성분을 쉽게 식별하고 가족을 위한 더 안전한 대안을 찾는 것이 우리의 사명입니다.',
+  'about.privacyPolicy': '개인정보처리방침',
+  'about.termsOfService': '이용약관',
+  'about.creditsDesc': '더 건강한 생활을 위해 정성껏 만들었습니다.\nAI와 과학적 연구를 기반으로 합니다.',
 } as const;

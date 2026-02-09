@@ -68,16 +68,19 @@ export default function HomeScreen() {
               <Text style={{ fontSize: 20, fontWeight: '700', color: colors.ink }}>{t('home.scanAnything')}</Text>
             </View>
           </View>
-          <Pressable style={{
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            backgroundColor: colors.glassSolid,
-            borderWidth: 1,
-            borderColor: colors.glassBorder,
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <Pressable
+            onPress={() => router.push('/notifications')}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: colors.glassSolid,
+              borderWidth: 1,
+              borderColor: colors.glassBorder,
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             <Ionicons name="notifications-outline" size={22} color={colors.ink} />
           </Pressable>
         </View>
@@ -160,6 +163,7 @@ export default function HomeScreen() {
             {categories.map((cat, index) => (
               <Pressable
                 key={cat.name}
+                onPress={() => router.push('/(tabs)/search')}
                 style={{
                   backgroundColor: index === 0 ? colors.oxygen : colors.glassSolid,
                   borderRadius: 16,
@@ -219,7 +223,7 @@ export default function HomeScreen() {
             <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
               {t('home.recentScans')}
             </Text>
-            <Pressable>
+            <Pressable onPress={() => router.push('/history')}>
               <Text style={{ fontSize: 14, fontWeight: '600', color: colors.oxygen }}>{t('home.seeAll')}</Text>
             </Pressable>
           </View>

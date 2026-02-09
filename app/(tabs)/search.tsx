@@ -1,8 +1,12 @@
-import { useState } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, TextInput, ScrollView, Pressable, ActivityIndicator, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+
+import { searchCombined } from '@/services/api/analyze';
+import type { CombinedSearchResult } from '@/services/api/analyze';
 
 // Aerogel Design System Colors
 const colors = {
@@ -14,28 +18,74 @@ const colors = {
   ink: '#1A1A1A',
   inkSecondary: '#64748B',
   inkMuted: '#94A3B8',
+  safe: '#10B981',
+  safeLight: 'rgba(16, 185, 129, 0.15)',
+  caution: '#F59E0B',
+  cautionLight: 'rgba(245, 158, 11, 0.15)',
+  toxic: '#EF4444',
+  toxicLight: 'rgba(239, 68, 68, 0.15)',
 };
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState<CombinedSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [selectedSwap, setSelectedSwap] = useState<CombinedSearchResult | null>(null);
   const { t } = useTranslation();
+  const router = useRouter();
+
+  const handleSearch = useCallback(async (query: string, categories?: string[]) => {
+    const trimmed = query.trim();
+    if (!trimmed && !categories) return;
+    setSearching(true);
+    setHasSearched(true);
+    try {
+      const data = await searchCombined(trimmed, 20, categories);
+      setResults(data);
+    } catch {
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  const handleClear = () => {
+    setSearchQuery('');
+    setResults([]);
+    setHasSearched(false);
+  };
+
+  const handleResultPress = (item: CombinedSearchResult) => {
+    if (item.source === 'swap') {
+      setSelectedSwap(item);
+    } else {
+      router.push(`/result/product-${item.id}`);
+    }
+  };
+
+  const verdictConfig = {
+    safe: { bg: 'rgba(16, 185, 129, 0.15)', color: '#10B981', borderColor: '#10B981' },
+    caution: { bg: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', borderColor: '#F59E0B' },
+    toxic: { bg: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', borderColor: '#EF4444' },
+  };
 
   const categories = [
-    { name: t('category.foodDrinks'), icon: 'nutrition-outline' as const },
-    { name: t('category.personalCare'), icon: 'body-outline' as const },
-    { name: t('category.household'), icon: 'home-outline' as const },
-    { name: t('category.babyKids'), icon: 'happy-outline' as const },
-    { name: t('category.cookware'), icon: 'restaurant-outline' as const },
-    { name: t('category.cleaning'), icon: 'sparkles-outline' as const },
+    { name: t('category.foodDrinks'), icon: 'nutrition-outline' as const, dbCategories: ['food', 'snack', 'beverage', 'condiment', 'dairy'] },
+    { name: t('category.personalCare'), icon: 'body-outline' as const, dbCategories: ['personal_care', 'soap', 'skincare', 'sunscreen', 'haircare', 'oral_care', 'deodorant', 'makeup', 'nail_care'] },
+    { name: t('category.household'), icon: 'home-outline' as const, dbCategories: ['household', 'furniture', 'mattress', 'paint', 'garden', 'fragrance'] },
+    { name: t('category.babyKids'), icon: 'happy-outline' as const, dbCategories: ['baby', 'baby_food', 'toys'] },
+    { name: t('category.cookware'), icon: 'restaurant-outline' as const, dbCategories: ['cookware', 'storage'] },
+    { name: t('category.cleaning'), icon: 'sparkles-outline' as const, dbCategories: ['cleaning', 'laundry'] },
   ];
 
   const popularSearches = [
-    t('search.nonToxicSunscreen'),
-    t('search.safeCookware'),
-    t('search.cleanShampoo'),
-    t('search.organicSnacks'),
-    t('search.pfasFree'),
-    t('search.naturalDeodorant'),
+    { label: t('search.nonToxicSunscreen'), dbCategories: ['sunscreen'] },
+    { label: t('search.safeCookware'), dbCategories: ['cookware', 'storage'] },
+    { label: t('search.cleanShampoo'), dbCategories: ['haircare'] },
+    { label: t('search.organicSnacks'), dbCategories: ['snack', 'food'] },
+    { label: t('search.pfasFree'), dbCategories: ['cookware', 'storage', 'clothing'] },
+    { label: t('search.naturalDeodorant'), dbCategories: ['deodorant'] },
   ];
 
   return (
@@ -81,88 +131,451 @@ export default function SearchScreen() {
               placeholderTextColor={colors.inkMuted}
               value={searchQuery}
               onChangeText={setSearchQuery}
+              onSubmitEditing={() => handleSearch(searchQuery)}
+              returnKeyType="search"
             />
             {searchQuery.length > 0 && (
-              <Pressable onPress={() => setSearchQuery('')}>
+              <Pressable onPress={handleClear}>
                 <Ionicons name="close-circle" size={20} color={colors.inkMuted} />
               </Pressable>
             )}
           </View>
         </View>
 
-        {/* Categories */}
-        <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-            {t('search.categories')}
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-            {categories.map((category, index) => (
+        {/* Search Results */}
+        {searching ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors.oxygen} />
+            <Text style={{ color: colors.inkSecondary, marginTop: 12, fontSize: 14 }}>
+              {t('search.searching')}
+            </Text>
+          </View>
+        ) : hasSearched ? (
+          results.length > 0 ? (
+            <View style={{ paddingHorizontal: 24 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('search.results')} ({results.length})
+              </Text>
+              <View style={{ gap: 10 }}>
+                {results.map((item) => {
+                  const verdict = (item.verdict || 'caution') as keyof typeof verdictConfig;
+                  const vConfig = verdictConfig[verdict] || verdictConfig.caution;
+                  return (
+                    <Pressable
+                      key={`${item.source}-${item.id}`}
+                      onPress={() => handleResultPress(item)}
+                      style={{
+                        backgroundColor: colors.glassSolid,
+                        borderRadius: 20,
+                        padding: 16,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        borderWidth: 1,
+                        borderColor: colors.glassBorder,
+                      }}
+                    >
+                      <View style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 16,
+                        backgroundColor: vConfig.bg,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: 14,
+                        borderWidth: 2,
+                        borderColor: vConfig.borderColor,
+                      }}>
+                        <Text style={{ fontSize: 18, fontWeight: '800', color: vConfig.color }}>{item.score}</Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 15, fontWeight: '600', color: colors.ink, marginBottom: 2 }} numberOfLines={1}>
+                          {item.name}
+                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <Text style={{ fontSize: 13, color: colors.inkSecondary }} numberOfLines={1}>
+                            {item.brand || ''}
+                          </Text>
+                          {item.source === 'swap' && (
+                            <View style={{
+                              backgroundColor: colors.safeLight,
+                              borderRadius: 6,
+                              paddingHorizontal: 6,
+                              paddingVertical: 2,
+                              borderWidth: 1,
+                              borderColor: colors.safe,
+                            }}>
+                              <Text style={{ fontSize: 10, fontWeight: '700', color: colors.safe }}>SAFE PICK</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          ) : (
+            <View style={{ paddingHorizontal: 24, paddingTop: 40, alignItems: 'center' }}>
+              <View style={{
+                width: 80,
+                height: 80,
+                backgroundColor: colors.glassSolid,
+                borderRadius: 24,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+              }}>
+                <Ionicons name="search-outline" size={36} color={colors.inkMuted} />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: colors.ink, textAlign: 'center', marginBottom: 8 }}>
+                {t('search.noResults')}
+              </Text>
+              <Text style={{ fontSize: 14, color: colors.inkSecondary, textAlign: 'center' }}>
+                {t('search.noResultsDesc')}
+              </Text>
+            </View>
+          )
+        ) : (
+          <>
+            {/* Categories */}
+            <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('search.categories')}
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+                {categories.map((category, index) => (
+                  <Pressable
+                    key={category.name}
+                    onPress={() => {
+                      setSearchQuery(category.name);
+                      handleSearch(category.name, category.dbCategories);
+                    }}
+                    style={{
+                      backgroundColor: colors.glassSolid,
+                      borderRadius: 20,
+                      padding: 16,
+                      alignItems: 'center',
+                      width: '30%',
+                      borderWidth: 1,
+                      borderColor: colors.glassBorder,
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.04,
+                      shadowRadius: 8,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 16,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: 8,
+                        backgroundColor: index === 0 ? colors.oxygenGlow : colors.canvas,
+                      }}
+                    >
+                      <Ionicons
+                        name={category.icon}
+                        size={24}
+                        color={index === 0 ? colors.oxygen : colors.ink}
+                      />
+                    </View>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.ink, textAlign: 'center' }}>
+                      {category.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            {/* Popular Searches */}
+            <View style={{ paddingHorizontal: 24 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('search.popularSearches')}
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                {popularSearches.map((search) => (
+                  <Pressable
+                    key={search.label}
+                    style={{
+                      backgroundColor: colors.glassSolid,
+                      borderRadius: 12,
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderWidth: 1,
+                      borderColor: colors.glassBorder,
+                    }}
+                    onPress={() => {
+                      setSearchQuery(search.label);
+                      handleSearch(search.label, search.dbCategories);
+                    }}
+                  >
+                    <Text style={{ color: colors.ink, fontWeight: '500' }}>{search.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </>
+        )}
+      </ScrollView>
+
+      {/* Swap Detail Modal */}
+      <Modal
+        visible={!!selectedSwap}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSelectedSwap(null)}
+      >
+        {selectedSwap && (
+          <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
+            {/* Modal Header */}
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 20,
+              paddingVertical: 16,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.glassBorder,
+            }}>
               <Pressable
-                key={category.name}
+                onPress={() => setSelectedSwap(null)}
                 style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
                   backgroundColor: colors.glassSolid,
-                  borderRadius: 20,
-                  padding: 16,
-                  alignItems: 'center',
-                  width: '30%',
                   borderWidth: 1,
                   borderColor: colors.glassBorder,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.04,
-                  shadowRadius: 8,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <View
+                <Ionicons name="close" size={24} color={colors.ink} />
+              </Pressable>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('result.betterAlternatives')}
+              </Text>
+              <View style={{ width: 44 }} />
+            </View>
+
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Score Hero */}
+              <View style={{
+                backgroundColor: colors.glassSolid,
+                borderRadius: 32,
+                padding: 28,
+                alignItems: 'center',
+                marginBottom: 20,
+                borderWidth: 1,
+                borderColor: colors.glassBorder,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.06,
+                shadowRadius: 24,
+              }}>
+                <View style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 34,
+                  backgroundColor: colors.safeLight,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 20,
+                  borderWidth: 4,
+                  borderColor: colors.safe,
+                  shadowColor: colors.safe,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                }}>
+                  <Text style={{ fontSize: 40, fontWeight: '800', color: colors.safe }}>{selectedSwap.score}</Text>
+                </View>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 4 }}>
+                  {selectedSwap.name}
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.inkSecondary, fontWeight: '500', marginBottom: 12 }}>
+                  {selectedSwap.brand}
+                </Text>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: colors.safeLight,
+                  borderRadius: 12,
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  borderWidth: 1,
+                  borderColor: colors.safe,
+                }}>
+                  <Ionicons name="checkmark-circle" size={18} color={colors.safe} style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.safe }}>
+                    {t('swap.safetyScore')}: {selectedSwap.score}/100
+                  </Text>
+                </View>
+              </View>
+
+              {/* Why Better */}
+              {selectedSwap.why_better && (
+                <View style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 24,
+                  padding: 20,
+                  marginBottom: 20,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: colors.safeLight,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="leaf" size={16} color={colors.safe} />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('swap.whyBetter')}
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 15, color: colors.ink, lineHeight: 24, fontWeight: '500' }}>
+                    {selectedSwap.why_better}
+                  </Text>
+                </View>
+              )}
+
+              {/* Available Stores */}
+              {selectedSwap.available_stores && selectedSwap.available_stores.length > 0 && (
+                <View style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 24,
+                  padding: 20,
+                  marginBottom: 20,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: colors.oxygenGlow,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="storefront" size={16} color={colors.oxygen} />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('swap.availableAt')}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {selectedSwap.available_stores.map((store) => (
+                      <View key={store} style={{
+                        backgroundColor: colors.canvas,
+                        borderRadius: 12,
+                        paddingVertical: 8,
+                        paddingHorizontal: 14,
+                        borderWidth: 1,
+                        borderColor: colors.glassBorder,
+                      }}>
+                        <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Badges */}
+              {selectedSwap.badges && selectedSwap.badges.length > 0 && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                  {selectedSwap.badges.map((badge) => (
+                    <View key={badge} style={{
+                      backgroundColor: colors.safeLight,
+                      borderRadius: 12,
+                      paddingVertical: 8,
+                      paddingHorizontal: 14,
+                      borderWidth: 1,
+                      borderColor: colors.safe,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                      <Ionicons name="ribbon" size={14} color={colors.safe} style={{ marginRight: 6 }} />
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.safe }}>{badge}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Bottom CTA */}
+            <View style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: colors.glassSolid,
+              paddingHorizontal: 20,
+              paddingTop: 16,
+              paddingBottom: 34,
+              borderTopWidth: 1,
+              borderTopColor: colors.glassBorder,
+            }}>
+              {selectedSwap.affiliate_url ? (
+                <Pressable
+                  onPress={() => {
+                    if (selectedSwap.affiliate_url) {
+                      Linking.openURL(selectedSwap.affiliate_url);
+                    }
+                  }}
                   style={{
-                    width: 48,
-                    height: 48,
+                    backgroundColor: colors.safe,
                     borderRadius: 16,
+                    paddingVertical: 18,
+                    flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: 8,
-                    backgroundColor: index === 0 ? colors.oxygenGlow : colors.canvas,
+                    shadowColor: colors.safe,
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
                   }}
                 >
-                  <Ionicons
-                    name={category.icon}
-                    size={24}
-                    color={index === 0 ? colors.oxygen : colors.ink}
-                  />
-                </View>
-                <Text style={{ fontSize: 12, fontWeight: '600', color: colors.ink, textAlign: 'center' }}>
-                  {category.name}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {/* Popular Searches */}
-        <View style={{ paddingHorizontal: 24 }}>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-            {t('search.popularSearches')}
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-            {popularSearches.map((search) => (
-              <Pressable
-                key={search}
-                style={{
-                  backgroundColor: colors.glassSolid,
-                  borderRadius: 12,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderWidth: 1,
-                  borderColor: colors.glassBorder,
-                }}
-                onPress={() => setSearchQuery(search)}
-              >
-                <Text style={{ color: colors.ink, fontWeight: '500' }}>{search}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
+                  <Ionicons name="cart" size={22} color="white" style={{ marginRight: 10 }} />
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 18 }}>
+                    {t('swap.shopNow')}
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => setSelectedSwap(null)}
+                  style={{
+                    backgroundColor: colors.oxygen,
+                    borderRadius: 16,
+                    paddingVertical: 18,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 18 }}>
+                    {t('swap.close')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </SafeAreaView>
+        )}
+      </Modal>
     </SafeAreaView>
   );
 }

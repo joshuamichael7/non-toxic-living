@@ -1,13 +1,17 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Share, ActivityIndicator, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import * as Haptics from 'expo-haptics';
 
 import { useScanStore } from '@/stores/useScanStore';
-import { usePreferencesStore } from '@/stores/usePreferencesStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { StorePrompt } from '@/components/swaps/StorePrompt';
+import { getScanById, saveScanToList, getSwapsForProduct, getProductById } from '@/services/api/analyze';
+import { CouponCard } from '@/components/swaps/CouponCard';
+import type { AnalysisResult, Concern, Swap } from '@/services/api/analyze';
 
 // Aerogel Design System Colors
 const colors = {
@@ -45,13 +49,14 @@ const DEMO_RESULT = {
   ],
   positives: ['No trans fats', 'Gluten-free'],
   swaps: [
-    { id: '1', name: 'Lesser Evil Paleo Puffs', brand: 'Lesser Evil', score: 82 },
-    { id: '2', name: 'Hippeas Organic Chickpea Puffs', brand: 'Hippeas', score: 78 },
+    { id: '1', name: 'Lesser Evil Paleo Puffs', brand: 'Lesser Evil', score: 82, affiliate_url: undefined },
+    { id: '2', name: 'Hippeas Organic Chickpea Puffs', brand: 'Hippeas', score: 78, affiliate_url: undefined },
   ],
   ocrSource: 'device' as const,
   model: 'gpt-4o-mini',
   cached: false,
   cachedAt: undefined,
+  coupons: [],
 };
 
 const severityConfig = {
@@ -65,6 +70,7 @@ export default function ResultScreen() {
   const router = useRouter();
   const { currentResult, clearScan } = useScanStore();
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
 
   const verdictConfig = {
     safe: { bg: colors.safeLight, color: colors.safe, borderColor: colors.safe, label: t('verdict.safe'), icon: 'checkmark-circle' as const },
@@ -72,9 +78,147 @@ export default function ResultScreen() {
     toxic: { bg: colors.toxicLight, color: colors.toxic, borderColor: colors.toxic, label: t('verdict.toxic'), icon: 'close-circle' as const },
   };
 
-  // Use store result if available, otherwise fall back to demo
-  const result = id === 'scan' && currentResult ? currentResult : DEMO_RESULT;
+  const [saved, setSaved] = useState(false);
+  const [dbResult, setDbResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [scanId, setScanId] = useState<string | null>(null);
+  const [selectedSwap, setSelectedSwap] = useState<Swap | null>(null);
+  const [sessionStore, setSessionStore] = useState<string | null>(null);
+  const [filteredSwaps, setFilteredSwaps] = useState<Swap[] | null>(null);
+  const [loadingSwaps, setLoadingSwaps] = useState(false);
+
+  // Load scan from DB when viewing a past scan, or product from products table
+  useEffect(() => {
+    if (id === 'scan' || id === 'demo') return;
+    const idStr = id as string;
+    setLoading(true);
+
+    // Handle product-{uuid} prefix from search results
+    if (idStr.startsWith('product-')) {
+      const productId = idStr.replace('product-', '');
+      getProductById(productId)
+        .then(async (product) => {
+          if (product) {
+            // Try to fetch swaps for this product's category
+            let swaps: any[] = [];
+            if (product.score < 67) {
+              try {
+                swaps = await getSwapsForProduct(productId);
+              } catch {}
+            }
+            setDbResult({ ...product, swaps });
+          }
+        })
+        .catch(() => setDbResult(null))
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    getScanById(idStr)
+      .then(async (scan) => {
+        setScanId(scan.id);
+        setSaved(scan.saved_to_list === 'favorites');
+        const analysis = scan.analysis as { concerns?: Concern[]; positives?: string[]; swaps?: any[]; dadsTake?: string; summary?: string } | null;
+
+        // If swaps aren't saved in analysis JSON, fetch them from DB
+        let swaps = analysis?.swaps || [];
+        if (swaps.length === 0 && scan.product_id && scan.score < 67) {
+          try {
+            swaps = await getSwapsForProduct(scan.product_id);
+          } catch {}
+        }
+
+        setDbResult({
+          productName: scan.product_name,
+          brand: scan.brand || '',
+          category: '',
+          score: scan.score,
+          verdict: scan.verdict,
+          summary: analysis?.summary || scan.product_name,
+          dadsTake: analysis?.dadsTake || '',
+          concerns: analysis?.concerns || [],
+          positives: analysis?.positives || [],
+          swaps,
+          ocrSource: scan.ocr_source || 'device',
+          model: scan.ai_model_used || 'cached',
+          cached: scan.was_cached,
+        });
+      })
+      .catch(() => {
+        // Fall back to demo if scan not found
+        setDbResult(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  // For fresh scans, track the scan ID for saving
+  useEffect(() => {
+    if (id === 'scan' && currentResult) {
+      // The scan was just created - scanId comes from the store or we skip DB save
+      setScanId(null);
+    }
+  }, [id, currentResult]);
+
+  // Re-fetch swaps when session store changes
+  useEffect(() => {
+    if (sessionStore === null) {
+      setFilteredSwaps(null);
+      return;
+    }
+
+    const source = id === 'scan' && currentResult ? currentResult : dbResult;
+    if (!source) return;
+
+    // Need a product ID to query swaps — get it from the URL or scan
+    const idStr = id as string;
+    let productId: string | null = null;
+    if (idStr.startsWith('product-')) {
+      productId = idStr.replace('product-', '');
+    } else if (idStr !== 'scan' && idStr !== 'demo') {
+      // It's a scan ID — we may have product_id from the scan
+      productId = scanId; // scanId is the scan row, but we need product_id
+    }
+
+    // For fresh scans and DB results with swaps, try filtering client-side first
+    if (source.swaps && source.swaps.length > 0) {
+      const storeFiltered = source.swaps.filter(
+        (s) => s.available_stores && s.available_stores.some(
+          (st) => st.toLowerCase() === sessionStore.toLowerCase()
+        )
+      );
+      if (storeFiltered.length > 0) {
+        setFilteredSwaps(storeFiltered);
+        return;
+      }
+    }
+
+    // Client-side filter found nothing, try server query if we have a product ID
+    if (productId) {
+      setLoadingSwaps(true);
+      getSwapsForProduct(productId, sessionStore)
+        .then((swaps) => setFilteredSwaps(swaps))
+        .catch(() => setFilteredSwaps(null))
+        .finally(() => setLoadingSwaps(false));
+    } else {
+      // No product ID — just show unfiltered (store filter had no matches)
+      setFilteredSwaps(null);
+    }
+  }, [sessionStore]);
+
+  // Determine result source
+  const result = id === 'scan' && currentResult
+    ? currentResult
+    : dbResult || DEMO_RESULT;
   const config = verdictConfig[result.verdict];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.oxygen} />
+        <Text style={{ color: colors.inkSecondary, marginTop: 12, fontSize: 14 }}>{t('common.loading')}</Text>
+      </SafeAreaView>
+    );
+  }
 
   const handleClose = () => {
     clearScan();
@@ -84,6 +228,34 @@ export default function ResultScreen() {
   const handleScanAgain = () => {
     clearScan();
     router.replace('/(tabs)/scan');
+  };
+
+  const handleShare = async () => {
+    const verdictLabel = result.verdict === 'safe' ? 'Safe' : result.verdict === 'caution' ? 'Caution' : 'Avoid';
+    const concernList = result.concerns.length > 0
+      ? `\nConcerns: ${result.concerns.map(c => c.ingredient).join(', ')}`
+      : '';
+    const message = `${result.productName} by ${result.brand} - Score: ${result.score}/100 (${verdictLabel})${concernList}\n\nScanned with Non-Toxic Living`;
+    try {
+      await Share.share({ message });
+    } catch {}
+  };
+
+  const handleSave = async () => {
+    const newSaved = !saved;
+    setSaved(newSaved);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Persist to DB if we have a scan ID
+    const idToSave = scanId || (id !== 'scan' && id !== 'demo' ? id as string : null);
+    if (idToSave) {
+      try {
+        await saveScanToList(idToSave, newSaved ? 'favorites' : null);
+      } catch {
+        // Revert on error
+        setSaved(!newSaved);
+      }
+    }
   };
 
   return (
@@ -112,16 +284,19 @@ export default function ResultScreen() {
           <Ionicons name="close" size={24} color={colors.ink} />
         </Pressable>
         <Text style={{ fontSize: 14, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>{t('result.title')}</Text>
-        <Pressable style={{
-          width: 44,
-          height: 44,
-          borderRadius: 14,
-          backgroundColor: colors.glassSolid,
-          borderWidth: 1,
-          borderColor: colors.glassBorder,
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+        <Pressable
+          onPress={handleShare}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            backgroundColor: colors.glassSolid,
+            borderWidth: 1,
+            borderColor: colors.glassBorder,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
           <Ionicons name="share-outline" size={22} color={colors.ink} />
         </Pressable>
       </View>
@@ -353,13 +528,50 @@ export default function ResultScreen() {
         {/* Better Alternatives */}
         {result.swaps && result.swaps.length > 0 && (
           <View style={{ paddingHorizontal: 20 }}>
-            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              {t('result.betterAlternatives')}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('result.betterAlternatives')}
+              </Text>
+              {!sessionStore && (
+                <Pressable
+                  onPress={() => setSessionStore('')}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: colors.oxygenGlow,
+                    borderRadius: 10,
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Ionicons name="storefront-outline" size={14} color={colors.oxygen} style={{ marginRight: 4 }} />
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: colors.oxygen }}>
+                    {t('store.findAtStore')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+
+            {/* Store filter (shown when user taps "Find at a store") */}
+            {sessionStore !== null && (
+              <View style={{ marginBottom: 12, marginHorizontal: -20 }}>
+                <StorePrompt
+                  currentStore={sessionStore || null}
+                  onStoreSet={(store) => setSessionStore(store)}
+                  onStoreClear={() => setSessionStore(null)}
+                />
+              </View>
+            )}
+
+            {loadingSwaps && (
+              <ActivityIndicator size="small" color={colors.oxygen} style={{ marginBottom: 12 }} />
+            )}
+
             <View style={{ gap: 10 }}>
-              {result.swaps.map((swap) => (
+              {(filteredSwaps || result.swaps).map((swap) => (
                 <Pressable
                   key={swap.id}
+                  onPress={() => setSelectedSwap(swap)}
                   style={{
                     backgroundColor: colors.glassSolid,
                     borderRadius: 20,
@@ -407,19 +619,20 @@ export default function ResultScreen() {
           </View>
         )}
 
-        {/* Store-Aware Shopping Prompt */}
-        {result.score < 67 && (
-          <StorePrompt
-            currentStore={usePreferencesStore.getState().preferredStore}
-            onStoreSet={(store) => usePreferencesStore.getState().setPreferredStore(store)}
-            onStoreClear={() => usePreferencesStore.getState().setPreferredStore(null)}
-          />
+        {/* Coupons / Partner Deals */}
+        {result.coupons && result.coupons.length > 0 && (
+          <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              {t('coupon.deals')}
+            </Text>
+            <View style={{ gap: 12 }}>
+              {result.coupons.map((coupon) => (
+                <CouponCard key={coupon.id} coupon={coupon} />
+              ))}
+            </View>
+          </View>
         )}
 
-        {/* Pipeline Debug Info */}
-        {id === 'scan' && currentResult && (
-          <PipelineDebug result={currentResult} />
-        )}
       </ScrollView>
 
       {/* Bottom Actions */}
@@ -440,19 +653,24 @@ export default function ResultScreen() {
         shadowRadius: 12,
       }}>
         <View style={{ flexDirection: 'row', gap: 12 }}>
-          <Pressable style={{
-            flex: 1,
-            backgroundColor: colors.canvas,
-            borderRadius: 16,
-            paddingVertical: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 1,
-            borderColor: colors.glassBorder,
-          }}>
-            <Ionicons name="heart-outline" size={20} color={colors.ink} />
-            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.ink, marginLeft: 8 }}>{t('result.save')}</Text>
+          <Pressable
+            onPress={handleSave}
+            style={{
+              flex: 1,
+              backgroundColor: saved ? colors.safeLight : colors.canvas,
+              borderRadius: 16,
+              paddingVertical: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: saved ? colors.safe : colors.glassBorder,
+            }}
+          >
+            <Ionicons name={saved ? 'heart' : 'heart-outline'} size={20} color={saved ? colors.safe : colors.ink} />
+            <Text style={{ fontSize: 16, fontWeight: '600', color: saved ? colors.safe : colors.ink, marginLeft: 8 }}>
+              {saved ? t('result.saved') : t('result.save')}
+            </Text>
           </Pressable>
           <Pressable
             style={{
@@ -475,178 +693,262 @@ export default function ResultScreen() {
           </Pressable>
         </View>
       </View>
+      {/* Swap Detail Modal */}
+      <Modal
+        visible={!!selectedSwap}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSelectedSwap(null)}
+      >
+        {selectedSwap && (
+          <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
+            {/* Modal Header */}
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: 20,
+              paddingVertical: 16,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.glassBorder,
+            }}>
+              <Pressable
+                onPress={() => setSelectedSwap(null)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
+                  backgroundColor: colors.glassSolid,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="close" size={24} color={colors.ink} />
+              </Pressable>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+                {t('result.betterAlternatives')}
+              </Text>
+              <View style={{ width: 44 }} />
+            </View>
+
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Score Hero */}
+              <View style={{
+                backgroundColor: colors.glassSolid,
+                borderRadius: 32,
+                padding: 28,
+                alignItems: 'center',
+                marginBottom: 20,
+                borderWidth: 1,
+                borderColor: colors.glassBorder,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.06,
+                shadowRadius: 24,
+              }}>
+                <View style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 34,
+                  backgroundColor: colors.safeLight,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 20,
+                  borderWidth: 4,
+                  borderColor: colors.safe,
+                  shadowColor: colors.safe,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                }}>
+                  <Text style={{ fontSize: 40, fontWeight: '800', color: colors.safe }}>{selectedSwap.score}</Text>
+                </View>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 4 }}>
+                  {selectedSwap.name}
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.inkSecondary, fontWeight: '500', marginBottom: 12 }}>
+                  {selectedSwap.brand}
+                </Text>
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: colors.safeLight,
+                  borderRadius: 12,
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  borderWidth: 1,
+                  borderColor: colors.safe,
+                }}>
+                  <Ionicons name="checkmark-circle" size={18} color={colors.safe} style={{ marginRight: 6 }} />
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.safe }}>
+                    {t('swap.safetyScore')}: {selectedSwap.score}/100
+                  </Text>
+                </View>
+              </View>
+
+              {/* Why Better */}
+              {selectedSwap.why_better && (
+                <View style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 24,
+                  padding: 20,
+                  marginBottom: 20,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: colors.safeLight,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="leaf" size={16} color={colors.safe} />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('swap.whyBetter')}
+                    </Text>
+                  </View>
+                  <Text style={{ fontSize: 15, color: colors.ink, lineHeight: 24, fontWeight: '500' }}>
+                    {selectedSwap.why_better}
+                  </Text>
+                </View>
+              )}
+
+              {/* Available Stores */}
+              {selectedSwap.available_stores && selectedSwap.available_stores.length > 0 && (
+                <View style={{
+                  backgroundColor: colors.glassSolid,
+                  borderRadius: 24,
+                  padding: 20,
+                  marginBottom: 20,
+                  borderWidth: 1,
+                  borderColor: colors.glassBorder,
+                }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: colors.oxygenGlow,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="storefront" size={16} color={colors.oxygen} />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('swap.availableAt')}
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {selectedSwap.available_stores.map((store) => (
+                      <View key={store} style={{
+                        backgroundColor: colors.canvas,
+                        borderRadius: 12,
+                        paddingVertical: 8,
+                        paddingHorizontal: 14,
+                        borderWidth: 1,
+                        borderColor: colors.glassBorder,
+                      }}>
+                        <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Badges */}
+              {selectedSwap.badges && selectedSwap.badges.length > 0 && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                  {selectedSwap.badges.map((badge) => (
+                    <View key={badge} style={{
+                      backgroundColor: colors.safeLight,
+                      borderRadius: 12,
+                      paddingVertical: 8,
+                      paddingHorizontal: 14,
+                      borderWidth: 1,
+                      borderColor: colors.safe,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                      <Ionicons name="ribbon" size={14} color={colors.safe} style={{ marginRight: 6 }} />
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.safe }}>{badge}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Bottom CTA */}
+            <View style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: colors.glassSolid,
+              paddingHorizontal: 20,
+              paddingTop: 16,
+              paddingBottom: 34,
+              borderTopWidth: 1,
+              borderTopColor: colors.glassBorder,
+            }}>
+              {selectedSwap.affiliate_url ? (
+                <Pressable
+                  onPress={() => {
+                    if (selectedSwap.affiliate_url) {
+                      Linking.openURL(selectedSwap.affiliate_url);
+                    }
+                  }}
+                  style={{
+                    backgroundColor: colors.safe,
+                    borderRadius: 16,
+                    paddingVertical: 18,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    shadowColor: colors.safe,
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
+                  }}
+                >
+                  <Ionicons name="cart" size={22} color="white" style={{ marginRight: 10 }} />
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 18 }}>
+                    {t('swap.shopNow')}
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => setSelectedSwap(null)}
+                  style={{
+                    backgroundColor: colors.oxygen,
+                    borderRadius: 16,
+                    paddingVertical: 18,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 18 }}>
+                    {t('swap.close')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </SafeAreaView>
+        )}
+      </Modal>
     </SafeAreaView>
   );
 }
 
-// Pipeline Debug Component
-function PipelineDebug({ result }: { result: any }) {
-  const [expanded, setExpanded] = useState(false);
-  const [textExpanded, setTextExpanded] = useState(false);
-  const trace = result.pipelineTrace;
-
-  const statusDot = (status: string) => {
-    const color = status === 'success' ? colors.safe
-      : status === 'failed' ? colors.toxic
-      : colors.inkMuted;
-    return (
-      <View style={{
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: color,
-        marginRight: 8,
-        marginTop: 4,
-      }} />
-    );
-  };
-
-  const ocrSourceLabel = (source: string) => {
-    switch (source) {
-      case 'device': return 'Device (ML Kit)';
-      case 'cloud': return 'Google Cloud Vision';
-      case 'ai-mini': return 'GPT-4o-mini';
-      case 'ai-vision': return 'GPT-4o Vision';
-      case 'manual': return t('pipeline.manual');
-      default: return source;
-    }
-  };
-
-  return (
-    <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-      <Pressable
-        onPress={() => setExpanded(!expanded)}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 8,
-        }}
-      >
-        <Text style={{ fontSize: 11, fontWeight: '600', color: colors.inkMuted, letterSpacing: 0.3, textTransform: 'uppercase' }}>
-          Pipeline Details
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {trace?.totalDurationMs && (
-            <Text style={{ fontSize: 11, color: colors.inkMuted, marginRight: 8 }}>
-              {(trace.totalDurationMs / 1000).toFixed(1)}s
-            </Text>
-          )}
-          <Ionicons
-            name={expanded ? 'chevron-up' : 'chevron-down'}
-            size={16}
-            color={colors.inkMuted}
-          />
-        </View>
-      </Pressable>
-
-      {/* Summary (always visible) */}
-      <View style={{
-        backgroundColor: colors.glassSolid,
-        borderRadius: 12,
-        padding: 12,
-        borderWidth: 1,
-        borderColor: colors.glassBorder,
-        gap: 6,
-      }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 12, color: colors.inkMuted }}>OCR Source:</Text>
-          <Text style={{ fontSize: 12, color: colors.ink, fontWeight: '600' }}>
-            {ocrSourceLabel(result.ocrSource)}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 12, color: colors.inkMuted }}>Analysis Model:</Text>
-          <Text style={{ fontSize: 12, color: colors.ink, fontWeight: '600' }}>
-            {result.cached ? 'Cached' : result.model}
-          </Text>
-        </View>
-        {trace?.extractionModel && (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 12, color: colors.inkMuted }}>Extraction Model:</Text>
-            <Text style={{ fontSize: 12, color: colors.ink, fontWeight: '600' }}>
-              {trace.extractionModel}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Expanded Details */}
-      {expanded && trace && (
-        <View style={{ marginTop: 10, gap: 10 }}>
-          {/* Pipeline Steps */}
-          {trace.steps?.length > 0 && (
-            <View style={{
-              backgroundColor: colors.glassSolid,
-              borderRadius: 12,
-              padding: 12,
-              borderWidth: 1,
-              borderColor: colors.glassBorder,
-            }}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.inkMuted, marginBottom: 8, textTransform: 'uppercase' }}>
-                Steps
-              </Text>
-              {trace.steps.map((step: any, i: number) => (
-                <View key={i} style={{
-                  flexDirection: 'row',
-                  alignItems: 'flex-start',
-                  marginBottom: i < trace.steps.length - 1 ? 8 : 0,
-                }}>
-                  {statusDot(step.status)}
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text style={{ fontSize: 12, color: colors.ink, fontWeight: '600' }}>
-                        {step.name}
-                      </Text>
-                      {step.durationMs > 0 && (
-                        <Text style={{ fontSize: 11, color: colors.inkMuted }}>
-                          {step.durationMs}ms
-                        </Text>
-                      )}
-                    </View>
-                    {step.detail && (
-                      <Text style={{ fontSize: 11, color: colors.inkMuted, marginTop: 2 }}>
-                        {step.detail}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Extracted Text */}
-          {trace.extractedText && (
-            <View style={{
-              backgroundColor: colors.glassSolid,
-              borderRadius: 12,
-              padding: 12,
-              borderWidth: 1,
-              borderColor: colors.glassBorder,
-            }}>
-              <Pressable
-                onPress={() => setTextExpanded(!textExpanded)}
-                style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}
-              >
-                <Text style={{ fontSize: 11, fontWeight: '600', color: colors.inkMuted, textTransform: 'uppercase' }}>
-                  Extracted Text ({trace.extractedText.length} chars)
-                </Text>
-                <Ionicons
-                  name={textExpanded ? 'chevron-up' : 'chevron-down'}
-                  size={14}
-                  color={colors.inkMuted}
-                />
-              </Pressable>
-              <Text
-                style={{ fontSize: 11, color: colors.ink, fontFamily: 'monospace', lineHeight: 16 }}
-                numberOfLines={textExpanded ? undefined : 3}
-              >
-                {trace.extractedText}
-              </Text>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
-  );
-}

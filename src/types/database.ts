@@ -16,7 +16,7 @@ export interface Database {
           id: string;
           display_name: string | null;
           avatar_url: string | null;
-          subscription: 'free' | 'pro' | 'family';
+          subscription: 'free' | 'pro' | 'power';
           subscription_expires_at: string | null;
           scans_this_month: number;
           scans_month_reset_at: string;
@@ -31,7 +31,7 @@ export interface Database {
           id: string;
           display_name?: string | null;
           avatar_url?: string | null;
-          subscription?: 'free' | 'pro' | 'family';
+          subscription?: 'free' | 'pro' | 'power';
           subscription_expires_at?: string | null;
           scans_this_month?: number;
           scans_month_reset_at?: string;
@@ -46,7 +46,7 @@ export interface Database {
           id?: string;
           display_name?: string | null;
           avatar_url?: string | null;
-          subscription?: 'free' | 'pro' | 'family';
+          subscription?: 'free' | 'pro' | 'power';
           subscription_expires_at?: string | null;
           scans_this_month?: number;
           scans_month_reset_at?: string;

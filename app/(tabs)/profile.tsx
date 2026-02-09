@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Share, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { getScanLogs } from '@/services/api/analyze';
+import { getScanLogs, getUserScans } from '@/services/api/analyze';
 import { usePreferencesStore, SUPPORTED_LANGUAGES } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
 
 // Aerogel Design System Colors
 const colors = {
@@ -21,9 +22,7 @@ const colors = {
   inkSecondary: '#64748B',
   inkMuted: '#94A3B8',
   safe: '#10B981',
-  safeLight: 'rgba(16, 185, 129, 0.15)',
   caution: '#F59E0B',
-  cautionLight: 'rgba(245, 158, 11, 0.15)',
   error: '#EF4444',
 };
 
@@ -34,17 +33,38 @@ export default function ProfileScreen() {
 
   const { language, setLanguage } = usePreferencesStore();
   const { user, signOut } = useAuthStore();
+  const { tier } = useSubscriptionStore();
 
   const currentLanguageLabel = SUPPORTED_LANGUAGES.find(l => l.code === language)?.label ?? 'English';
 
+  const [stats, setStats] = useState({ totalScans: 0, toxinsFound: 0, safeProducts: 0 });
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getUserScans(user.id, 50)
+      .then((scans) => {
+        const totalScans = scans.length;
+        const toxinsFound = scans.filter((s: any) => s.verdict === 'toxic' || s.verdict === 'caution').length;
+        const safeProducts = scans.filter((s: any) => s.verdict === 'safe').length;
+        setStats({ totalScans, toxinsFound, safeProducts });
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
   const menuItems = [
-    { title: t('profile.myFavorites'), icon: 'heart-outline' as const, badge: 12 },
-    { title: t('profile.avoidList'), icon: 'close-circle-outline' as const, badge: 8 },
-    { title: t('profile.scanHistory'), icon: 'time-outline' as const },
+    {
+      title: tier === 'free' ? t('subscription.goPremium') : t('subscription.managePlan'),
+      icon: 'diamond-outline' as const,
+      subtitle: tier === 'free' ? t('subscription.goPremiumDesc') : t('subscription.currentPlan', { plan: tier.charAt(0).toUpperCase() + tier.slice(1) }),
+      onPress: () => router.push('/subscription' as any),
+    },
+    { title: t('profile.scanHistory'), icon: 'time-outline' as const, onPress: () => router.push('/history') },
+    { title: t('profile.myFavorites'), icon: 'heart-outline' as const, onPress: () => router.push('/history?filter=favorites') },
+    { title: t('profile.avoidList'), icon: 'close-circle-outline' as const, onPress: () => router.push('/history?filter=avoid') },
     { title: t('profile.language'), icon: 'language-outline' as const, subtitle: currentLanguageLabel, onPress: () => setShowLanguagePicker(true) },
-    { title: t('profile.notifications'), icon: 'notifications-outline' as const },
-    { title: t('profile.helpSupport'), icon: 'help-circle-outline' as const },
-    { title: t('profile.about'), icon: 'information-circle-outline' as const },
+    { title: t('profile.notifications'), icon: 'notifications-outline' as const, onPress: () => router.push('/notifications') },
+    { title: t('profile.helpSupport'), icon: 'help-circle-outline' as const, onPress: () => router.push('/help') },
+    { title: t('profile.about'), icon: 'information-circle-outline' as const, onPress: () => router.push('/about') },
   ];
 
   const handleExportLogs = async () => {
@@ -82,7 +102,7 @@ export default function ProfileScreen() {
             shadowOpacity: 0.04,
             shadowRadius: 12,
           }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: user ? 20 : 0 }}>
               <View style={{
                 width: 64,
                 height: 64,
@@ -98,7 +118,7 @@ export default function ProfileScreen() {
                   {user ? user.email : t('profile.guestUser')}
                 </Text>
                 <Text style={{ color: colors.inkSecondary, fontSize: 14, marginTop: 2 }}>
-                  {t('profile.freePlan')}
+                  {tier === 'power' ? t('profile.powerPlan') : tier === 'pro' ? t('profile.proPlan') : t('profile.freePlan')}
                 </Text>
               </View>
               {user ? (
@@ -139,63 +159,36 @@ export default function ProfileScreen() {
             </View>
 
             {/* Stats */}
-            <View style={{
-              flexDirection: 'row',
-              borderTopWidth: 1,
-              borderTopColor: colors.glassBorder,
-              paddingTop: 20,
-            }}>
-              <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 24, fontWeight: '800', color: colors.oxygen }}>24</Text>
-                <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
-                  {t('profile.scans')}
-                </Text>
+            {user && (
+              <View style={{
+                flexDirection: 'row',
+                borderTopWidth: 1,
+                borderTopColor: colors.glassBorder,
+                paddingTop: 20,
+              }}>
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 24, fontWeight: '800', color: colors.oxygen }}>{stats.totalScans}</Text>
+                  <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
+                    {t('profile.scans')}
+                  </Text>
+                </View>
+                <View style={{ width: 1, backgroundColor: colors.glassBorder }} />
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 24, fontWeight: '800', color: colors.caution }}>{stats.toxinsFound}</Text>
+                  <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
+                    {t('profile.toxinsAvoided')}
+                  </Text>
+                </View>
+                <View style={{ width: 1, backgroundColor: colors.glassBorder }} />
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 24, fontWeight: '800', color: colors.safe }}>{stats.safeProducts}</Text>
+                  <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
+                    {t('stats.safeFound')}
+                  </Text>
+                </View>
               </View>
-              <View style={{ width: 1, backgroundColor: colors.glassBorder }} />
-              <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 24, fontWeight: '800', color: colors.safe }}>18</Text>
-                <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
-                  {t('profile.toxinsAvoided')}
-                </Text>
-              </View>
-              <View style={{ width: 1, backgroundColor: colors.glassBorder }} />
-              <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 24, fontWeight: '800', color: colors.caution }}>5</Text>
-                <Text style={{ color: colors.inkSecondary, fontSize: 12, marginTop: 2, fontWeight: '500' }}>
-                  {t('profile.dayStreak')}
-                </Text>
-              </View>
-            </View>
+            )}
           </View>
-        </View>
-
-        {/* Premium Banner */}
-        <View style={{ paddingHorizontal: 24, marginBottom: 24 }}>
-          <Pressable style={{
-            backgroundColor: colors.oxygen,
-            borderRadius: 24,
-            padding: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
-            shadowColor: colors.oxygen,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.3,
-            shadowRadius: 16,
-          }}>
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>{t('profile.goPremium')}</Text>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 14, marginTop: 4, lineHeight: 20 }}>
-                {t('profile.premiumDesc')}
-              </Text>
-            </View>
-            <View style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: 14,
-              padding: 10,
-            }}>
-              <Ionicons name="arrow-forward" size={24} color="white" />
-            </View>
-          </Pressable>
         </View>
 
         {/* Menu Items */}
@@ -243,19 +236,6 @@ export default function ProfileScreen() {
                     </Text>
                   )}
                 </View>
-                {item.badge && (
-                  <View style={{
-                    backgroundColor: colors.oxygenGlow,
-                    borderRadius: 8,
-                    paddingHorizontal: 10,
-                    paddingVertical: 4,
-                    marginRight: 8,
-                  }}>
-                    <Text style={{ color: colors.oxygen, fontSize: 13, fontWeight: '600' }}>
-                      {item.badge}
-                    </Text>
-                  </View>
-                )}
                 <Ionicons name="chevron-forward" size={20} color={colors.inkMuted} />
               </Pressable>
             ))}

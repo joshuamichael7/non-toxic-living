@@ -10,6 +10,28 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-space-grotesk);
+
+  /* App design system tokens */
+  --color-oxygen: #0EA5E9;
+  --color-oxygen-deep: #0284C7;
+  --color-oxygen-light: #38BDF8;
+  --color-ink: #1A1A1A;
+  --color-ink-secondary: #64748B;
+  --color-ink-muted: #94A3B8;
+  --color-safe: #10B981;
+  --color-caution: #F59E0B;
+  --color-toxic: #EF4444;
+
+  /* Dark site palette */
+  --color-site-bg: #111111;
+  --color-site-surface: #1A1A1A;
+  --color-site-surface-light: #222222;
+  --color-site-border: rgba(255, 255, 255, 0.08);
+  --color-site-border-light: rgba(255, 255, 255, 0.12);
+  --color-site-text: #F0F0F0;
+  --color-site-text-secondary: #94A3B8;
+  --color-site-text-muted: #64748B;
 }
 
 @media (prefers-color-scheme: dark) {

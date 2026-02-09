@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FAFAF9"
+      "backgroundColor": "#0EA5E9"
     },
     "ios": {
       "supportsTablet": true,
@@ -23,7 +23,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FAFAF9"
+        "backgroundColor": "#0EA5E9"
       },
       "package": "com.nontoxicliving.app",
       "permissions": [
@@ -43,7 +43,15 @@
           "cameraPermission": "Allow Non-Toxic Living to access your camera to scan products."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "react-native-purchases",
+        {
+          "ios": {
+            "usesStoreKit2": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

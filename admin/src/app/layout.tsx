@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,9 +7,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Non-Toxic Dad Admin",
-  description: "Manage ingredients, products, and affiliate swaps",
+  title: "Non-Toxic Living",
+  description: "Scan any product for hidden toxins. Get instant safety scores and safer swap recommendations.",
 };
 
 export default function RootLayout({
@@ -19,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} font-sans antialiased`}>
+      <body className={`${geistSans.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

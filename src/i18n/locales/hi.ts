@@ -87,7 +87,15 @@ export default {
   'result.positives': 'सकारात्मक पहलू',
   'result.betterAlternatives': 'बेहतर विकल्प',
   'result.save': 'सहेजें',
+  'result.saved': 'सहेजा गया!',
   'result.scanAgain': 'फिर से स्कैन करें',
+
+  // Swap details
+  'swap.safetyScore': 'सुरक्षा स्कोर',
+  'swap.whyBetter': 'यह बेहतर क्यों है',
+  'swap.availableAt': 'यहां उपलब्ध',
+  'swap.shopNow': 'अभी खरीदें',
+  'swap.close': 'बंद करें',
 
   // Verdicts
   'verdict.safe': 'सुरक्षित',
@@ -155,6 +163,7 @@ export default {
   'store.change': 'बदलें',
   'store.shoppingAt': '{{store}} में खरीदारी',
   'store.clear': 'मिटाएं',
+  'store.findAtStore': 'दुकान में खोजें',
 
   // Scan - No label option
   'scan.noLabel': 'कोई लेबल नहीं? इसका वर्णन करें',
@@ -172,6 +181,7 @@ export default {
   'describe.removePhoto': 'हटाएं',
   'describe.analyze': 'उत्पाद का विश्लेषण करें',
   'describe.selectType': 'कृपया उत्पाद प्रकार चुनें',
+  'describe.type.food': 'खाद्य और पेय',
   'describe.type.furniture': 'फर्नीचर',
   'describe.type.mattress': 'गद्दे और बिस्तर',
   'describe.type.clothing': 'कपड़े और वस्त्र',
@@ -187,10 +197,128 @@ export default {
   // Pipeline debug - manual
   'pipeline.manual': 'मैनुअल विवरण',
 
+  // Coupons
+  'coupon.partnerDeal': 'साझेदार ऑफर',
+  'coupon.freeShipping': 'मुफ़्त शिपिंग',
+  'coupon.bogo': 'एक खरीदें एक पाएं',
+  'coupon.expiresIn': '{{days}} दिन शेष',
+  'coupon.redeem': 'ऑफर का उपयोग करें',
+  'coupon.copied': 'कॉपी किया गया!',
+  'coupon.deals': 'ऑफर और छूट',
+
+  // Subscription
+  'subscription.title': 'अपनी योजना चुनें',
+  'subscription.subtitle': 'अधिक स्कैन और प्रीमियम सुविधाएं अनलॉक करें',
+  'subscription.monthly': 'मासिक',
+  'subscription.annual': 'वार्षिक',
+  'subscription.perMonth': '/माह',
+  'subscription.perYear': '/वर्ष',
+  'subscription.subscribe': 'सदस्यता लें',
+  'subscription.current': 'वर्तमान',
+  'subscription.currentPlan': '{{plan}} योजना',
+  'subscription.goPremium': 'प्रीमियम लें',
+  'subscription.goPremiumDesc': 'अधिक स्कैन, विस्तृत रिपोर्ट और बहुत कुछ',
+  'subscription.managePlan': 'सदस्यता प्रबंधित करें',
+  'subscription.restorePurchases': 'खरीदारी पुनर्स्थापित करें',
+  'subscription.restoring': 'पुनर्स्थापित हो रहा है...',
+  'subscription.restored': 'खरीदारी पुनर्स्थापित हो गई!',
+  'subscription.restoreNone': 'कोई पिछली खरीदारी नहीं मिली',
+  'subscription.cancelAnytime': 'कभी भी रद्द करें। सदस्यताएं रद्द होने तक स्वतः नवीनीकृत होती हैं।',
+  'subscription.purchaseError': 'खरीदारी विफल हुई। कृपया पुनः प्रयास करें।',
+  'subscription.processing': 'प्रोसेसिंग...',
+  'subscription.oneMonthFree': '1 महीना मुफ़्त',
+
+  // Tiers
+  'tier.free': 'मुफ़्त',
+  'tier.pro': 'Pro',
+  'tier.power': 'Power',
+  'tier.freeDesc': 'शुरुआत करें',
+  'tier.proDesc': 'सबसे लोकप्रिय',
+  'tier.powerDesc': 'पावर उपयोगकर्ताओं के लिए',
+
+  // Features
+  'feature.freeScans': 'प्रति माह 5 स्कैन',
+  'feature.basicAnalysis': 'बुनियादी सामग्री विश्लेषण',
+  'feature.proScans': 'प्रति माह 200 स्कैन',
+  'feature.detailedReports': 'विस्तृत सुरक्षा रिपोर्ट',
+  'feature.prioritySupport': 'प्राथमिकता सहायता',
+  'feature.powerScans': 'प्रति माह 500 स्कैन',
+  'feature.allProFeatures': 'Pro की सभी सुविधाएं',
+  'feature.familySharing': 'पारिवारिक शेयरिंग',
+  'feature.exportReports': 'स्कैन रिपोर्ट निर्यात करें',
+
+  // Pricing fallbacks
+  'price.free': 'मुफ़्त',
+
+  // Profile plan labels
+  'profile.proPlan': 'Pro योजना',
+  'profile.powerPlan': 'Power योजना',
+
+  // Quota
+  'quota.title': 'स्कैन सीमा पूरी हो गई',
+  'quota.description': 'आपने इस महीने {{limit}} में से {{used}} स्कैन का उपयोग किया है।',
+  'quota.resetsIn': '{{days}} दिनों में रीसेट होगा',
+  'quota.upgradePro': 'Pro में अपग्रेड करें',
+  'quota.dismiss': 'बाद में',
+
   // Common
   'common.cancel': 'रद्द करें',
   'common.save': 'सहेजें',
   'common.close': 'बंद करें',
   'common.error': 'त्रुटि',
   'common.loading': 'लोड हो रहा है...',
+
+  // Search results
+  'search.results': 'परिणाम',
+  'search.searching': 'खोज रहे हैं...',
+  'search.noResults': 'कोई परिणाम नहीं मिला',
+  'search.noResultsDesc': 'कोई अलग खोज शब्द आज़माएं या श्रेणियां ब्राउज़ करें',
+
+  // History screen
+  'history.title': 'स्कैन इतिहास',
+  'history.all': 'सभी',
+  'history.favorites': 'पसंदीदा',
+  'history.avoid': 'बचें',
+  'history.empty': 'अभी तक कोई स्कैन नहीं',
+  'history.emptyDesc': 'आपके द्वारा स्कैन किए गए उत्पाद यहां दिखाई देंगे',
+  'history.emptyFavorites': 'अभी तक कोई पसंदीदा नहीं',
+  'history.emptyFavoritesDesc': 'अपने पसंदीदा उत्पादों को सहेजें ताकि वे यहां मिलें',
+  'history.emptyAvoid': 'बचने के लिए कोई आइटम नहीं',
+  'history.emptyAvoidDesc': 'जिन उत्पादों से आप बचना चाहते हैं वे यहां दिखाई देंगे',
+
+  // Notifications screen
+  'notifications.title': 'सूचनाएं',
+  'notifications.productAlerts': 'उत्पाद अलर्ट',
+  'notifications.productAlertsDesc': 'रिकॉल और सुरक्षा अपडेट के बारे में सूचनाएं प्राप्त करें',
+  'notifications.scanReminders': 'स्कैन रिमाइंडर',
+  'notifications.scanRemindersDesc': 'खरीदने से पहले उत्पाद स्कैन करने के रिमाइंडर',
+  'notifications.ingredientWarnings': 'सामग्री चेतावनियां',
+  'notifications.ingredientWarningsDesc': 'नई चिह्नित सामग्रियों के बारे में अलर्ट',
+  'notifications.weeklyReport': 'साप्ताहिक रिपोर्ट',
+  'notifications.weeklyReportDesc': 'आपकी स्कैनिंग गतिविधि का साप्ताहिक सारांश',
+
+  // Help screen
+  'help.title': 'सहायता और समर्थन',
+  'help.faq': 'अक्सर पूछे जाने वाले प्रश्न',
+  'help.faq1Q': 'स्कैनर कैसे काम करता है?',
+  'help.faq1A': 'अपना कैमरा किसी सामग्री लेबल पर लगाएं। हमारा AI टेक्स्ट पढ़ता है और प्रत्येक सामग्री का संभावित स्वास्थ्य चिंताओं के लिए विश्लेषण करता है, और आपको 0-100 का सुरक्षा स्कोर देता है।',
+  'help.faq2Q': 'परिणाम कितने सटीक हैं?',
+  'help.faq2A': 'हमारा विश्लेषण वैज्ञानिक अनुसंधान और नियामक डेटाबेस पर आधारित है। हम सटीकता के लिए प्रयास करते हैं, लेकिन चिकित्सा निर्णयों के लिए हमेशा स्वास्थ्य पेशेवरों से परामर्श करें।',
+  'help.faq3Q': 'क्या मैं बिना लेबल वाले उत्पाद स्कैन कर सकता हूं?',
+  'help.faq3A': 'हां! फर्नीचर, बर्तन या सामग्री सूची रहित अन्य वस्तुओं का मैन्युअल रूप से वर्णन करने के लिए "कोई लेबल नहीं? इसका वर्णन करें" विकल्प का उपयोग करें।',
+  'help.faq4Q': 'स्कोर का क्या मतलब है?',
+  'help.faq4A': '67-100 सुरक्षित (हरा), 34-66 सावधानी (पीला), और 0-33 बचें (लाल) है। स्कोर सामग्री की विषाक्तता, नियामक स्थिति और संभावित स्वास्थ्य प्रभावों को ध्यान में रखता है।',
+  'help.contact': 'संपर्क करें',
+  'help.emailSupport': 'ईमेल सहायता',
+  'help.reportProblem': 'समस्या की रिपोर्ट करें',
+  'help.appFeedback': 'ऐप फीडबैक',
+
+  // About screen
+  'about.title': 'ऐप के बारे में',
+  'about.appName': 'Non-Toxic Living',
+  'about.missionTitle': 'हमारा मिशन',
+  'about.mission': 'हम मानते हैं कि हर किसी को यह जानने का अधिकार है कि उनके उत्पादों में क्या है। हानिकारक सामग्रियों की पहचान करना आसान बनाना और आपके परिवार के लिए सुरक्षित विकल्प खोजना हमारा मिशन है।',
+  'about.privacyPolicy': 'गोपनीयता नीति',
+  'about.termsOfService': 'सेवा की शर्तें',
+  'about.creditsDesc': 'स्वस्थ जीवन के लिए प्यार से बनाया गया।\nAI और वैज्ञानिक अनुसंधान द्वारा संचालित।',
 } as const;

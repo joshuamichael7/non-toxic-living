@@ -87,7 +87,15 @@ export default {
   'result.positives': 'プラス面',
   'result.betterAlternatives': 'より良い代替品',
   'result.save': '保存',
+  'result.saved': '保存済み！',
   'result.scanAgain': '再スキャン',
+
+  // Swap details
+  'swap.safetyScore': '安全スコア',
+  'swap.whyBetter': 'なぜこちらが良いのか',
+  'swap.availableAt': '取扱店舗',
+  'swap.shopNow': '今すぐ購入',
+  'swap.close': '閉じる',
 
   // Verdicts
   'verdict.safe': '安全',
@@ -155,6 +163,7 @@ export default {
   'store.change': '変更',
   'store.shoppingAt': '{{store}}でお買い物中',
   'store.clear': 'クリア',
+  'store.findAtStore': '店舗で探す',
 
   // Scan - No label option
   'scan.noLabel': 'ラベルがありませんか？説明してください',
@@ -172,6 +181,7 @@ export default {
   'describe.removePhoto': '削除',
   'describe.analyze': '製品を分析',
   'describe.selectType': '製品タイプを選択してください',
+  'describe.type.food': '食品・飲料',
   'describe.type.furniture': '家具',
   'describe.type.mattress': 'マットレス・寝具',
   'describe.type.clothing': '衣類・繊維製品',
@@ -187,10 +197,128 @@ export default {
   // Pipeline debug - manual
   'pipeline.manual': '手動説明',
 
+  // Coupons
+  'coupon.partnerDeal': 'パートナー特典',
+  'coupon.freeShipping': '送料無料',
+  'coupon.bogo': '1つ買うと1つ無料',
+  'coupon.expiresIn': '残り{{days}}日',
+  'coupon.redeem': '特典を利用',
+  'coupon.copied': 'コピーしました！',
+  'coupon.deals': 'お得情報と割引',
+
+  // Subscription
+  'subscription.title': 'プランを選択',
+  'subscription.subtitle': 'より多くのスキャンとプレミアム機能をアンロック',
+  'subscription.monthly': '月額',
+  'subscription.annual': '年額',
+  'subscription.perMonth': '/月',
+  'subscription.perYear': '/年',
+  'subscription.subscribe': '登録する',
+  'subscription.current': '現在',
+  'subscription.currentPlan': '{{plan}} プラン',
+  'subscription.goPremium': 'プレミアムへアップグレード',
+  'subscription.goPremiumDesc': 'より多くのスキャン、詳細レポートなど',
+  'subscription.managePlan': 'サブスクリプション管理',
+  'subscription.restorePurchases': '購入を復元',
+  'subscription.restoring': '復元中...',
+  'subscription.restored': '購入が復元されました！',
+  'subscription.restoreNone': '以前の購入が見つかりません',
+  'subscription.cancelAnytime': 'いつでもキャンセル可能。サブスクリプションはキャンセルするまで自動更新されます。',
+  'subscription.purchaseError': '購入に失敗しました。もう一度お試しください。',
+  'subscription.processing': '処理中...',
+  'subscription.oneMonthFree': '1ヶ月無料',
+
+  // Tiers
+  'tier.free': '無料',
+  'tier.pro': 'Pro',
+  'tier.power': 'Power',
+  'tier.freeDesc': '始めましょう',
+  'tier.proDesc': '一番人気',
+  'tier.powerDesc': 'ヘビーユーザー向け',
+
+  // Features
+  'feature.freeScans': '月5回のスキャン',
+  'feature.basicAnalysis': '基本的な成分分析',
+  'feature.proScans': '月200回のスキャン',
+  'feature.detailedReports': '詳細な安全レポート',
+  'feature.prioritySupport': '優先サポート',
+  'feature.powerScans': '月500回のスキャン',
+  'feature.allProFeatures': 'Proの全機能',
+  'feature.familySharing': '家族共有',
+  'feature.exportReports': 'スキャンレポートのエクスポート',
+
+  // Pricing fallbacks
+  'price.free': '無料',
+
+  // Profile plan labels
+  'profile.proPlan': 'Pro プラン',
+  'profile.powerPlan': 'Power プラン',
+
+  // Quota
+  'quota.title': 'スキャン回数の上限に達しました',
+  'quota.description': '今月 {{limit}} 回中 {{used}} 回のスキャンを使用しました。',
+  'quota.resetsIn': '{{days}} 日後にリセット',
+  'quota.upgradePro': 'Proにアップグレード',
+  'quota.dismiss': 'また後で',
+
   // Common
   'common.cancel': 'キャンセル',
   'common.save': '保存',
   'common.close': '閉じる',
   'common.error': 'エラー',
   'common.loading': '読み込み中...',
+
+  // Search results
+  'search.results': '結果',
+  'search.searching': '検索中...',
+  'search.noResults': '結果が見つかりません',
+  'search.noResultsDesc': '別の検索ワードを試すか、カテゴリーを閲覧してください',
+
+  // History screen
+  'history.title': 'スキャン履歴',
+  'history.all': 'すべて',
+  'history.favorites': 'お気に入り',
+  'history.avoid': '回避',
+  'history.empty': 'まだスキャンはありません',
+  'history.emptyDesc': 'スキャンした製品がここに表示されます',
+  'history.emptyFavorites': 'まだお気に入りはありません',
+  'history.emptyFavoritesDesc': 'お気に入りの製品を保存するとここに表示されます',
+  'history.emptyAvoid': '回避する製品はありません',
+  'history.emptyAvoidDesc': '回避したい製品がここに表示されます',
+
+  // Notifications screen
+  'notifications.title': '通知',
+  'notifications.productAlerts': '製品アラート',
+  'notifications.productAlertsDesc': 'リコールや安全性の更新について通知を受け取る',
+  'notifications.scanReminders': 'スキャンリマインダー',
+  'notifications.scanRemindersDesc': '購入前に製品をスキャンするリマインダー',
+  'notifications.ingredientWarnings': '成分警告',
+  'notifications.ingredientWarningsDesc': '新たにフラグが付いた成分に関するアラート',
+  'notifications.weeklyReport': '週間レポート',
+  'notifications.weeklyReportDesc': 'スキャンアクティビティの週次まとめ',
+
+  // Help screen
+  'help.title': 'ヘルプ＆サポート',
+  'help.faq': 'よくある質問',
+  'help.faq1Q': 'スキャナーはどのように動作しますか？',
+  'help.faq1A': '成分ラベルにカメラを向けてください。AIがテキストを読み取り、各成分の健康上の懸念を分析し、0〜100の安全スコアを提供します。',
+  'help.faq2Q': '結果はどの程度正確ですか？',
+  'help.faq2A': '分析は科学的研究と規制データベースに基づいています。正確性を追求していますが、医療に関する判断は必ず医療専門家にご相談ください。',
+  'help.faq3Q': 'ラベルのない製品もスキャンできますか？',
+  'help.faq3A': 'はい！「ラベルがありませんか？説明してください」オプションを使用して、家具、調理器具、成分表示のないその他の製品を手動で説明できます。',
+  'help.faq4Q': 'スコアの意味は？',
+  'help.faq4A': '67〜100は安全（緑）、34〜66は注意（黄）、0〜33は回避（赤）です。スコアは成分の毒性、規制状況、潜在的な健康への影響を考慮しています。',
+  'help.contact': 'お問い合わせ',
+  'help.emailSupport': 'メールサポート',
+  'help.reportProblem': '問題を報告',
+  'help.appFeedback': 'アプリのフィードバック',
+
+  // About screen
+  'about.title': 'アプリについて',
+  'about.appName': 'Non-Toxic Living',
+  'about.missionTitle': '私たちのミッション',
+  'about.mission': '私たちは、すべての人が自分の製品に何が含まれているかを知る権利があると信じています。有害な成分を簡単に特定し、ご家族のためにより安全な代替品を見つけることを使命としています。',
+  'about.privacyPolicy': 'プライバシーポリシー',
+  'about.termsOfService': '利用規約',
+  'about.creditsDesc': 'より健康的な生活のために心を込めて作りました。\nAIと科学的研究に基づいています。',
 } as const;

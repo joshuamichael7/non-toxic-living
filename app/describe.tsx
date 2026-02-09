@@ -7,9 +7,11 @@ import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 
-import { analyzeIngredients } from '@/services/api/analyze';
+import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze';
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
 
 // Aerogel Design System Colors
 const colors = {
@@ -26,6 +28,7 @@ const colors = {
 };
 
 const PRODUCT_TYPES = [
+  { key: 'food', icon: 'nutrition-outline' as const },
   { key: 'furniture', icon: 'bed-outline' as const },
   { key: 'mattress', icon: 'bed-outline' as const },
   { key: 'clothing', icon: 'shirt-outline' as const },
@@ -52,6 +55,12 @@ export default function DescribeScreen() {
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [quotaModal, setQuotaModal] = useState<{
+    visible: boolean;
+    scansUsed: number;
+    scansLimit: number;
+    resetsAt: string;
+  }>({ visible: false, scansUsed: 0, scansLimit: 0, resetsAt: '' });
 
   const materialsRef = useRef<TextInput>(null);
 
@@ -95,7 +104,7 @@ export default function DescribeScreen() {
 
     try {
       const language = usePreferencesStore.getState().language;
-      const preferredStore = usePreferencesStore.getState().preferredStore;
+      const userId = useAuthStore.getState().user?.id;
 
       const result = await analyzeIngredients({
         text,
@@ -103,7 +112,7 @@ export default function DescribeScreen() {
         ocrSource: 'manual',
         ocrConfidence: 1.0,
         language,
-        store: preferredStore || undefined,
+        userId,
         clientSteps: [{
           name: 'Manual Input',
           status: 'success',
@@ -114,13 +123,32 @@ export default function DescribeScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCurrentResult(result);
-      router.push('/result/scan');
+
+      // Reset form
+      setSelectedType(null);
+      setBrandName('');
+      setProductName('');
+      setMaterials('');
+      setPhotoUri(null);
+      setPhotoBase64(null);
+
+      router.replace('/result/scan');
     } catch (error) {
       console.error('Analysis failed:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      const msg = error instanceof Error ? error.message : 'Analysis failed';
-      setError(msg);
-      Alert.alert(t('common.error'), msg);
+
+      if (isQuotaExceededError(error)) {
+        setQuotaModal({
+          visible: true,
+          scansUsed: error.scansUsed,
+          scansLimit: error.scansLimit,
+          resetsAt: error.resetsAt,
+        });
+      } else {
+        const msg = error instanceof Error ? error.message : 'Analysis failed';
+        setError(msg);
+        Alert.alert(t('common.error'), msg);
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -358,8 +386,8 @@ export default function DescribeScreen() {
         <Pressable
           onPress={handleAnalyze}
           disabled={analyzing}
-          style={({ pressed }) => ({
-            backgroundColor: pressed ? colors.oxygenDeep : colors.oxygen,
+          style={{
+            backgroundColor: colors.oxygen,
             borderRadius: 20,
             paddingVertical: 18,
             flexDirection: 'row',
@@ -370,7 +398,7 @@ export default function DescribeScreen() {
             shadowOffset: { width: 0, height: 8 },
             shadowOpacity: 0.3,
             shadowRadius: 16,
-          })}
+          }}
         >
           {analyzing ? (
             <ActivityIndicator color="white" style={{ marginRight: 10 }} />
@@ -382,6 +410,14 @@ export default function DescribeScreen() {
           </Text>
         </Pressable>
       </View>
+
+      <QuotaExceededModal
+        visible={quotaModal.visible}
+        onClose={() => setQuotaModal(prev => ({ ...prev, visible: false }))}
+        scansUsed={quotaModal.scansUsed}
+        scansLimit={quotaModal.scansLimit}
+        resetsAt={quotaModal.resetsAt}
+      />
     </SafeAreaView>
   );
 }

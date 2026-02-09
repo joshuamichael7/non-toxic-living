@@ -32,8 +32,6 @@ function getDefaultLanguage(): SupportedLanguage {
 interface PreferencesState {
   language: SupportedLanguage;
   setLanguage: (language: SupportedLanguage) => void;
-  preferredStore: string | null;
-  setPreferredStore: (store: string | null) => void;
 }
 
 export const usePreferencesStore = create<PreferencesState>()(
@@ -44,8 +42,6 @@ export const usePreferencesStore = create<PreferencesState>()(
         i18n.changeLanguage(language);
         set({ language });
       },
-      preferredStore: null,
-      setPreferredStore: (store) => set({ preferredStore: store }),
     }),
     {
       name: '@preferences',

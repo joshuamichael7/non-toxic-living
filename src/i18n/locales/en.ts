@@ -87,7 +87,15 @@ export default {
   'result.positives': 'Positives',
   'result.betterAlternatives': 'Better Alternatives',
   'result.save': 'Save',
+  'result.saved': 'Saved!',
   'result.scanAgain': 'Scan Again',
+
+  // Swap detail modal
+  'swap.safetyScore': 'Safety Score',
+  'swap.whyBetter': 'Why This Is Better',
+  'swap.availableAt': 'Available At',
+  'swap.shopNow': 'Shop Now',
+  'swap.close': 'Close',
 
   // Verdicts
   'verdict.safe': 'Safe',
@@ -156,6 +164,7 @@ export default {
   'store.change': 'Change',
   'store.shoppingAt': 'Shopping at {{store}}',
   'store.clear': 'Clear',
+  'store.findAtStore': 'Find at a store',
 
   // Scan - No label option
   'scan.noLabel': 'No label? Describe it',
@@ -173,6 +182,7 @@ export default {
   'describe.removePhoto': 'Remove',
   'describe.analyze': 'Analyze Product',
   'describe.selectType': 'Please select a product type',
+  'describe.type.food': 'Food & Drinks',
   'describe.type.furniture': 'Furniture',
   'describe.type.mattress': 'Mattress & Bedding',
   'describe.type.clothing': 'Clothing & Textiles',
@@ -187,6 +197,124 @@ export default {
 
   // Pipeline debug - manual
   'pipeline.manual': 'Manual Description',
+
+  // Search results
+  'search.results': 'Results',
+  'search.searching': 'Searching...',
+  'search.noResults': 'No results found',
+  'search.noResultsDesc': 'Try a different search term or browse categories',
+
+  // History screen
+  'history.title': 'Scan History',
+  'history.all': 'All',
+  'history.favorites': 'Favorites',
+  'history.avoid': 'Avoid',
+  'history.empty': 'No scans yet',
+  'history.emptyDesc': 'Products you scan will appear here',
+  'history.emptyFavorites': 'No favorites yet',
+  'history.emptyFavoritesDesc': 'Save products you love to find them here',
+  'history.emptyAvoid': 'No items to avoid',
+  'history.emptyAvoidDesc': 'Products you want to avoid will appear here',
+
+  // Notifications screen
+  'notifications.title': 'Notifications',
+  'notifications.productAlerts': 'Product Alerts',
+  'notifications.productAlertsDesc': 'Get notified about recalls and safety updates',
+  'notifications.scanReminders': 'Scan Reminders',
+  'notifications.scanRemindersDesc': 'Reminders to scan products before buying',
+  'notifications.ingredientWarnings': 'Ingredient Warnings',
+  'notifications.ingredientWarningsDesc': 'Alerts about newly flagged ingredients',
+  'notifications.weeklyReport': 'Weekly Report',
+  'notifications.weeklyReportDesc': 'Summary of your scanning activity',
+
+  // Help screen
+  'help.title': 'Help & Support',
+  'help.faq': 'Frequently Asked Questions',
+  'help.faq1Q': 'How does the scanner work?',
+  'help.faq1A': 'Point your camera at an ingredient label. Our AI reads the text and analyzes each ingredient for potential health concerns, giving you a safety score from 0-100.',
+  'help.faq2Q': 'How accurate are the results?',
+  'help.faq2A': 'Our analysis is based on scientific research and regulatory databases. While we strive for accuracy, always consult healthcare professionals for medical decisions.',
+  'help.faq3Q': 'Can I scan products without a label?',
+  'help.faq3A': 'Yes! Use the "No label? Describe it" option to manually describe products like furniture, cookware, or other items without ingredient lists.',
+  'help.faq4Q': 'What do the scores mean?',
+  'help.faq4A': '67-100 is Safe (green), 34-66 is Caution (yellow), and 0-33 is Avoid (red). The score considers ingredient toxicity, regulatory status, and potential health impacts.',
+  'help.contact': 'Contact Us',
+  'help.emailSupport': 'Email Support',
+  'help.reportProblem': 'Report a Problem',
+  'help.appFeedback': 'App Feedback',
+
+  // About screen
+  'about.title': 'About',
+  'about.appName': 'Non-Toxic Living',
+  'about.missionTitle': 'Our Mission',
+  'about.mission': 'We believe everyone deserves to know what\'s in their products. Our mission is to make it easy to identify harmful ingredients and find safer alternatives for your family.',
+  'about.privacyPolicy': 'Privacy Policy',
+  'about.termsOfService': 'Terms of Service',
+  'about.creditsDesc': 'Built with care for healthier living.\nPowered by AI and scientific research.',
+
+  // Coupons
+  'coupon.partnerDeal': 'PARTNER DEAL',
+  'coupon.freeShipping': 'Free Shipping',
+  'coupon.bogo': 'Buy One Get One',
+  'coupon.expiresIn': '{{days}}d left',
+  'coupon.redeem': 'Redeem Deal',
+  'coupon.copied': 'Copied!',
+  'coupon.deals': 'Deals & Discounts',
+
+  // Subscription
+  'subscription.title': 'Choose Your Plan',
+  'subscription.subtitle': 'Unlock more scans and premium features',
+  'subscription.monthly': 'Monthly',
+  'subscription.annual': 'Annual',
+  'subscription.perMonth': '/month',
+  'subscription.perYear': '/year',
+  'subscription.subscribe': 'Subscribe',
+  'subscription.current': 'Current',
+  'subscription.currentPlan': '{{plan}} Plan',
+  'subscription.goPremium': 'Go Premium',
+  'subscription.goPremiumDesc': 'More scans, detailed reports & more',
+  'subscription.managePlan': 'Manage Subscription',
+  'subscription.restorePurchases': 'Restore Purchases',
+  'subscription.restoring': 'Restoring...',
+  'subscription.restored': 'Purchases restored!',
+  'subscription.restoreNone': 'No previous purchases found',
+  'subscription.cancelAnytime': 'Cancel anytime. Subscriptions auto-renew until cancelled.',
+  'subscription.purchaseError': 'Purchase failed. Please try again.',
+  'subscription.processing': 'Processing...',
+  'subscription.oneMonthFree': '1 month free',
+
+  // Tiers
+  'tier.free': 'Free',
+  'tier.pro': 'Pro',
+  'tier.power': 'Power',
+  'tier.freeDesc': 'Get started',
+  'tier.proDesc': 'Most popular',
+  'tier.powerDesc': 'For power users',
+
+  // Features
+  'feature.freeScans': '5 scans per month',
+  'feature.basicAnalysis': 'Basic ingredient analysis',
+  'feature.proScans': '200 scans per month',
+  'feature.detailedReports': 'Detailed safety reports',
+  'feature.prioritySupport': 'Priority support',
+  'feature.powerScans': '500 scans per month',
+  'feature.allProFeatures': 'Everything in Pro',
+  'feature.familySharing': 'Family sharing',
+  'feature.exportReports': 'Export scan reports',
+
+  // Pricing fallbacks
+  'price.free': 'Free',
+
+  // Profile plan labels
+  'profile.proPlan': 'Pro Plan',
+  'profile.powerPlan': 'Power Plan',
+
+  // Quota
+  'quota.title': 'Scan Limit Reached',
+  'quota.description': "You've used {{used}} of {{limit}} scans this month.",
+  'quota.resetsIn': 'Resets in {{days}} days',
+  'quota.upgradePro': 'Upgrade Now',
+  'quota.dismiss': 'Maybe later',
 
   // Common
   'common.cancel': 'Cancel',

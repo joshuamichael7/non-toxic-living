@@ -9,9 +9,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 
 import { processImage } from '@/services/ocr/OcrPipeline';
-import { analyzeIngredients } from '@/services/api/analyze';
+import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze';
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
 
 // Aerogel Design System Colors
 const colors = {
@@ -34,6 +36,12 @@ export default function ScanScreen() {
 
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
+  const [quotaModal, setQuotaModal] = useState<{
+    visible: boolean;
+    scansUsed: number;
+    scansLimit: number;
+    resetsAt: string;
+  }>({ visible: false, scansUsed: 0, scansLimit: 0, resetsAt: '' });
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -114,7 +122,7 @@ export default function ScanScreen() {
 
       // Send to Edge Function for analysis
       const language = usePreferencesStore.getState().language;
-      const preferredStore = usePreferencesStore.getState().preferredStore;
+      const userId = useAuthStore.getState().user?.id;
       const analysisResult = await analyzeIngredients({
         text: ocrResult.ocrResult.text || undefined,
         imageBase64: ocrResult.shouldSendImage ? photo.base64 : undefined,
@@ -122,7 +130,7 @@ export default function ScanScreen() {
         ocrConfidence: ocrResult.ocrResult.confidence,
         clientSteps: ocrResult.clientSteps,
         language,
-        store: preferredStore || undefined,
+        userId,
       });
 
       console.log('Analysis complete:', analysisResult.productName, '- Score:', analysisResult.score);
@@ -135,16 +143,27 @@ export default function ScanScreen() {
     } catch (error) {
       console.error('Scan failed:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setScanStage('error');
-      const msg = error instanceof Error ? error.message : 'Scan failed';
-      setScanError(msg);
-      setError(msg);
 
-      // Auto-reset after 3 seconds
-      setTimeout(() => {
+      if (isQuotaExceededError(error)) {
         setScanStage('idle');
-        setScanError(null);
-      }, 3000);
+        setQuotaModal({
+          visible: true,
+          scansUsed: error.scansUsed,
+          scansLimit: error.scansLimit,
+          resetsAt: error.resetsAt,
+        });
+      } else {
+        setScanStage('error');
+        const msg = error instanceof Error ? error.message : 'Scan failed';
+        setScanError(msg);
+        setError(msg);
+
+        // Auto-reset after 3 seconds
+        setTimeout(() => {
+          setScanStage('idle');
+          setScanError(null);
+        }, 3000);
+      }
     } finally {
       isCapturingRef.current = false;
     }
@@ -247,23 +266,23 @@ export default function ScanScreen() {
         <Pressable
           onPress={handleScan}
           disabled={isProcessing}
-          style={({ pressed }) => ({
-            backgroundColor: pressed ? '#0284C7' : colors.oxygen,
+          style={{
+            backgroundColor: colors.oxygen,
             borderRadius: 20,
-            paddingVertical: 18,
-            paddingHorizontal: 48,
+            paddingVertical: 20,
+            alignSelf: 'stretch',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             opacity: isProcessing ? 0.5 : 1,
             shadowColor: colors.oxygen,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.3,
-            shadowRadius: 16,
-          })}
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.4,
+            shadowRadius: 20,
+          }}
         >
-          <Ionicons name="camera" size={24} color="white" style={{ marginRight: 10 }} />
-          <Text style={{ color: 'white', fontWeight: '700', fontSize: 18 }}>
+          <Ionicons name="camera" size={26} color="white" style={{ marginRight: 12 }} />
+          <Text style={{ color: 'white', fontWeight: '800', fontSize: 20 }}>
             {t('scan.openCamera')}
           </Text>
         </Pressable>
@@ -271,12 +290,24 @@ export default function ScanScreen() {
         {/* No-label option */}
         <Pressable
           onPress={() => router.push('/describe')}
-          style={{ marginTop: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            marginTop: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            alignSelf: 'stretch',
+            backgroundColor: colors.glassSolid,
+            borderRadius: 16,
+            paddingVertical: 14,
+            borderWidth: 1.5,
+            borderColor: colors.inkSecondary,
+          }}
         >
-          <Ionicons name="document-text-outline" size={18} color={colors.inkSecondary} style={{ marginRight: 6 }} />
-          <Text style={{ color: colors.inkSecondary, fontWeight: '600', fontSize: 15 }}>
+          <Ionicons name="document-text-outline" size={18} color={colors.ink} style={{ marginRight: 8 }} />
+          <Text style={{ color: colors.ink, fontWeight: '600', fontSize: 15 }}>
             {t('scan.noLabel')}
           </Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.inkSecondary} style={{ marginLeft: 4 }} />
         </Pressable>
 
         {/* Tip */}
@@ -290,6 +321,14 @@ export default function ScanScreen() {
           {t('scan.tip')}
         </Text>
       </View>
+
+      <QuotaExceededModal
+        visible={quotaModal.visible}
+        onClose={() => setQuotaModal(prev => ({ ...prev, visible: false }))}
+        scansUsed={quotaModal.scansUsed}
+        scansLimit={quotaModal.scansLimit}
+        resetsAt={quotaModal.resetsAt}
+      />
     </SafeAreaView>
   );
 }

@@ -87,7 +87,15 @@ export default {
   'result.positives': 'Points positifs',
   'result.betterAlternatives': 'Meilleures alternatives',
   'result.save': 'Enregistrer',
+  'result.saved': 'Sauvegardé!',
   'result.scanAgain': 'Scanner à nouveau',
+
+  // Swap details
+  'swap.safetyScore': 'Score de sécurité',
+  'swap.whyBetter': 'Pourquoi c\'est mieux',
+  'swap.availableAt': 'Disponible chez',
+  'swap.shopNow': 'Acheter maintenant',
+  'swap.close': 'Fermer',
 
   // Verdicts
   'verdict.safe': 'Sûr',
@@ -155,6 +163,7 @@ export default {
   'store.change': 'Modifier',
   'store.shoppingAt': 'Achats chez {{store}}',
   'store.clear': 'Effacer',
+  'store.findAtStore': 'Trouver en magasin',
 
   // Scan - No label option
   'scan.noLabel': 'Pas d\'étiquette ? Décrivez-le',
@@ -172,6 +181,7 @@ export default {
   'describe.removePhoto': 'Supprimer',
   'describe.analyze': 'Analyser le produit',
   'describe.selectType': 'Veuillez sélectionner un type de produit',
+  'describe.type.food': 'Alimentation et Boissons',
   'describe.type.furniture': 'Meubles',
   'describe.type.mattress': 'Matelas et literie',
   'describe.type.clothing': 'Vêtements et textiles',
@@ -187,10 +197,128 @@ export default {
   // Pipeline debug - manual
   'pipeline.manual': 'Description manuelle',
 
+  // Coupons
+  'coupon.partnerDeal': 'OFFRE PARTENAIRE',
+  'coupon.freeShipping': 'Livraison gratuite',
+  'coupon.bogo': 'Achetez-en un, obtenez-en un',
+  'coupon.expiresIn': '{{days}}j restants',
+  'coupon.redeem': 'Profiter de l\'offre',
+  'coupon.copied': 'Copié !',
+  'coupon.deals': 'Offres et réductions',
+
+  // Subscription
+  'subscription.title': 'Choisissez votre forfait',
+  'subscription.subtitle': 'Débloquez plus de scans et des fonctionnalités premium',
+  'subscription.monthly': 'Mensuel',
+  'subscription.annual': 'Annuel',
+  'subscription.perMonth': '/mois',
+  'subscription.perYear': '/an',
+  'subscription.subscribe': 'S\'abonner',
+  'subscription.current': 'Actuel',
+  'subscription.currentPlan': 'Forfait {{plan}}',
+  'subscription.goPremium': 'Passer Premium',
+  'subscription.goPremiumDesc': 'Plus de scans, rapports détaillés et plus encore',
+  'subscription.managePlan': 'Gérer l\'abonnement',
+  'subscription.restorePurchases': 'Restaurer les achats',
+  'subscription.restoring': 'Restauration...',
+  'subscription.restored': 'Achats restaurés !',
+  'subscription.restoreNone': 'Aucun achat précédent trouvé',
+  'subscription.cancelAnytime': 'Annulez à tout moment. Les abonnements se renouvellent automatiquement jusqu\'à leur annulation.',
+  'subscription.purchaseError': 'Échec de l\'achat. Veuillez réessayer.',
+  'subscription.processing': 'Traitement...',
+  'subscription.oneMonthFree': '1 mois gratuit',
+
+  // Tiers
+  'tier.free': 'Gratuit',
+  'tier.pro': 'Pro',
+  'tier.power': 'Power',
+  'tier.freeDesc': 'Pour commencer',
+  'tier.proDesc': 'Le plus populaire',
+  'tier.powerDesc': 'Pour les utilisateurs avancés',
+
+  // Features
+  'feature.freeScans': '5 scans par mois',
+  'feature.basicAnalysis': 'Analyse basique des ingrédients',
+  'feature.proScans': '200 scans par mois',
+  'feature.detailedReports': 'Rapports de sécurité détaillés',
+  'feature.prioritySupport': 'Support prioritaire',
+  'feature.powerScans': '500 scans par mois',
+  'feature.allProFeatures': 'Tout ce qui est dans Pro',
+  'feature.familySharing': 'Partage familial',
+  'feature.exportReports': 'Exporter les rapports de scan',
+
+  // Pricing fallbacks
+  'price.free': 'Gratuit',
+
+  // Profile plan labels
+  'profile.proPlan': 'Forfait Pro',
+  'profile.powerPlan': 'Forfait Power',
+
+  // Quota
+  'quota.title': 'Limite de scans atteinte',
+  'quota.description': 'Vous avez utilisé {{used}} sur {{limit}} scans ce mois-ci.',
+  'quota.resetsIn': 'Renouvellement dans {{days}} jours',
+  'quota.upgradePro': 'Passer à Pro',
+  'quota.dismiss': 'Peut-être plus tard',
+
   // Common
   'common.cancel': 'Annuler',
   'common.save': 'Enregistrer',
   'common.close': 'Fermer',
   'common.error': 'Erreur',
   'common.loading': 'Chargement...',
+
+  // Search results
+  'search.results': 'Résultats',
+  'search.searching': 'Recherche en cours...',
+  'search.noResults': 'Aucun résultat trouvé',
+  'search.noResultsDesc': 'Essayez un autre terme de recherche ou parcourez les catégories',
+
+  // History screen
+  'history.title': 'Historique des scans',
+  'history.all': 'Tout',
+  'history.favorites': 'Favoris',
+  'history.avoid': 'À éviter',
+  'history.empty': 'Aucun scan pour le moment',
+  'history.emptyDesc': 'Les produits que vous scannez apparaîtront ici',
+  'history.emptyFavorites': 'Aucun favori pour le moment',
+  'history.emptyFavoritesDesc': 'Enregistrez les produits que vous aimez pour les retrouver ici',
+  'history.emptyAvoid': 'Aucun produit à éviter',
+  'history.emptyAvoidDesc': 'Les produits que vous souhaitez éviter apparaîtront ici',
+
+  // Notifications screen
+  'notifications.title': 'Notifications',
+  'notifications.productAlerts': 'Alertes produits',
+  'notifications.productAlertsDesc': 'Soyez informé des rappels de produits et des mises à jour de sécurité',
+  'notifications.scanReminders': 'Rappels de scan',
+  'notifications.scanRemindersDesc': 'Rappels pour scanner les produits avant d\'acheter',
+  'notifications.ingredientWarnings': 'Alertes ingrédients',
+  'notifications.ingredientWarningsDesc': 'Alertes concernant les ingrédients nouvellement signalés',
+  'notifications.weeklyReport': 'Rapport hebdomadaire',
+  'notifications.weeklyReportDesc': 'Résumé de votre activité de scan',
+
+  // Help screen
+  'help.title': 'Aide et support',
+  'help.faq': 'Questions fréquentes',
+  'help.faq1Q': 'Comment fonctionne le scanner ?',
+  'help.faq1A': 'Pointez votre appareil photo vers une étiquette d\'ingrédients. Notre IA lit le texte et analyse chaque ingrédient pour détecter d\'éventuels risques pour la santé, en vous attribuant un score de sécurité de 0 à 100.',
+  'help.faq2Q': 'Quelle est la précision des résultats ?',
+  'help.faq2A': 'Notre analyse est basée sur la recherche scientifique et les bases de données réglementaires. Bien que nous nous efforcions d\'être précis, consultez toujours des professionnels de santé pour les décisions médicales.',
+  'help.faq3Q': 'Puis-je scanner des produits sans étiquette ?',
+  'help.faq3A': 'Oui ! Utilisez l\'option « Pas d\'étiquette ? Décrivez-le » pour décrire manuellement des produits comme les meubles, les ustensiles de cuisine ou d\'autres articles sans liste d\'ingrédients.',
+  'help.faq4Q': 'Que signifient les scores ?',
+  'help.faq4A': '67-100 signifie Sûr (vert), 34-66 signifie Prudence (jaune) et 0-33 signifie À éviter (rouge). Le score prend en compte la toxicité des ingrédients, le statut réglementaire et les impacts potentiels sur la santé.',
+  'help.contact': 'Nous contacter',
+  'help.emailSupport': 'Support par e-mail',
+  'help.reportProblem': 'Signaler un problème',
+  'help.appFeedback': 'Commentaires sur l\'application',
+
+  // About screen
+  'about.title': 'À propos',
+  'about.appName': 'Non-Toxic Living',
+  'about.missionTitle': 'Notre mission',
+  'about.mission': 'Nous croyons que chacun mérite de savoir ce que contiennent ses produits. Notre mission est de faciliter l\'identification des ingrédients nocifs et de trouver des alternatives plus sûres pour votre famille.',
+  'about.privacyPolicy': 'Politique de confidentialité',
+  'about.termsOfService': 'Conditions d\'utilisation',
+  'about.creditsDesc': 'Conçu avec soin pour une vie plus saine.\nPropulsé par l\'IA et la recherche scientifique.',
 } as const;

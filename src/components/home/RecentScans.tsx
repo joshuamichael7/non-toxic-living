@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
@@ -40,16 +41,18 @@ export function RecentScans() {
   const [scans, setScans] = useState<ScanItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-    getUserScans(user.id, 5)
-      .then((data) => setScans(data as ScanItem[]))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [user?.id]);
+  useFocusEffect(
+    useCallback(() => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+      getUserScans(user.id, 5)
+        .then((data) => setScans(data as ScanItem[]))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }, [user?.id])
+  );
 
   const verdictConfig = {
     safe: { bg: colors.safeLight, color: colors.safe, borderColor: colors.safe, label: t('verdict.safe') },
@@ -104,6 +107,7 @@ export function RecentScans() {
         return (
           <Pressable
             key={scan.id}
+            onPress={() => router.push(`/result/${scan.id}`)}
             style={{
               backgroundColor: colors.glassSolid,
               borderRadius: 20,
