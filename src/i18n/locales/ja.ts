@@ -216,6 +216,11 @@ export default {
   'deals.shopOnline': 'オンラインで購入',
   'deals.codeCopied': 'コードをコピーしました！',
 
+  // Featured
+  'featured.title': '注目',
+  'featured.learnMore': '詳しく見る',
+  'featured.shopNow': '今すぐ購入',
+
   // Subscription
   'subscription.title': 'プランを選択',
   'subscription.subtitle': 'より多くのスキャンとプレミアム機能をアンロック',

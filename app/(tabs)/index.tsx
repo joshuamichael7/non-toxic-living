@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { StatsCard } from '@/components/home/StatsCard';
 import { RecentScans } from '@/components/home/RecentScans';
-import { DealsCarousel } from '@/components/home/DealsCarousel';
+import { FeaturedCarousel } from '@/components/home/FeaturedCarousel';
 
 // Aerogel Design System Colors
 const colors = {
@@ -186,8 +186,8 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Deals & Discounts */}
-        <DealsCarousel />
+        {/* Featured */}
+        <FeaturedCarousel />
 
         {/* Recent Scans */}
         <View style={{ paddingHorizontal: 24 }}>

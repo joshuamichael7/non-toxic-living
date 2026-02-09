@@ -216,6 +216,11 @@ export default {
   'deals.shopOnline': 'تسوّق عبر الإنترنت',
   'deals.codeCopied': 'تم نسخ الرمز!',
 
+  // Featured
+  'featured.title': 'مميز',
+  'featured.learnMore': 'اعرف المزيد',
+  'featured.shopNow': 'تسوّق الآن',
+
   // Subscription
   'subscription.title': 'اختر خطتك',
   'subscription.subtitle': 'افتح المزيد من عمليات المسح والميزات المميزة',

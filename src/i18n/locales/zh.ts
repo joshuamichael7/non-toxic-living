@@ -216,6 +216,11 @@ export default {
   'deals.shopOnline': '在线购买',
   'deals.codeCopied': '优惠码已复制！',
 
+  // Featured
+  'featured.title': '精选',
+  'featured.learnMore': '了解更多',
+  'featured.shopNow': '立即购买',
+
   // Subscription
   'subscription.title': '选择您的计划',
   'subscription.subtitle': '解锁更多扫描次数和高级功能',

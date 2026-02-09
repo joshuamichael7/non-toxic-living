@@ -216,6 +216,11 @@ export default {
   'deals.shopOnline': 'ऑनलाइन खरीदें',
   'deals.codeCopied': 'कोड कॉपी किया गया!',
 
+  // Featured
+  'featured.title': 'विशेष',
+  'featured.learnMore': 'और जानें',
+  'featured.shopNow': 'अभी खरीदें',
+
   // Subscription
   'subscription.title': 'अपनी योजना चुनें',
   'subscription.subtitle': 'अधिक स्कैन और प्रीमियम सुविधाएं अनलॉक करें',

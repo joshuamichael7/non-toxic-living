@@ -271,6 +271,11 @@ export default {
   'deals.shopOnline': 'Shop Online',
   'deals.codeCopied': 'Code Copied!',
 
+  // Featured
+  'featured.title': 'Featured',
+  'featured.learnMore': 'Learn More',
+  'featured.shopNow': 'Shop Now',
+
   // Subscription
   'subscription.title': 'Choose Your Plan',
   'subscription.subtitle': 'Unlock more scans and premium features',

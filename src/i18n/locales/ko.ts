@@ -216,6 +216,11 @@ export default {
   'deals.shopOnline': '온라인 구매',
   'deals.codeCopied': '코드가 복사되었습니다!',
 
+  // Featured
+  'featured.title': '추천',
+  'featured.learnMore': '자세히 보기',
+  'featured.shopNow': '지금 구매',
+
   // Subscription
   'subscription.title': '플랜 선택',
   'subscription.subtitle': '더 많은 스캔과 프리미엄 기능을 잠금 해제하세요',

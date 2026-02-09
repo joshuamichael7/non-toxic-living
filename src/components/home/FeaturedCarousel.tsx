@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { getActiveCoupons, trackImpression, type CouponCard } from '@/services/api/coupons';
-import { DealCard } from './DealCard';
+import { getActiveFeaturedItems, trackImpression, type FeaturedItem } from '@/services/api/featured';
+import { FeaturedCard } from './FeaturedCard';
 
 const colors = {
   inkSecondary: '#64748B',
@@ -13,9 +13,9 @@ const CARD_WIDTH = 280;
 const GAP = 12;
 const AUTO_SCROLL_INTERVAL = 5000;
 
-export function DealsCarousel() {
+export function FeaturedCarousel() {
   const { t } = useTranslation();
-  const [coupons, setCoupons] = useState<CouponCard[]>([]);
+  const [items, setItems] = useState<FeaturedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const scrollRef = useRef<ScrollView>(null);
@@ -25,10 +25,9 @@ export function DealsCarousel() {
   const trackedImpressions = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    getActiveCoupons(10).then((data) => {
-      setCoupons(data);
+    getActiveFeaturedItems(10).then((data) => {
+      setItems(data);
       setLoading(false);
-      // Track first card impression
       if (data.length > 0 && !trackedImpressions.current.has(data[0].id)) {
         trackedImpressions.current.add(data[0].id);
         trackImpression(data[0].id);
@@ -36,29 +35,27 @@ export function DealsCarousel() {
     });
   }, []);
 
-  // Auto-scroll
   const startAutoScroll = useCallback(() => {
     if (autoScrollTimerRef.current) clearInterval(autoScrollTimerRef.current);
-    if (coupons.length <= 1) return;
+    if (items.length <= 1) return;
 
     autoScrollTimerRef.current = setInterval(() => {
       if (isUserScrollingRef.current) return;
 
-      const nextIndex = (currentIndexRef.current + 1) % coupons.length;
+      const nextIndex = (currentIndexRef.current + 1) % items.length;
       scrollRef.current?.scrollTo({
         x: nextIndex * (CARD_WIDTH + GAP),
         animated: true,
       });
       currentIndexRef.current = nextIndex;
 
-      // Track impression for newly visible card
-      const coupon = coupons[nextIndex];
-      if (coupon && !trackedImpressions.current.has(coupon.id)) {
-        trackedImpressions.current.add(coupon.id);
-        trackImpression(coupon.id);
+      const item = items[nextIndex];
+      if (item && !trackedImpressions.current.has(item.id)) {
+        trackedImpressions.current.add(item.id);
+        trackImpression(item.id);
       }
     }, AUTO_SCROLL_INTERVAL);
-  }, [coupons]);
+  }, [items]);
 
   useEffect(() => {
     startAutoScroll();
@@ -78,19 +75,16 @@ export function DealsCarousel() {
     const index = Math.round(offsetX / (CARD_WIDTH + GAP));
     currentIndexRef.current = index;
 
-    // Track impression for visible card
-    const coupon = coupons[index];
-    if (coupon && !trackedImpressions.current.has(coupon.id)) {
-      trackedImpressions.current.add(coupon.id);
-      trackImpression(coupon.id);
+    const item = items[index];
+    if (item && !trackedImpressions.current.has(item.id)) {
+      trackedImpressions.current.add(item.id);
+      trackImpression(item.id);
     }
 
-    // Restart auto-scroll after user stops scrolling
     startAutoScroll();
   };
 
-  // Hide entirely if no coupons
-  if (!loading && coupons.length === 0) return null;
+  if (!loading && items.length === 0) return null;
   if (loading) return null;
 
   return (
@@ -104,7 +98,7 @@ export function DealsCarousel() {
         letterSpacing: 0.5,
         textTransform: 'uppercase',
       }}>
-        {t('deals.title')}
+        {t('featured.title')}
       </Text>
       <ScrollView
         ref={scrollRef}
@@ -117,8 +111,8 @@ export function DealsCarousel() {
         onMomentumScrollEnd={handleScrollEnd}
         onScrollEndDrag={handleScrollEnd}
       >
-        {coupons.map((coupon) => (
-          <DealCard key={coupon.id} coupon={coupon} />
+        {items.map((item) => (
+          <FeaturedCard key={item.id} item={item} />
         ))}
       </ScrollView>
     </View>
