@@ -671,111 +671,60 @@ ${ingredientText}`
     }
 
     // =========================================================================
-    // STEP 5: Cache the product
+    // STEP 5: Update existing curated products only (no auto-creation)
+    // Scans do NOT auto-create products — the products table is curated.
+    // We only update if this scan matches an existing product by barcode.
     // =========================================================================
-    const cacheTtl = isManualInput ? CACHE_TTL_DAYS.low :
-                     ocrConfidence > 0.8 ? CACHE_TTL_DAYS.high :
-                     ocrConfidence > 0.5 ? CACHE_TTL_DAYS.medium :
-                     CACHE_TTL_DAYS.low
-
-    const productData = {
-      name: analysis.productName,
-      brand: analysis.brand,
-      category: analysis.category,
-      barcode: barcode || null,
-      score: analysis.score,
-      verdict: analysis.verdict,
-      summary: analysis.summary,
-      dads_take: analysis.dadsTake,
-      analysis: {
-        concerns: analysis.concerns,
-        positives: analysis.positives,
-      },
-      ingredients_raw: ingredientText,
-      ingredient_hash: hashString(ingredientText),
-      analysis_version: CURRENT_ANALYSIS_VERSION,
-      last_analyzed_at: new Date().toISOString(),
-      confidence_score: ocrConfidence,
-      cache_ttl_days: cacheTtl,
-      embedding: embedding,
-      scan_count: 1,
-    }
-
     let savedProduct: { id: string } | null = null
-    const DEDUP_SIMILARITY_THRESHOLD = 0.92
 
     if (barcode) {
-      // Upsert by barcode (most reliable dedup)
-      const { data, error: saveError } = await supabase
+      // Check if a curated product exists with this barcode
+      const { data: existing } = await supabase
         .from('products')
-        .upsert(productData, { onConflict: 'barcode', ignoreDuplicates: false })
-        .select('id')
+        .select('id, scan_count')
+        .eq('barcode', barcode)
         .single()
-      if (saveError) console.warn('Failed to cache product:', saveError)
-      else savedProduct = data
-    } else if (embedding) {
-      // Embedding-based dedup: find semantically similar existing product
-      try {
-        const { data: matches } = await supabase.rpc('search_products_semantic', {
-          query_embedding: embedding,
-          match_threshold: DEDUP_SIMILARITY_THRESHOLD,
-          match_count: 1,
-        })
 
-        if (matches && matches.length > 0) {
-          // Found a near-duplicate — update existing product with fresh analysis
-          const match = matches[0]
-          console.log(`Dedup: embedding match (${match.similarity.toFixed(3)}): "${match.name}" → updating`)
+      if (existing) {
+        // Update the existing curated product with fresh analysis
+        const cacheTtl = ocrConfidence > 0.8 ? CACHE_TTL_DAYS.high :
+                         ocrConfidence > 0.5 ? CACHE_TTL_DAYS.medium :
+                         CACHE_TTL_DAYS.low
 
-          const { data: existing } = await supabase
-            .from('products')
-            .select('scan_count')
-            .eq('id', match.id)
-            .single()
-
-          const { data, error: updateError } = await supabase
-            .from('products')
-            .update({
-              ...productData,
-              scan_count: (existing?.scan_count || 0) + 1,
-            })
-            .eq('id', match.id)
-            .select('id')
-            .single()
-          if (updateError) console.warn('Failed to update product:', updateError)
-          else savedProduct = data
-        } else {
-          // No similar product found — insert new
-          const { data, error: insertError } = await supabase
-            .from('products')
-            .insert(productData)
-            .select('id')
-            .single()
-          if (insertError) console.warn('Failed to insert product:', insertError)
-          else savedProduct = data
-        }
-      } catch (err) {
-        console.warn('Embedding dedup failed, inserting new:', err)
-        const { data, error: insertError } = await supabase
+        const { data, error: updateError } = await supabase
           .from('products')
-          .insert(productData)
+          .update({
+            score: analysis.score,
+            verdict: analysis.verdict,
+            summary: analysis.summary,
+            dads_take: analysis.dadsTake,
+            analysis: {
+              concerns: analysis.concerns,
+              positives: analysis.positives,
+            },
+            ingredients_raw: ingredientText,
+            ingredient_hash: hashString(ingredientText),
+            analysis_version: CURRENT_ANALYSIS_VERSION,
+            last_analyzed_at: new Date().toISOString(),
+            confidence_score: ocrConfidence,
+            cache_ttl_days: cacheTtl,
+            embedding: embedding,
+            scan_count: (existing.scan_count || 0) + 1,
+          })
+          .eq('id', existing.id)
           .select('id')
           .single()
-        if (insertError) console.warn('Failed to insert product:', insertError)
+        if (updateError) console.warn('Failed to update product:', updateError)
         else savedProduct = data
+        console.log('Updated existing product:', existing.id)
+      } else {
+        console.log('No curated product found for barcode:', barcode, '— skipping product creation')
       }
     } else {
-      // No barcode and no embedding — just insert
-      const { data, error: insertError } = await supabase
-        .from('products')
-        .insert(productData)
-        .select('id')
-        .single()
-      if (insertError) console.warn('Failed to insert product:', insertError)
-      else savedProduct = data
+      console.log('No barcode — skipping product lookup (products table is curated only)')
     }
 
-    if (savedProduct) console.log('Product cached:', savedProduct.id)
+    if (savedProduct) console.log('Product updated:', savedProduct.id)
 
     // =========================================================================
     // STEP 6: Get swap recommendations + coupons (filtered against blocklist)
