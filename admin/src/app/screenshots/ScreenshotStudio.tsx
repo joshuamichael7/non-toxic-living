@@ -41,6 +41,7 @@ const DEVICES: Record<string, { name: string; w: number; h: number; scale: numbe
 type ScreenDef = { id: string; name: string; tab: string | null };
 const SCREENS: ScreenDef[] = [
   { id: 'home', name: 'Home', tab: 'home' },
+  { id: 'home-deals', name: 'Home (Deals)', tab: 'home' },
   { id: 'scan', name: 'Scan', tab: 'scan' },
   { id: 'search-food', name: 'Search (Food)', tab: 'search' },
   { id: 'search-cookware', name: 'Search (Cookware)', tab: 'search' },
@@ -98,6 +99,15 @@ function IconStore({ color = C.oxygen, size = 18 }: { color?: string; size?: num
 }
 function IconDoc({ color = C.inkSecondary, size = 20 }: { color?: string; size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+}
+function IconCart({ color = C.white, size = 16 }: { color?: string; size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>;
+}
+function IconNutrition({ color = C.ink, size = 18 }: { color?: string; size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="14" rx="7" ry="8"/><path d="M12 6V3"/><path d="M12 3c2 0 3.5 1.5 3.5 2.5"/></svg>;
+}
+function IconBody({ color = C.ink, size = 18 }: { color?: string; size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4" r="2.5"/><path d="M12 7v7"/><path d="M8 10l4 1 4-1"/><path d="M9 22l3-8 3 8"/></svg>;
 }
 
 /* ==========================================================
@@ -273,9 +283,9 @@ function HomeScreen({ width }: { width: number }) {
         <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:14 }}>Categories</div>
         <div style={{ display:'flex', gap:10, overflow:'hidden' }}>
           {[
-            { name: 'Food', emoji: '🍽️', active: true },
-            { name: 'Personal Care', emoji: '🧴', active: false },
-            { name: 'Household', emoji: '🏠', active: false },
+            { name: 'Food', Icon: IconNutrition, active: true },
+            { name: 'Personal Care', Icon: IconBody, active: false },
+            { name: 'Household', Icon: IconHome, active: false },
           ].map(cat => (
             <div key={cat.name} style={{
               display:'flex', alignItems:'center', gap:8,
@@ -284,9 +294,109 @@ function HomeScreen({ width }: { width: number }) {
               border: `1px solid ${cat.active ? C.oxygen : C.glassBorder}`,
               boxShadow: cat.active ? `0 4px 12px ${C.oxygenGlow}` : '0 2px 8px rgba(0,0,0,0.04)',
             }}>
-              <span style={{ fontSize:16 }}>{cat.emoji}</span>
+              <cat.Icon color={cat.active ? C.white : C.ink} size={18} />
               <span style={{ fontSize:14, fontWeight:600, color: cat.active ? C.white : C.inkSecondary }}>{cat.name}</span>
             </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================
+   SCREEN: HOME (SCROLLED — Featured & Recent Scans)
+   ========================================================== */
+function HomeDealsScreen({ width }: { width: number }) {
+  const pad = width > 700 ? 32 : 24;
+  const isTab = width > 700;
+  const cardW = isTab ? 320 : 260;
+  return (
+    <div style={{ flex:1, padding:`0 ${pad}px`, display:'flex', flexDirection:'column', gap: isTab ? 18 : 16, overflowY:'hidden' }}>
+      {/* Categories */}
+      <div style={{ marginTop:8 }}>
+        <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Categories</div>
+        <div style={{ display:'flex', gap:10, overflow:'hidden' }}>
+          {[
+            { name: 'Food', Icon: IconNutrition, active: true },
+            { name: 'Personal Care', Icon: IconBody, active: false },
+            { name: 'Household', Icon: IconHome, active: false },
+          ].map(cat => (
+            <div key={cat.name} style={{
+              display:'flex', alignItems:'center', gap:8,
+              padding:'12px 16px', borderRadius:16, whiteSpace:'nowrap' as const,
+              background: cat.active ? C.oxygen : C.glass,
+              border: `1px solid ${cat.active ? C.oxygen : C.glassBorder}`,
+              boxShadow: cat.active ? `0 4px 12px ${C.oxygenGlow}` : '0 2px 8px rgba(0,0,0,0.04)',
+            }}>
+              <cat.Icon color={cat.active ? C.white : C.ink} size={18} />
+              <span style={{ fontSize:14, fontWeight:600, color: cat.active ? C.white : C.inkSecondary }}>{cat.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured */}
+      <div>
+        <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured</div>
+        <div style={{ display:'flex', gap:12, overflow:'hidden' }}>
+          {[
+            { store: 'Amazon', title: '12-Inch Cast Iron Skillet', desc: 'Chemical-free cooking', bgColor: '#2D2D2D' },
+            { store: 'Thrive Market', title: "Dr. Bronner\u2019s Castile Soap", desc: 'Pure & plant-based', bgColor: '#D6CBC3' },
+          ].map((item, i) => (
+            <GlassCard key={i} style={{ width:cardW, minWidth:cardW, padding:20, borderRadius:24 }}>
+              <div style={{ marginBottom:12 }}>
+                <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
+              </div>
+              <div style={{
+                width:'100%', height:120, borderRadius:12, marginBottom:12,
+                background:item.bgColor, display:'flex', alignItems:'center', justifyContent:'center',
+              }}>
+                <div style={{ width:72, height:72, borderRadius:36, background:'rgba(255,255,255,0.12)' }} />
+              </div>
+              <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>{item.store}</div>
+              <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>{item.title}</div>
+              <div style={{ fontSize:13, color:C.inkSecondary, marginBottom:14, lineHeight:'1.4' }}>{item.desc}</div>
+              <button style={{
+                width:'100%', padding:'12px 0', borderRadius:14,
+                background:C.oxygen, color:C.white, border:'none',
+                fontSize:14, fontWeight:700, fontFamily:font,
+                display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+                boxShadow:`0 4px 8px ${C.oxygenGlow}`,
+              }}>
+                <IconCart size={16} /> Shop Now
+              </button>
+            </GlassCard>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Scans */}
+      <div>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+          <span style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const }}>Recent Scans</span>
+          <span style={{ fontSize:14, fontWeight:600, color:C.oxygen }}>See all</span>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {[
+            { name: 'Tide Original Detergent', brand: 'Tide', score: 22 },
+            { name: 'Seventh Generation Dish Soap', brand: 'Seventh Generation', score: 88 },
+            { name: 'Crest 3D White Toothpaste', brand: 'Crest', score: 38 },
+          ].map((scan, i) => (
+            <GlassCard key={i} style={{ padding:16, borderRadius:20, display:'flex', alignItems:'center', gap:14 }}>
+              <ScoreBadge score={scan.score} size={52} />
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:15, fontWeight:600, color:C.ink, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{scan.name}</div>
+                <div style={{ fontSize:13, color:C.inkSecondary, marginTop:2 }}>{scan.brand}</div>
+              </div>
+              <span style={{
+                fontSize:12, fontWeight:600,
+                color: verdictColor(scan.score),
+                background: scan.score <= 33 ? C.toxicLight : scan.score <= 66 ? C.cautionLight : C.safeLight,
+                border: `1px solid ${verdictColor(scan.score)}`,
+                borderRadius:10, padding:'6px 12px',
+              }}>{verdictLabel(scan.score)}</span>
+            </GlassCard>
           ))}
         </div>
       </div>
@@ -578,8 +688,8 @@ function PlanScreen({ width }: { width: number }) {
    RENDER SCREEN BY ID
    ========================================================== */
 const foodResults = [
-  { name: 'Potato Snack', brand: "Kellogg's", score: 34 },
-  { name: 'Organic Ketchup', brand: 'Thrive Market', score: 92 },
+  { name: 'Doritos Nacho Cheese', brand: 'Frito-Lay', score: 18 },
+  { name: 'Organic Ketchup', brand: "Annie's Homegrown", score: 92 },
   { name: 'Almond Flour Crackers', brand: 'Simple Mills', score: 90 },
   { name: 'Jade Cloud Green Tea', brand: 'Rishi Tea', score: 90 },
   { name: 'Avocado Oil Mayo', brand: 'Primal Kitchen', score: 88 },
@@ -595,6 +705,7 @@ const cookwareResults = [
 function renderScreen(id: string, width: number) {
   switch (id) {
     case 'home': return <HomeScreen width={width} />;
+    case 'home-deals': return <HomeDealsScreen width={width} />;
     case 'scan': return <ScanScreen width={width} />;
     case 'search-food': return <SearchResultsScreen width={width} query="Food & Drinks" count={17} results={foodResults} />;
     case 'search-cookware': return <SearchResultsScreen width={width} query="Cookware" count={9} results={cookwareResults} />;
