@@ -317,8 +317,8 @@ function HomeScreen({ width }: { width: number }) {
               <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
               <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>25% OFF</span>
             </div>
-            <div style={{ width:'100%', height:120, borderRadius:12, marginBottom:12, background:'#2D2D2D', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <svg width={100} height={60} viewBox="0 0 100 60"><ellipse cx="38" cy="32" rx="28" ry="20" fill="#3D3D3D"/><ellipse cx="38" cy="32" rx="24" ry="16" fill="#4A4A4A"/><rect x="62" y="28" width="24" height="7" rx="3.5" fill="#3D3D3D"/></svg>
+            <div style={{ width:'100%', height:120, borderRadius:12, marginBottom:12, background:'#F5F5F5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+              <img src="/screenshots/lodge-skillet.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'contain' }} />
             </div>
             <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>AMAZON</div>
             <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>12-Inch Cast Iron Skillet</div>
@@ -335,8 +335,8 @@ function HomeScreen({ width }: { width: number }) {
               <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
               <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>20% OFF</span>
             </div>
-            <div style={{ width:'100%', height:120, borderRadius:12, background:'#E8DFD8', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <svg width={40} height={80} viewBox="0 0 40 80"><rect x="14" y="2" width="12" height="10" rx="2" fill="#BFA882"/><rect x="16" y="10" width="8" height="4" fill="#A89272"/><rect x="8" y="14" width="24" height="52" rx="6" fill="#C4B498" stroke="#B8A888" strokeWidth={1}/><rect x="12" y="22" width="16" height="10" rx="2" fill="#E0D8C8"/><rect x="12" y="36" width="16" height="4" rx="1" fill="#E0D8C8"/></svg>
+            <div style={{ width:'100%', height:120, borderRadius:12, background:'#F5F5F5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+              <img src="/screenshots/dr-bronners-soap.png" alt="" style={{ height:'100%', objectFit:'contain' }} />
             </div>
           </GlassCard>
         </div>
@@ -382,8 +382,8 @@ function HomeDealsScreen({ width }: { width: number }) {
         <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured</div>
         <div style={{ display:'flex', gap:12, overflow:'hidden' }}>
           {[
-            { store: 'Amazon', title: '12-Inch Cast Iron Skillet', price: '$29.99', oldPrice: '$39.99', off: '25% OFF', bgColor: '#2D2D2D', imgType: 'skillet' as const },
-            { store: 'Thrive Market', title: "Dr. Bronner\u2019s Castile Soap", price: '$14.99', oldPrice: '$18.99', off: '20% OFF', bgColor: '#E8DFD8', imgType: 'bottle' as const },
+            { store: 'Amazon', title: '12-Inch Cast Iron Skillet', price: '$29.99', oldPrice: '$39.99', off: '25% OFF', img: '/screenshots/lodge-skillet.jpg' },
+            { store: 'Thrive Market', title: "Dr. Bronner\u2019s Castile Soap", price: '$14.99', oldPrice: '$18.99', off: '20% OFF', img: '/screenshots/dr-bronners-soap.png' },
           ].map((item, i) => (
             <GlassCard key={i} style={{ width:cardW, minWidth:cardW, padding:20, borderRadius:24 }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
@@ -392,13 +392,9 @@ function HomeDealsScreen({ width }: { width: number }) {
               </div>
               <div style={{
                 width:'100%', height:120, borderRadius:12, marginBottom:12,
-                background:item.bgColor, display:'flex', alignItems:'center', justifyContent:'center',
+                background:'#F5F5F5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden',
               }}>
-                {item.imgType === 'skillet' ? (
-                  <svg width={100} height={60} viewBox="0 0 100 60"><ellipse cx="38" cy="32" rx="28" ry="20" fill="#3D3D3D"/><ellipse cx="38" cy="32" rx="24" ry="16" fill="#4A4A4A"/><rect x="62" y="28" width="24" height="7" rx="3.5" fill="#3D3D3D"/></svg>
-                ) : (
-                  <svg width={40} height={80} viewBox="0 0 40 80"><rect x="14" y="2" width="12" height="10" rx="2" fill="#BFA882"/><rect x="16" y="10" width="8" height="4" fill="#A89272"/><rect x="8" y="14" width="24" height="52" rx="6" fill="#C4B498" stroke="#B8A888" strokeWidth={1}/><rect x="12" y="22" width="16" height="10" rx="2" fill="#E0D8C8"/><rect x="12" y="36" width="16" height="4" rx="1" fill="#E0D8C8"/></svg>
-                )}
+                <img src={item.img} alt="" style={{ height:'100%', objectFit:'contain' }} />
               </div>
               <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>{item.store}</div>
               <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>{item.title}</div>
