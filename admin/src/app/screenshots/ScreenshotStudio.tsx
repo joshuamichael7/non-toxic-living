@@ -43,8 +43,9 @@ const SCREENS: ScreenDef[] = [
   { id: 'home', name: 'Home', tab: 'home' },
   { id: 'home-deals', name: 'Home (Deals)', tab: 'home' },
   { id: 'scan', name: 'Scan', tab: 'scan' },
-  { id: 'search-food', name: 'Search (Food)', tab: 'search' },
-  { id: 'search-cookware', name: 'Search (Cookware)', tab: 'search' },
+  { id: 'search-food', name: 'Search', tab: 'search' },
+  { id: 'result-safe', name: 'Result (Safe)', tab: null },
+  { id: 'result-toxic', name: 'Result (Toxic)', tab: null },
   { id: 'swap-detail', name: 'Swap Detail', tab: null },
   { id: 'plan', name: 'Choose Plan', tab: null },
 ];
@@ -108,6 +109,12 @@ function IconNutrition({ color = C.ink, size = 18 }: { color?: string; size?: nu
 }
 function IconBody({ color = C.ink, size = 18 }: { color?: string; size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="4" r="2.5"/><path d="M12 7v7"/><path d="M8 10l4 1 4-1"/><path d="M9 22l3-8 3 8"/></svg>;
+}
+function IconArrowRight({ color = C.oxygen, size = 18 }: { color?: string; size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>;
+}
+function IconShare({ color = C.ink, size = 22 }: { color?: string; size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>;
 }
 
 /* ==========================================================
@@ -300,6 +307,40 @@ function HomeScreen({ width }: { width: number }) {
           ))}
         </div>
       </div>
+
+      {/* Featured peek — naturally clipped by overflow */}
+      <div>
+        <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured</div>
+        <div style={{ display:'flex', gap:12, overflow:'hidden' }}>
+          <GlassCard style={{ width:260, minWidth:260, padding:20, borderRadius:24 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+              <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
+              <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>25% OFF</span>
+            </div>
+            <div style={{ width:'100%', height:120, borderRadius:12, marginBottom:12, background:'#2D2D2D', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <svg width={100} height={60} viewBox="0 0 100 60"><ellipse cx="38" cy="32" rx="28" ry="20" fill="#3D3D3D"/><ellipse cx="38" cy="32" rx="24" ry="16" fill="#4A4A4A"/><rect x="62" y="28" width="24" height="7" rx="3.5" fill="#3D3D3D"/></svg>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>AMAZON</div>
+            <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>12-Inch Cast Iron Skillet</div>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
+              <span style={{ fontSize:16, fontWeight:800, color:C.oxygen }}>$29.99</span>
+              <span style={{ fontSize:13, color:C.inkMuted, textDecoration:'line-through' as const }}>$39.99</span>
+            </div>
+            <button style={{ width:'100%', padding:'12px 0', borderRadius:14, background:C.oxygen, color:C.white, border:'none', fontSize:14, fontWeight:700, fontFamily:font, display:'flex', alignItems:'center', justifyContent:'center', gap:6, boxShadow:`0 4px 8px ${C.oxygenGlow}` }}>
+              <IconCart size={16} /> Shop Now
+            </button>
+          </GlassCard>
+          <GlassCard style={{ width:260, minWidth:260, padding:20, borderRadius:24 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+              <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
+              <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>20% OFF</span>
+            </div>
+            <div style={{ width:'100%', height:120, borderRadius:12, background:'#E8DFD8', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <svg width={40} height={80} viewBox="0 0 40 80"><rect x="14" y="2" width="12" height="10" rx="2" fill="#BFA882"/><rect x="16" y="10" width="8" height="4" fill="#A89272"/><rect x="8" y="14" width="24" height="52" rx="6" fill="#C4B498" stroke="#B8A888" strokeWidth={1}/><rect x="12" y="22" width="16" height="10" rx="2" fill="#E0D8C8"/><rect x="12" y="36" width="16" height="4" rx="1" fill="#E0D8C8"/></svg>
+            </div>
+          </GlassCard>
+        </div>
+      </div>
     </div>
   );
 }
@@ -341,22 +382,30 @@ function HomeDealsScreen({ width }: { width: number }) {
         <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured</div>
         <div style={{ display:'flex', gap:12, overflow:'hidden' }}>
           {[
-            { store: 'Amazon', title: '12-Inch Cast Iron Skillet', desc: 'Chemical-free cooking', bgColor: '#2D2D2D' },
-            { store: 'Thrive Market', title: "Dr. Bronner\u2019s Castile Soap", desc: 'Pure & plant-based', bgColor: '#D6CBC3' },
+            { store: 'Amazon', title: '12-Inch Cast Iron Skillet', price: '$29.99', oldPrice: '$39.99', off: '25% OFF', bgColor: '#2D2D2D', imgType: 'skillet' as const },
+            { store: 'Thrive Market', title: "Dr. Bronner\u2019s Castile Soap", price: '$14.99', oldPrice: '$18.99', off: '20% OFF', bgColor: '#E8DFD8', imgType: 'bottle' as const },
           ].map((item, i) => (
             <GlassCard key={i} style={{ width:cardW, minWidth:cardW, padding:20, borderRadius:24 }}>
-              <div style={{ marginBottom:12 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
                 <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
+                <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>{item.off}</span>
               </div>
               <div style={{
                 width:'100%', height:120, borderRadius:12, marginBottom:12,
                 background:item.bgColor, display:'flex', alignItems:'center', justifyContent:'center',
               }}>
-                <div style={{ width:72, height:72, borderRadius:36, background:'rgba(255,255,255,0.12)' }} />
+                {item.imgType === 'skillet' ? (
+                  <svg width={100} height={60} viewBox="0 0 100 60"><ellipse cx="38" cy="32" rx="28" ry="20" fill="#3D3D3D"/><ellipse cx="38" cy="32" rx="24" ry="16" fill="#4A4A4A"/><rect x="62" y="28" width="24" height="7" rx="3.5" fill="#3D3D3D"/></svg>
+                ) : (
+                  <svg width={40} height={80} viewBox="0 0 40 80"><rect x="14" y="2" width="12" height="10" rx="2" fill="#BFA882"/><rect x="16" y="10" width="8" height="4" fill="#A89272"/><rect x="8" y="14" width="24" height="52" rx="6" fill="#C4B498" stroke="#B8A888" strokeWidth={1}/><rect x="12" y="22" width="16" height="10" rx="2" fill="#E0D8C8"/><rect x="12" y="36" width="16" height="4" rx="1" fill="#E0D8C8"/></svg>
+                )}
               </div>
               <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>{item.store}</div>
               <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>{item.title}</div>
-              <div style={{ fontSize:13, color:C.inkSecondary, marginBottom:14, lineHeight:'1.4' }}>{item.desc}</div>
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
+                <span style={{ fontSize:16, fontWeight:800, color:C.oxygen }}>{item.price}</span>
+                <span style={{ fontSize:13, color:C.inkMuted, textDecoration:'line-through' as const }}>{item.oldPrice}</span>
+              </div>
               <button style={{
                 width:'100%', padding:'12px 0', borderRadius:14,
                 background:C.oxygen, color:C.white, border:'none',
@@ -685,21 +734,177 @@ function PlanScreen({ width }: { width: number }) {
 }
 
 /* ==========================================================
+   SCREEN: RESULT (SAFE)
+   ========================================================== */
+function ResultSafeScreen({ width }: { width: number }) {
+  const pad = width > 700 ? 32 : 20;
+  const isTab = width > 700;
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', background:C.canvas }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', padding:`12px ${pad}px`, borderBottom:`1px solid ${C.glassBorder}` }}>
+        <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <IconX size={18} />
+        </div>
+        <span style={{ flex:1, textAlign:'center' as const, fontSize:16, fontWeight:700, color:C.ink }}>Scan Result</span>
+        <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <IconShare size={20} />
+        </div>
+      </div>
+
+      <div style={{ flex:1, padding:`16px ${pad}px`, display:'flex', flexDirection:'column', gap:16, overflowY:'hidden' }}>
+        {/* Score Hero */}
+        <GlassCard style={{ borderRadius:32, padding:24, textAlign:'center' as const }}>
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:14 }}>
+            <ScoreBadge score={92} size={isTab ? 120 : 100} />
+          </div>
+          <div style={{ fontSize: isTab ? 24 : 22, fontWeight:800, color:C.ink, marginBottom:4, lineHeight:1.3 }}>
+            Dr. Bronner&apos;s Pure Castile Soap
+          </div>
+          <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:12 }}>Dr. Bronner&apos;s</div>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}33` }}>
+            <IconShieldCheck color={C.safe} size={16} />
+            <span style={{ fontSize:14, fontWeight:700, color:C.safe }}>Safe</span>
+          </div>
+        </GlassCard>
+
+        {/* Summary */}
+        <GlassCard style={{ borderRadius:24, padding:20 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+            <div style={{ width:32, height:32, borderRadius:10, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <IconDoc color={C.oxygen} size={16} />
+            </div>
+            <span style={{ fontSize:13, fontWeight:600, letterSpacing:0.3, color:C.inkSecondary, textTransform:'uppercase' as const }}>Analysis</span>
+          </div>
+          <div style={{ fontSize:15, color:C.ink, lineHeight:1.6, fontWeight:500 }}>
+            Pure plant-based formula with organic oils. No synthetic detergents, preservatives, or foaming agents.
+          </div>
+        </GlassCard>
+
+        {/* Dad's Take */}
+        <div style={{ borderRadius:24, padding:20, background:C.oxygen, boxShadow:`0 8px 16px ${C.oxygenGlow}` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+            <div style={{ width:32, height:32, borderRadius:10, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <span style={{ fontSize:13, fontWeight:700, letterSpacing:0.3, color:C.white, textTransform:'uppercase' as const }}>Dad&apos;s Take</span>
+          </div>
+          <div style={{ fontSize:15, color:C.white, lineHeight:1.6, fontWeight:500 }}>
+            &ldquo;This is what clean really looks like &mdash; organic oils, simple ingredients, nothing to hide. A gold standard for soap.&rdquo;
+          </div>
+        </div>
+
+        {/* Positives */}
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {['Organic coconut oil base', 'Fair trade certified ingredients', 'No synthetic preservatives', 'Fully biodegradable formula'].map(p => (
+            <div key={p} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}` }}>
+              <IconCheck color={C.safe} size={14} />
+              <span style={{ fontSize:14, fontWeight:600, color:C.safe }}>{p}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================
+   SCREEN: RESULT (TOXIC)
+   ========================================================== */
+function ResultToxicScreen({ width }: { width: number }) {
+  const pad = width > 700 ? 32 : 20;
+  const isTab = width > 700;
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', background:C.canvas }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', padding:`12px ${pad}px`, borderBottom:`1px solid ${C.glassBorder}` }}>
+        <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <IconX size={18} />
+        </div>
+        <span style={{ flex:1, textAlign:'center' as const, fontSize:16, fontWeight:700, color:C.ink }}>Scan Result</span>
+        <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <IconShare size={20} />
+        </div>
+      </div>
+
+      <div style={{ flex:1, padding:`16px ${pad}px`, display:'flex', flexDirection:'column', gap:14, overflowY:'hidden' }}>
+        {/* Score Hero */}
+        <GlassCard style={{ borderRadius:32, padding:22, textAlign:'center' as const }}>
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:12 }}>
+            <ScoreBadge score={22} size={isTab ? 120 : 96} />
+          </div>
+          <div style={{ fontSize: isTab ? 24 : 20, fontWeight:800, color:C.ink, marginBottom:4, lineHeight:1.3 }}>
+            Tide Original Detergent
+          </div>
+          <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:10 }}>Procter &amp; Gamble</div>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.toxicLight, border:`1px solid ${C.toxic}33` }}>
+            <IconWarning color={C.toxic} size={16} />
+            <span style={{ fontSize:14, fontWeight:700, color:C.toxic }}>Avoid</span>
+          </div>
+        </GlassCard>
+
+        {/* Concerns */}
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:10 }}>Concerns (3)</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {[
+              { name: 'Synthetic Fragrance', severity: 'High' as const, desc: 'Undisclosed blend of chemicals linked to hormone disruption and allergies' },
+              { name: '1,4-Dioxane Risk', severity: 'High' as const, desc: 'Probable carcinogen, byproduct of the ethoxylation manufacturing process' },
+              { name: 'Optical Brighteners', severity: 'Medium' as const, desc: 'UV-reactive chemicals that remain on clothing and contact skin continuously' },
+            ].map(c => (
+              <GlassCard key={c.name} style={{ padding:12, borderRadius:18 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+                  <span style={{ fontSize:14, fontWeight:700, color:C.ink }}>{c.name}</span>
+                  <span style={{
+                    fontSize:11, fontWeight:600,
+                    color: c.severity === 'High' ? C.toxic : C.caution,
+                    background: c.severity === 'High' ? C.toxicLight : C.cautionLight,
+                    border: `1px solid ${c.severity === 'High' ? C.toxic : C.caution}`,
+                    borderRadius:8, padding:'3px 8px',
+                  }}>{c.severity}</span>
+                </div>
+                <div style={{ fontSize:13, color:C.inkSecondary, lineHeight:1.4 }}>{c.desc}</div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+
+        {/* Better Alternatives */}
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:10 }}>Better Alternatives</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {[
+              { name: 'Free & Clear Detergent', brand: 'Seventh Generation', score: 88 },
+              { name: 'Concentrate Cleaner', brand: 'Branch Basics', score: 95 },
+              { name: 'Laundry Powder', brand: "Molly\u2019s Suds", score: 90 },
+            ].map((swap, i) => (
+              <GlassCard key={i} style={{ padding:12, borderRadius:18, display:'flex', alignItems:'center', gap:12 }}>
+                <ScoreBadge score={swap.score} size={46} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:14, fontWeight:600, color:C.ink }}>{swap.name}</div>
+                  <div style={{ fontSize:12, color:C.inkSecondary, marginTop:2 }}>{swap.brand}</div>
+                </div>
+                <div style={{ width:34, height:34, borderRadius:11, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <IconArrowRight color={C.oxygen} size={16} />
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================
    RENDER SCREEN BY ID
    ========================================================== */
 const foodResults = [
   { name: 'Doritos Nacho Cheese', brand: 'Frito-Lay', score: 18 },
   { name: 'Organic Ketchup', brand: "Annie's Homegrown", score: 92 },
   { name: 'Almond Flour Crackers', brand: 'Simple Mills', score: 90 },
-  { name: 'Jade Cloud Green Tea', brand: 'Rishi Tea', score: 90 },
+  { name: 'Jade Cloud Green Tea', brand: 'Rishi Tea', score: 95 },
   { name: 'Avocado Oil Mayo', brand: 'Primal Kitchen', score: 88 },
-];
-const cookwareResults = [
-  { name: 'Reusable Silicone Storage...', brand: 'Stasher', score: 95 },
-  { name: 'Pure Ceramic Skillet', brand: 'Xtrema', score: 95 },
-  { name: '12-Inch Cast Iron Skillet', brand: 'Lodge', score: 92 },
-  { name: 'Ceramic Cookware Set', brand: 'Caraway', score: 82 },
-  { name: 'Ceramic Nonstick Frypan', brand: 'GreenPan', score: 82 },
 ];
 
 function renderScreen(id: string, width: number) {
@@ -708,7 +913,8 @@ function renderScreen(id: string, width: number) {
     case 'home-deals': return <HomeDealsScreen width={width} />;
     case 'scan': return <ScanScreen width={width} />;
     case 'search-food': return <SearchResultsScreen width={width} query="Food & Drinks" count={17} results={foodResults} />;
-    case 'search-cookware': return <SearchResultsScreen width={width} query="Cookware" count={9} results={cookwareResults} />;
+    case 'result-safe': return <ResultSafeScreen width={width} />;
+    case 'result-toxic': return <ResultToxicScreen width={width} />;
     case 'swap-detail': return <SwapDetailScreen width={width} />;
     case 'plan': return <PlanScreen width={width} />;
     default: return null;
