@@ -177,7 +177,7 @@ export default function LandingPage() {
                     <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
                       <span className="text-[8px]">💬</span>
                     </div>
-                    <span className="text-[8px] font-bold uppercase tracking-wider text-white">Expert Take</span>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-white">Our Take</span>
                   </div>
                   <p className="text-[9px] leading-[14px] font-medium text-white">
                     &quot;I keep these out of my house. The artificial colors and MSG derivatives aren&apos;t worth it when there are better options.&quot;

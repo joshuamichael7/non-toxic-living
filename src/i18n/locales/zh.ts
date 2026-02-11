@@ -82,7 +82,7 @@ export default {
   'result.title': '分析结果',
   'result.cached': '来自数据库的即时结果',
   'result.summary': '摘要',
-  'result.expertTake': '专家意见',
+  'result.expertTake': '我们的看法',
   'result.concerns': '关注点 ({{count}})',
   'result.positives': '优点',
   'result.betterAlternatives': '更好的替代品',

@@ -82,7 +82,7 @@ export default {
   'result.title': '分析結果',
   'result.cached': 'データベースからの即時結果',
   'result.summary': '概要',
-  'result.expertTake': '専門家の見解',
+  'result.expertTake': '私たちの見解',
   'result.concerns': '懸念事項 ({{count}})',
   'result.positives': 'プラス面',
   'result.betterAlternatives': 'より良い代替品',

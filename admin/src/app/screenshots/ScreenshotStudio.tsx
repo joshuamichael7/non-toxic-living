@@ -783,7 +783,7 @@ function ResultSafeScreen({ width }: { width: number }) {
             <div style={{ width:32, height:32, borderRadius:10, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
               <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             </div>
-            <span style={{ fontSize:13, fontWeight:700, letterSpacing:0.3, color:C.white, textTransform:'uppercase' as const }}>Dad&apos;s Take</span>
+            <span style={{ fontSize:13, fontWeight:700, letterSpacing:0.3, color:C.white, textTransform:'uppercase' as const }}>Our Take</span>
           </div>
           <div style={{ fontSize:15, color:C.white, lineHeight:1.6, fontWeight:500 }}>
             &ldquo;This is what clean really looks like &mdash; organic oils, simple ingredients, nothing to hide. A gold standard for soap.&rdquo;

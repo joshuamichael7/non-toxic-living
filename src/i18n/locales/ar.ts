@@ -82,7 +82,7 @@ export default {
   'result.title': 'نتيجة التحليل',
   'result.cached': 'نتيجة فورية من قاعدة البيانات',
   'result.summary': 'ملخص',
-  'result.expertTake': 'رأي الخبير',
+  'result.expertTake': 'رأينا',
   'result.concerns': 'مخاوف ({{count}})',
   'result.positives': 'الإيجابيات',
   'result.betterAlternatives': 'بدائل أفضل',

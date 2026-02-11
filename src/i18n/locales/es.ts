@@ -82,7 +82,7 @@ export default {
   'result.title': 'Resultado del análisis',
   'result.cached': 'Resultado instantáneo de la base de datos',
   'result.summary': 'Resumen',
-  'result.expertTake': 'Opinión experta',
+  'result.expertTake': 'Nuestra opinión',
   'result.concerns': 'Preocupaciones ({{count}})',
   'result.positives': 'Positivos',
   'result.betterAlternatives': 'Mejores alternativas',

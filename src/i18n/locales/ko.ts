@@ -82,7 +82,7 @@ export default {
   'result.title': '분석 결과',
   'result.cached': '데이터베이스 즉시 결과',
   'result.summary': '요약',
-  'result.expertTake': '전문가 의견',
+  'result.expertTake': '우리의 의견',
   'result.concerns': '우려사항 ({{count}})',
   'result.positives': '긍정적 요소',
   'result.betterAlternatives': '더 나은 대안',

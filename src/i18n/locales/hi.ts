@@ -82,7 +82,7 @@ export default {
   'result.title': 'विश्लेषण परिणाम',
   'result.cached': 'डेटाबेस से तुरंत परिणाम',
   'result.summary': 'सारांश',
-  'result.expertTake': 'विशेषज्ञ की राय',
+  'result.expertTake': 'हमारी राय',
   'result.concerns': 'चिंताएं ({{count}})',
   'result.positives': 'सकारात्मक पहलू',
   'result.betterAlternatives': 'बेहतर विकल्प',

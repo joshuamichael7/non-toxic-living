@@ -435,7 +435,7 @@ export default function ResultScreen() {
           </View>
         </View>
 
-        {/* Dad's Take - Accent card with oxygen glow */}
+        {/* Our Take - Accent card with oxygen glow */}
         <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <View style={{
             backgroundColor: colors.oxygen,
