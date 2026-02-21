@@ -1,4 +1,4 @@
-# Non-Toxic Living: Design System
+# NoTox: Design System
 
 ## Design Philosophy
 

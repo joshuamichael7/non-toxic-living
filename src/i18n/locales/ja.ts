@@ -336,7 +336,7 @@ export default {
 
   // About screen
   'about.title': 'アプリについて',
-  'about.appName': 'Non-Toxic Living',
+  'about.appName': 'NoTox',
   'about.missionTitle': '私たちのミッション',
   'about.mission': '私たちは、すべての人が自分の製品に何が含まれているかを知る権利があると信じています。有害な成分を簡単に特定し、ご家族のためにより安全な代替品を見つけることを使命としています。',
   'about.privacyPolicy': 'プライバシーポリシー',

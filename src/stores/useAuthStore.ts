@@ -72,7 +72,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { language, display_name: name } },
+      options: { data: { language, display_name: name, terms_accepted_at: new Date().toISOString() } },
     });
 
     if (error) {

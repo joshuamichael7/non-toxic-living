@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, Share, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { getScanLogs, getUserScans } from '@/services/api/analyze';
+import { getUserScans } from '@/services/api/analyze';
 import { usePreferencesStore, SUPPORTED_LANGUAGES } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
@@ -66,13 +66,8 @@ export default function ProfileScreen() {
     { title: t('profile.notifications'), icon: 'notifications-outline' as const, onPress: () => router.push('/notifications') },
     { title: t('profile.helpSupport'), icon: 'help-circle-outline' as const, onPress: () => router.push('/help') },
     { title: t('profile.about'), icon: 'information-circle-outline' as const, onPress: () => router.push('/about') },
+    ...(user ? [{ title: t('profile.deleteAccount'), icon: 'trash-outline' as const, onPress: () => Linking.openURL('https://nontoxicliving.app/delete-account'), destructive: true }] : []),
   ];
-
-  const handleExportLogs = async () => {
-    const logs = await getScanLogs();
-    const text = JSON.stringify(logs, null, 2);
-    await Share.share({ message: text, title: 'Scan Logs' });
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -228,10 +223,10 @@ export default function ProfileScreen() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  <Ionicons name={item.icon} size={20} color={colors.ink} />
+                  <Ionicons name={item.icon} size={20} color={'destructive' in item && item.destructive ? colors.error : colors.ink} />
                 </View>
                 <View style={{ flex: 1, marginLeft: 14 }}>
-                  <Text style={{ color: colors.ink, fontWeight: '600', fontSize: 15 }}>
+                  <Text style={{ color: 'destructive' in item && item.destructive ? colors.error : colors.ink, fontWeight: '600', fontSize: 15 }}>
                     {item.title}
                   </Text>
                   {item.subtitle && (
@@ -244,28 +239,6 @@ export default function ProfileScreen() {
               </Pressable>
             ))}
           </View>
-        </View>
-
-        {/* Debug Section */}
-        <View style={{ paddingHorizontal: 24, marginTop: 24 }}>
-          <Pressable
-            onPress={handleExportLogs}
-            style={{
-              backgroundColor: colors.glassSolid,
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderWidth: 1,
-              borderColor: colors.glassBorder,
-            }}
-          >
-            <Ionicons name="bug-outline" size={20} color={colors.inkSecondary} style={{ marginRight: 8 }} />
-            <Text style={{ color: colors.inkSecondary, fontWeight: '600', fontSize: 14 }}>
-              {t('profile.exportLogs')}
-            </Text>
-          </Pressable>
         </View>
 
         {/* App Version */}

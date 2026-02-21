@@ -13,6 +13,8 @@ import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { supabase } from '@/lib/supabase';
 import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
 
 // Aerogel Design System Colors
@@ -27,6 +29,33 @@ const colors = {
   safe: '#10B981',
   error: '#EF4444',
 };
+
+const TIER_LIMITS: Record<string, number> = { free: 5, pro: 200, power: 500 };
+
+async function checkQuotaExceeded(): Promise<{ exceeded: boolean; scansUsed: number; scansLimit: number; resetsAt: string }> {
+  const userId = useAuthStore.getState().user?.id;
+  const tier = useSubscriptionStore.getState().tier;
+  if (!userId) return { exceeded: false, scansUsed: 0, scansLimit: 0, resetsAt: '' };
+
+  const limit = TIER_LIMITS[tier] ?? 5;
+
+  const { data } = await (supabase as any)
+    .from('profiles')
+    .select('scans_this_month, scans_month_reset_at')
+    .eq('id', userId)
+    .single() as { data: { scans_this_month: number; scans_month_reset_at: string } | null };
+
+  if (!data) return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: '' };
+
+  // If the reset date has passed, the month has rolled over — user has 0 scans used
+  const resetAt = new Date(data.scans_month_reset_at);
+  if (resetAt < new Date()) {
+    return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
+  }
+
+  const exceeded = (data.scans_this_month || 0) >= limit;
+  return { exceeded, scansUsed: data.scans_this_month || 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
+}
 
 type ScanStage = 'idle' | 'capturing' | 'reading' | 'analyzing' | 'error';
 
@@ -60,12 +89,40 @@ export default function ScanScreen() {
     }, [pulseAnim])
   );
 
+  // Check quota before opening camera or describe screen
+  const handleQuotaCheck = async (): Promise<boolean> => {
+    try {
+      const quota = await checkQuotaExceeded();
+      if (quota.exceeded) {
+        setQuotaModal({
+          visible: true,
+          scansUsed: quota.scansUsed,
+          scansLimit: quota.scansLimit,
+          resetsAt: quota.resetsAt,
+        });
+        return true; // exceeded
+      }
+    } catch (err) {
+      // If quota check fails, let the server-side check handle it
+      console.warn('Client quota check failed, proceeding:', err);
+    }
+    return false; // not exceeded
+  };
+
   // Open native camera and process the photo
   const handleScan = async () => {
     if (isCapturingRef.current || isProcessing) return;
 
     isCapturingRef.current = true;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    // Pre-check quota before opening camera
+    const exceeded = await handleQuotaCheck();
+    if (exceeded) {
+      isCapturingRef.current = false;
+      return;
+    }
+
     setScanStage('capturing');
     setScanError(null);
     setError(null);
@@ -298,7 +355,11 @@ export default function ScanScreen() {
 
         {/* No-label option */}
         <Pressable
-          onPress={() => router.push('/describe')}
+          onPress={async () => {
+            const exceeded = await handleQuotaCheck();
+            if (exceeded) return;
+            router.push('/describe');
+          }}
           style={{
             marginTop: 16,
             flexDirection: 'row',

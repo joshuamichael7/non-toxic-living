@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Non-Toxic Living — Know What\u2019s Really in Your Products',
+  title: 'NoTox — Know What\u2019s Really in Your Products',
   description:
     'Scan any ingredient label and get an instant safety score. Find hidden toxins in food, cosmetics, household items, and more.',
 };
@@ -13,9 +13,9 @@ function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--oxygen] text-white font-bold text-xs">
-            NTL
+            NT
           </div>
-          <span className="text-base font-bold text-[--site-text]">Non-Toxic Living</span>
+          <span className="text-base font-bold text-[--site-text]">NoTox</span>
         </div>
         <nav className="hidden sm:flex items-center gap-6 text-sm">
           <a href="#how-it-works" className="text-[--site-text-secondary] hover:text-[--site-text] transition-colors">
@@ -50,9 +50,9 @@ function Footer() {
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--oxygen] text-white font-bold text-xs">
-              NTL
+              NT
             </div>
-            <span className="text-base font-bold text-[--site-text]">Non-Toxic Living</span>
+            <span className="text-base font-bold text-[--site-text]">NoTox</span>
           </div>
           <div className="flex gap-6 text-sm text-[--site-text-muted]">
             <Link href="/support" className="hover:text-[--site-text] transition-colors">Support</Link>
@@ -95,7 +95,7 @@ export default function LandingPage() {
             You don&apos;t know what&apos;s<br />in your products.
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-[--site-text-secondary] leading-relaxed max-w-2xl mx-auto">
-            Non-Toxic Living scans ingredient labels and tells you what&apos;s safe, what&apos;s
+            NoTox scans ingredient labels and tells you what&apos;s safe, what&apos;s
             not, and what to use instead. Automatically.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -248,7 +248,7 @@ export default function LandingPage() {
             Intelligent. Instant.
           </h2>
           <p className="mt-4 text-center text-lg text-[--site-text-secondary]">
-            Non-Toxic Living doesn&apos;t just read labels. It understands them.
+            NoTox doesn&apos;t just read labels. It understands them.
           </p>
 
           <div className="mt-20 space-y-20">
@@ -374,12 +374,12 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* With Non-Toxic Living */}
+            {/* With NoTox */}
             <div
               className="rounded-2xl border-2 p-8 text-left"
               style={{ borderColor: 'var(--color-oxygen)', background: 'var(--color-site-surface)', boxShadow: '0 10px 40px -10px rgba(14, 165, 233, 0.15)' }}
             >
-              <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--color-oxygen)' }}>With Non-Toxic Living</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--color-oxygen)' }}>With NoTox</h3>
               <ul className="mt-6 space-y-4 text-[--site-text-secondary]">
                 <li className="flex items-start gap-3">
                   <span className="mt-0.5" style={{ color: 'var(--color-safe)' }}>✓</span>

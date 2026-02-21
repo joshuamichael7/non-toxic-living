@@ -74,7 +74,7 @@ export default {
   'profile.notifications': 'Notifications',
   'profile.helpSupport': 'Help & Support',
   'profile.about': 'About',
-  'profile.exportLogs': 'Export Scan Logs',
+  'profile.deleteAccount': 'Delete Account',
   'profile.version': 'Version {{version}}',
   'profile.signOut': 'Sign Out',
 
@@ -88,6 +88,7 @@ export default {
   'result.betterAlternatives': 'Better Alternatives',
   'result.save': 'Save',
   'result.saved': 'Saved!',
+  'result.notFound': 'Result not found',
   'result.scanAgain': 'Scan Again',
 
   // Swap detail modal
@@ -148,6 +149,11 @@ export default {
   'auth.passwordMismatch': 'Passwords do not match',
   'auth.passwordMinLength': 'Password must be at least 6 characters',
   'auth.checkEmail': 'Check your email for a confirmation link',
+  'auth.agreeToTerms': 'By signing up, you agree to our',
+  'auth.privacyPolicy': 'Privacy Policy',
+  'auth.and': 'and',
+  'auth.termsOfService': 'Terms of Service',
+  'auth.mustAcceptTerms': 'You must accept the Privacy Policy and Terms of Service',
 
   // Language picker
   'language.title': 'Language',
@@ -247,7 +253,7 @@ export default {
 
   // About screen
   'about.title': 'About',
-  'about.appName': 'Non-Toxic Living',
+  'about.appName': 'NoTox',
   'about.missionTitle': 'Our Mission',
   'about.mission': 'We believe everyone deserves to know what\'s in their products. Our mission is to make it easy to identify harmful ingredients and find safer alternatives for your family.',
   'about.privacyPolicy': 'Privacy Policy',
@@ -298,6 +304,24 @@ export default {
   'subscription.purchaseError': 'Purchase failed. Please try again.',
   'subscription.processing': 'Processing...',
   'subscription.oneMonthFree': '1 month free',
+  'subscription.downgrade': 'Downgrade',
+  'subscription.downgradeTitle': 'Downgrade to Free',
+  'subscription.downgradeMessage': 'To switch to the Free plan, cancel your subscription in your App Store or Google Play settings. Your current plan will remain active until the end of your billing period.',
+  'subscription.switchTo': 'Switch to {{plan}}',
+  'subscription.switchToFree': 'Switch to Free',
+  'subscription.currentPlanDetail': '{{tier}} {{period}}',
+  'subscription.endsOn': 'Ends on {{date}}',
+  'subscription.renewsOn': 'Renews on {{date}}',
+  'subscription.switchingTo': 'Switching to {{plan}} on {{date}}',
+  'subscription.scheduled': 'Scheduled',
+  'subscription.cancelChange': 'Cancel Change',
+  'subscription.cancelChangeMessage': 'To fully cancel the pending change, also update your subscription in your App Store or Google Play settings.',
+  'subscription.manageInStore': 'Manage in App Store or Google Play settings',
+  'subscription.billingMonthly': 'Monthly',
+  'subscription.billingAnnual': 'Annual',
+  'subscription.keepCurrent': 'Keep Current Plan',
+  'subscription.changeScheduled': 'Change Scheduled',
+  'subscription.changeScheduledDesc': 'Your plan will switch to {{newPlan}} when your current {{currentPlan}} period ends on {{date}}.',
 
   // Tiers
   'tier.free': 'Free',

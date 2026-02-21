@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,6 +32,7 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleSignUp = async () => {
     setError(null);
@@ -54,6 +55,10 @@ export default function SignUpScreen() {
     }
     if (password !== confirmPassword) {
       setError(t('auth.passwordMismatch'));
+      return;
+    }
+    if (!acceptedTerms) {
+      setError(t('auth.mustAcceptTerms'));
       return;
     }
 
@@ -205,6 +210,37 @@ export default function SignUpScreen() {
               onChangeText={setConfirmPassword}
               secureTextEntry={!showPassword}
             />
+
+            {/* Terms & Privacy consent */}
+            <Pressable
+              onPress={() => setAcceptedTerms(!acceptedTerms)}
+              style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 24, gap: 10 }}
+            >
+              <View style={{
+                width: 22, height: 22, borderRadius: 6, borderWidth: 2, marginTop: 1,
+                borderColor: acceptedTerms ? colors.oxygen : colors.inkMuted,
+                backgroundColor: acceptedTerms ? colors.oxygen : 'transparent',
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                {acceptedTerms && <Ionicons name="checkmark" size={14} color="white" />}
+              </View>
+              <Text style={{ flex: 1, fontSize: 13, color: colors.inkSecondary, lineHeight: 20 }}>
+                {t('auth.agreeToTerms')}{' '}
+                <Text
+                  style={{ color: colors.oxygen, fontWeight: '600' }}
+                  onPress={() => Linking.openURL('https://nontoxicliving.app/privacy')}
+                >
+                  {t('auth.privacyPolicy')}
+                </Text>
+                {' '}{t('auth.and')}{' '}
+                <Text
+                  style={{ color: colors.oxygen, fontWeight: '600' }}
+                  onPress={() => Linking.openURL('https://nontoxicliving.app/terms')}
+                >
+                  {t('auth.termsOfService')}
+                </Text>
+              </Text>
+            </Pressable>
 
             <Pressable
               onPress={handleSignUp}

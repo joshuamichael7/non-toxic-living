@@ -29,7 +29,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     buildNumber,
     infoPlist: {
       NSCameraUsageDescription:
-        'Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis.',
+        'NoTox uses your camera to photograph ingredient labels and analyze them for potential toxins.',
       ITSAppUsesNonExemptEncryption: false,
     },
   },
@@ -52,7 +52,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-camera',
       {
         cameraPermission:
-          'Allow Non-Toxic Living to access your camera to scan products.',
+          'NoTox uses your camera to photograph ingredient labels and analyze them for potential toxins.',
       },
     ],
     'expo-localization',

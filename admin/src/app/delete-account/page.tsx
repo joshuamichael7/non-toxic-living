@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Delete Account — Non-Toxic Living',
-  description: 'Request deletion of your Non-Toxic Living account and associated data.',
+  title: 'Delete Account — NoTox',
+  description: 'Request deletion of your NoTox account and associated data.',
 };
 
 function Header() {
@@ -12,9 +12,9 @@ function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--oxygen] text-white font-bold text-xs">
-            NTL
+            NT
           </div>
-          <span className="text-base font-bold text-[--site-text]">Non-Toxic Living</span>
+          <span className="text-base font-bold text-[--site-text]">NoTox</span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/support" className="text-[--site-text-secondary] hover:text-[--site-text] transition-colors">
@@ -36,7 +36,7 @@ function Footer() {
   return (
     <footer className="border-t border-[--site-border] bg-[--site-surface] py-8 px-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-sm text-[--site-text-muted] sm:flex-row sm:justify-between">
-        <span>&copy; {new Date().getFullYear()} Non-Toxic Living. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} NoTox. All rights reserved.</span>
         <div className="flex gap-6">
           <Link href="/support" className="hover:text-[--site-text] transition-colors">Support</Link>
           <Link href="/privacy" className="hover:text-[--site-text] transition-colors">Privacy</Link>
@@ -71,7 +71,7 @@ export default function DeleteAccountPage() {
           <h1 className="text-3xl font-bold">Delete Your Account</h1>
           <p className="mt-2 text-[--site-text-secondary]">
             We&apos;re sorry to see you go. Follow the steps below to request deletion of your
-            Non-Toxic Living account and all associated data.
+            NoTox account and all associated data.
           </p>
 
           <div className="mt-12 space-y-10 text-[--site-text-secondary] leading-relaxed">
@@ -86,7 +86,7 @@ export default function DeleteAccountPage() {
                   with the subject line <strong className="text-[--site-text]">&quot;Account Deletion Request&quot;</strong>.
                 </li>
                 <li>
-                  Include the <strong className="text-[--site-text]">email address</strong> associated with your Non-Toxic Living account in the body of the email.
+                  Include the <strong className="text-[--site-text]">email address</strong> associated with your NoTox account in the body of the email.
                 </li>
                 <li>
                   We will verify your identity and process your request within <strong className="text-[--site-text]">30 days</strong>.
@@ -132,8 +132,8 @@ export default function DeleteAccountPage() {
                 charged, please cancel your subscription before requesting account deletion:
               </p>
               <ul className="mt-3 list-disc space-y-2 pl-6">
-                <li><strong className="text-[--site-text]">iOS:</strong> Settings &gt; Apple ID &gt; Subscriptions &gt; Non-Toxic Living &gt; Cancel</li>
-                <li><strong className="text-[--site-text]">Android:</strong> Google Play Store &gt; Subscriptions &gt; Non-Toxic Living &gt; Cancel</li>
+                <li><strong className="text-[--site-text]">iOS:</strong> Settings &gt; Apple ID &gt; Subscriptions &gt; NoTox &gt; Cancel</li>
+                <li><strong className="text-[--site-text]">Android:</strong> Google Play Store &gt; Subscriptions &gt; NoTox &gt; Cancel</li>
               </ul>
             </section>
 

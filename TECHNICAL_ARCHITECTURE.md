@@ -1,8 +1,8 @@
-# Non-Toxic Living: Technical Architecture
+# NoTox: Technical Architecture
 
 ## Overview
 
-This document outlines the technical architecture for Non-Toxic Living, a mobile-first application that uses a hybrid OCR approach (device-native + AI) to identify toxins in everyday products.
+This document outlines the technical architecture for NoTox, a mobile-first application that uses a hybrid OCR approach (device-native + AI) to identify toxins in everyday products.
 
 **Key Design Principles:**
 1. **Device-first OCR** - Use free, fast native OCR for text extraction

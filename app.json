@@ -18,7 +18,7 @@
       "bundleIdentifier": "com.nontoxicliving.app",
       "buildNumber": "2",
       "infoPlist": {
-        "NSCameraUsageDescription": "Non-Toxic Living needs camera access to scan products and ingredients for toxicity analysis.",
+        "NSCameraUsageDescription": "NoTox uses your camera to photograph ingredient labels and analyze them for potential toxins.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -42,7 +42,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Non-Toxic Living to access your camera to scan products."
+          "cameraPermission": "NoTox uses your camera to photograph ingredient labels and analyze them for potential toxins."
         }
       ],
       "expo-localization"

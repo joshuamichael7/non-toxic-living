@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Support — Non-Toxic Living',
-  description: 'Get help with Non-Toxic Living. Find answers to common questions or contact our support team.',
+  title: 'Support — NoTox',
+  description: 'Get help with NoTox. Find answers to common questions or contact our support team.',
 };
 
 const faqs = [
   {
-    q: 'How does Non-Toxic Living analyze products?',
+    q: 'How does NoTox analyze products?',
     a: 'Point your camera at any ingredient label. Our app uses on-device text recognition to read the label, then AI analyzes each ingredient for known health concerns, toxicity data, and regulatory warnings. You get an instant safety score from 0 to 100.',
   },
   {
@@ -33,7 +33,7 @@ const faqs = [
   },
   {
     q: 'How do I cancel my subscription?',
-    a: "You can cancel anytime through your device's subscription settings. On iPhone, go to Settings → your name → Subscriptions → Non-Toxic Living → Cancel. On Android, go to Google Play Store → your profile → Payments & subscriptions → Subscriptions.",
+    a: "You can cancel anytime through your device's subscription settings. On iPhone, go to Settings → your name → Subscriptions → NoTox → Cancel. On Android, go to Google Play Store → your profile → Payments & subscriptions → Subscriptions.",
   },
   {
     q: 'Is my data private?',
@@ -47,9 +47,9 @@ function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--oxygen] text-white font-bold text-xs">
-            NTL
+            NT
           </div>
-          <span className="text-base font-bold text-[--site-text]">Non-Toxic Living</span>
+          <span className="text-base font-bold text-[--site-text]">NoTox</span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/support" className="font-medium text-[--site-text]">
@@ -71,7 +71,7 @@ function Footer() {
   return (
     <footer className="border-t border-[--site-border] bg-[--site-surface] py-8 px-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-sm text-[--site-text-muted] sm:flex-row sm:justify-between">
-        <span>&copy; {new Date().getFullYear()} Non-Toxic Living. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} NoTox. All rights reserved.</span>
         <div className="flex gap-6">
           <Link href="/support" className="hover:text-[--site-text] transition-colors">Support</Link>
           <Link href="/privacy" className="hover:text-[--site-text] transition-colors">Privacy</Link>

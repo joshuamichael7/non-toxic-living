@@ -91,7 +91,7 @@ export function Sidebar({ userName, role }: { userName: string; role: AdminRole 
     <aside className="w-64 bg-white border-r border-gray-200 fixed h-full flex flex-col">
       {/* Brand */}
       <div className="p-6 border-b border-gray-100">
-        <h1 className="text-lg font-bold text-gray-900">Non-Toxic Dad</h1>
+        <h1 className="text-lg font-bold text-gray-900">NoTox</h1>
         <p className="text-xs text-gray-400 mt-0.5">Admin Panel</p>
       </div>
 

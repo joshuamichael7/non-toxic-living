@@ -1,10 +1,10 @@
-# Non-Toxic Living: Product Specification
+# NoTox: Product Specification
 
 ## Executive Summary
 
-Non-Toxic Living is a comprehensive, mobile-first utility app designed to help users identify environmental toxins, harmful ingredients, and hidden dangers in every aspect of their life—from the food they eat and the cosmetics they use, to the furniture they sit on.
+NoTox is a comprehensive, mobile-first utility app designed to help users identify environmental toxins, harmful ingredients, and hidden dangers in every aspect of their life—from the food they eat and the cosmetics they use, to the furniture they sit on.
 
-While traditional apps (Yuka, Think Dirty, EWG) focus narrowly on barcodes for specific categories, Non-Toxic Living utilizes **Multimodal AI** to analyze everything. It combines Material Science (cookware, fabrics, furniture) with Nutritional & Chemical Analysis (food, beauty products).
+While traditional apps (Yuka, Think Dirty, EWG) focus narrowly on barcodes for specific categories, NoTox utilizes **Multimodal AI** to analyze everything. It combines Material Science (cookware, fabrics, furniture) with Nutritional & Chemical Analysis (food, beauty products).
 
 **Strategic Partner**: The app is designed to align with the brand of "Non-Toxic Dad" (Influencer), utilizing his specific, rigorous criteria for toxicity (including often-overlooked factors like EMFs, off-gassing, and processing methods) and his approved list of safe swaps.
 
@@ -252,7 +252,7 @@ After scanning, the AI generates a comprehensive toxicity profile analyzing:
 | **Think Dirty** | Cosmetics only | Deep beauty database | No food, no furniture, outdated UI |
 | **EWG Healthy Living** | Food & Cosmetics | Scientific credibility | Poor UX, no visual recognition |
 | **GoodGuide** | Various | Broad coverage | Discontinued/abandoned |
-| **Non-Toxic Living** | Everything | Universal scanner, AI-powered, expert alignment | New entrant, building database |
+| **NoTox** | Everything | Universal scanner, AI-powered, expert alignment | New entrant, building database |
 
 **Our Differentiation**:
 1. **Universal**: One app for ALL toxin concerns

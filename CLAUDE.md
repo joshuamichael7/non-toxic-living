@@ -1,4 +1,4 @@
-# Non-Toxic Living - Project Context
+# NoTox - Project Context
 
 ## What We're Building
 

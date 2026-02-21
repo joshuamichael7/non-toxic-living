@@ -1,10 +1,10 @@
-# Non-Toxic Living
+# NoTox
 
 A mobile-first utility app that helps users identify environmental toxins, harmful ingredients, and hidden dangers in every aspect of life—from food and cosmetics to furniture and household items.
 
 ## Project Status: Planning Phase
 
-This repository contains the product strategy and planning documents for Non-Toxic Living.
+This repository contains the product strategy and planning documents for NoTox.
 
 ## Documents
 
@@ -26,7 +26,7 @@ People want to avoid toxins in their daily lives but face significant barriers:
 
 ## The Solution
 
-Non-Toxic Living provides:
+NoTox provides:
 
 - **Universal AI Scanner**: Point your camera at anything—food, cosmetics, furniture, cookware, toys
 - **Beyond Barcodes**: Visual recognition identifies products even without labels

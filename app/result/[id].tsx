@@ -35,31 +35,6 @@ const colors = {
   toxicLight: 'rgba(239, 68, 68, 0.15)',
 };
 
-// Demo data for when accessed directly (e.g., /result/demo)
-const DEMO_RESULT = {
-  productName: 'Cheetos Crunchy',
-  brand: 'Frito-Lay',
-  category: 'food',
-  score: 34,
-  verdict: 'caution' as const,
-  summary: 'Contains several artificial additives and highly processed ingredients that may have negative health effects.',
-  dadsTake: "I keep these out of my house. The artificial colors and MSG derivatives aren't worth it when there are better options that taste just as good.",
-  concerns: [
-    { ingredient: 'Yellow 6', severity: 'medium' as const, description: 'Artificial color linked to hyperactivity in children', category: 'color' },
-    { ingredient: 'Red 40', severity: 'medium' as const, description: 'Synthetic dye with potential carcinogenic properties', category: 'color' },
-    { ingredient: 'MSG', severity: 'low' as const, description: 'Flavor enhancer that may cause sensitivity reactions', category: 'additive' },
-  ],
-  positives: ['No trans fats', 'Gluten-free'],
-  swaps: [
-    { id: '1', name: 'Lesser Evil Paleo Puffs', brand: 'Lesser Evil', score: 82, affiliate_url: undefined },
-    { id: '2', name: 'Hippeas Organic Chickpea Puffs', brand: 'Hippeas', score: 78, affiliate_url: undefined },
-  ],
-  ocrSource: 'device' as const,
-  model: 'gpt-4o-mini',
-  cached: false,
-  cachedAt: undefined,
-  coupons: [],
-};
 
 const severityConfig = {
   low: { bg: colors.glassSolid, color: colors.inkSecondary, borderColor: colors.glassBorder },
@@ -92,7 +67,7 @@ export default function ResultScreen() {
 
   // Load scan from DB when viewing a past scan, or product from products table
   useEffect(() => {
-    if (id === 'scan' || id === 'demo') return;
+    if (id === 'scan') return;
     const idStr = id as string;
     setLoading(true);
 
@@ -164,7 +139,7 @@ export default function ResultScreen() {
 
   // Fetch deals for this product
   useEffect(() => {
-    const source = id === 'scan' && currentResult ? currentResult : id === 'demo' ? DEMO_RESULT : dbResult;
+    const source = id === 'scan' && currentResult ? currentResult : dbResult;
     if (!source) return;
 
     const idStr = id as string;
@@ -191,7 +166,7 @@ export default function ResultScreen() {
     let productId: string | null = null;
     if (idStr.startsWith('product-')) {
       productId = idStr.replace('product-', '');
-    } else if (idStr !== 'scan' && idStr !== 'demo') {
+    } else if (idStr !== 'scan') {
       // It's a scan ID — we may have product_id from the scan
       productId = scanId; // scanId is the scan row, but we need product_id
     }
@@ -225,8 +200,7 @@ export default function ResultScreen() {
   // Determine result source
   const result = id === 'scan' && currentResult
     ? currentResult
-    : dbResult || DEMO_RESULT;
-  const config = verdictConfig[result.verdict];
+    : dbResult;
 
   if (loading) {
     return (
@@ -236,6 +210,20 @@ export default function ResultScreen() {
       </SafeAreaView>
     );
   }
+
+  if (!result) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.inkMuted} />
+        <Text style={{ color: colors.inkSecondary, marginTop: 12, fontSize: 16, fontWeight: '600' }}>{t('result.notFound')}</Text>
+        <Pressable onPress={() => router.back()} style={{ marginTop: 20, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: colors.oxygen, borderRadius: 12 }}>
+          <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>{t('common.close')}</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
+  const config = verdictConfig[result.verdict];
 
   const handleClose = () => {
     clearScan();
@@ -252,7 +240,7 @@ export default function ResultScreen() {
     const concernList = result.concerns.length > 0
       ? `\nConcerns: ${result.concerns.map(c => c.ingredient).join(', ')}`
       : '';
-    const message = `${result.productName} by ${result.brand} - Score: ${result.score}/100 (${verdictLabel})${concernList}\n\nScanned with Non-Toxic Living`;
+    const message = `${result.productName} by ${result.brand} - Score: ${result.score}/100 (${verdictLabel})${concernList}\n\nScanned with NoTox`;
     try {
       await Share.share({ message });
     } catch {}
@@ -264,7 +252,7 @@ export default function ResultScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     // Persist to DB if we have a scan ID
-    const idToSave = scanId || (id !== 'scan' && id !== 'demo' ? id as string : null);
+    const idToSave = scanId || (id !== 'scan' ? id as string : null);
     if (idToSave) {
       try {
         await saveScanToList(idToSave, newSaved ? 'favorites' : null);

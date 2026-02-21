@@ -8,7 +8,7 @@ const manrope = Manrope({
 });
 
 export const metadata = {
-  title: 'Screenshot Studio - Non-Toxic Living',
+  title: 'Screenshot Studio - NoTox',
 };
 
 export default function ScreenshotsPage() {

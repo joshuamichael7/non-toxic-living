@@ -52,12 +52,12 @@ function confirmPage(title: string, message: string, success: boolean): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} — Non-Toxic Living</title>
+  <title>${title} — NoTox</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #111111; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
   <div style="max-width: 440px; margin: 0 auto; padding: 40px 20px; text-align: center;">
     <div style="margin-bottom: 32px;">
-      <div style="display: inline-block; background: #0EA5E9; color: #ffffff; font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 10px;">NTL</div>
+      <div style="display: inline-block; background: #0EA5E9; color: #ffffff; font-weight: 700; font-size: 13px; padding: 8px 12px; border-radius: 10px;">NT</div>
     </div>
     <div style="background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 40px 32px;">
       <div style="color: ${iconColor}; margin-bottom: 20px;">${icon}</div>

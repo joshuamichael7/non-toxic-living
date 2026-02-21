@@ -13,7 +13,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Non-Toxic Living",
+  title: "NoTox",
   description: "Scan any product for hidden toxins. Get instant safety scores and safer swap recommendations.",
 };
 

@@ -1,6 +1,6 @@
 export const config = {
   // App info
-  appName: 'Non-Toxic Living',
+  appName: 'NoTox',
   appVersion: '1.0.0',
 
   // API endpoints

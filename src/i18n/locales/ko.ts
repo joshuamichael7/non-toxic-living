@@ -336,7 +336,7 @@ export default {
 
   // About screen
   'about.title': '정보',
-  'about.appName': 'Non-Toxic Living',
+  'about.appName': 'NoTox',
   'about.missionTitle': '우리의 미션',
   'about.mission': '우리는 모든 사람이 자신의 제품에 무엇이 들어있는지 알 권리가 있다고 믿습니다. 유해한 성분을 쉽게 식별하고 가족을 위한 더 안전한 대안을 찾는 것이 우리의 사명입니다.',
   'about.privacyPolicy': '개인정보처리방침',

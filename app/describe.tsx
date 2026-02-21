@@ -11,6 +11,8 @@ import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { supabase } from '@/lib/supabase';
 import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
 
 // Aerogel Design System Colors
@@ -26,6 +28,32 @@ const colors = {
   inkMuted: '#94A3B8',
   error: '#EF4444',
 };
+
+const TIER_LIMITS: Record<string, number> = { free: 5, pro: 200, power: 500 };
+
+async function checkQuotaExceeded(): Promise<{ exceeded: boolean; scansUsed: number; scansLimit: number; resetsAt: string }> {
+  const userId = useAuthStore.getState().user?.id;
+  const tier = useSubscriptionStore.getState().tier;
+  if (!userId) return { exceeded: false, scansUsed: 0, scansLimit: 0, resetsAt: '' };
+
+  const limit = TIER_LIMITS[tier] ?? 5;
+
+  const { data } = await (supabase as any)
+    .from('profiles')
+    .select('scans_this_month, scans_month_reset_at')
+    .eq('id', userId)
+    .single() as { data: { scans_this_month: number; scans_month_reset_at: string } | null };
+
+  if (!data) return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: '' };
+
+  const resetAt = new Date(data.scans_month_reset_at);
+  if (resetAt < new Date()) {
+    return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
+  }
+
+  const exceeded = (data.scans_this_month || 0) >= limit;
+  return { exceeded, scansUsed: data.scans_this_month || 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
+}
 
 const PRODUCT_TYPES = [
   { key: 'food', icon: 'nutrition-outline' as const },
@@ -88,6 +116,22 @@ export default function DescribeScreen() {
       setValidationError(t('describe.selectType'));
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       return;
+    }
+
+    // Pre-check quota before sending to server
+    try {
+      const quota = await checkQuotaExceeded();
+      if (quota.exceeded) {
+        setQuotaModal({
+          visible: true,
+          scansUsed: quota.scansUsed,
+          scansLimit: quota.scansLimit,
+          resetsAt: quota.resetsAt,
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn('Client quota check failed, proceeding:', err);
     }
 
     setValidationError(null);

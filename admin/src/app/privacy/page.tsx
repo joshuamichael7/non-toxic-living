@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Non-Toxic Living',
-  description: 'Privacy Policy for the Non-Toxic Living app.',
+  title: 'Privacy Policy — NoTox',
+  description: 'Privacy Policy for the NoTox app.',
 };
 
 function Header() {
@@ -12,9 +12,9 @@ function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--oxygen] text-white font-bold text-xs">
-            NTL
+            NT
           </div>
-          <span className="text-base font-bold text-[--site-text]">Non-Toxic Living</span>
+          <span className="text-base font-bold text-[--site-text]">NoTox</span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/support" className="text-[--site-text-secondary] hover:text-[--site-text] transition-colors">
@@ -36,7 +36,7 @@ function Footer() {
   return (
     <footer className="border-t border-[--site-border] bg-[--site-surface] py-8 px-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-sm text-[--site-text-muted] sm:flex-row sm:justify-between">
-        <span>&copy; {new Date().getFullYear()} Non-Toxic Living. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} NoTox. All rights reserved.</span>
         <div className="flex gap-6">
           <Link href="/support" className="hover:text-[--site-text] transition-colors">Support</Link>
           <Link href="/privacy" className="hover:text-[--site-text] transition-colors">Privacy</Link>
@@ -75,7 +75,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-lg font-bold text-[--site-text]">Overview</h2>
               <p className="mt-3">
-                Non-Toxic Living (&quot;we&quot;, &quot;our&quot;, or &quot;the app&quot;) is committed to protecting
+                NoTox (&quot;we&quot;, &quot;our&quot;, or &quot;the app&quot;) is committed to protecting
                 your privacy. This policy explains what data we collect, how we use it, and your rights.
               </p>
             </section>
@@ -168,7 +168,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-lg font-bold text-[--site-text]">Children&apos;s Privacy</h2>
               <p className="mt-3">
-                Non-Toxic Living is not directed at children under 13. We do not knowingly collect
+                NoTox is not directed at children under 13. We do not knowingly collect
                 personal information from children under 13. If you believe a child has provided us
                 with personal data, please contact us and we will delete it promptly.
               </p>
