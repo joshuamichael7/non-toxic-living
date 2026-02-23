@@ -133,6 +133,8 @@ export interface Database {
           manual_refresh_count: number;
           embedding: number[] | null;
           image_url: string | null;
+          on_avoid_list: boolean;
+          avoid_reason: string | null;
           source: string;
           scan_count: number;
           created_at: string;
@@ -160,6 +162,8 @@ export interface Database {
           manual_refresh_count?: number;
           embedding?: number[] | null;
           image_url?: string | null;
+          on_avoid_list?: boolean;
+          avoid_reason?: string | null;
           source?: string;
           scan_count?: number;
           created_at?: string;
@@ -186,6 +190,8 @@ export interface Database {
           manual_refresh_count?: number;
           embedding?: number[] | null;
           image_url?: string | null;
+          on_avoid_list?: boolean;
+          avoid_reason?: string | null;
           source?: string;
           scan_count?: number;
           updated_at?: string;

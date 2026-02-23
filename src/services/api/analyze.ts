@@ -445,6 +445,25 @@ export async function getScanById(scanId: string): Promise<any> {
 }
 
 /**
+ * Get admin-curated avoid list products
+ */
+export async function getAvoidListProducts(): Promise<any[]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from('products')
+    .select('id, name, brand, score, verdict, category, avoid_reason, image_url')
+    .eq('on_avoid_list', true)
+    .order('name');
+
+  if (error) {
+    console.error('Get avoid list error:', error);
+    throw error;
+  }
+
+  return data || [];
+}
+
+/**
  * Get swap recommendations for a product by its product_id
  * Used as fallback when viewing past scans that don't have swaps saved
  */

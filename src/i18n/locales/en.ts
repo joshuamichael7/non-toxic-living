@@ -68,7 +68,7 @@ export default {
   'profile.goPremium': 'Go Premium',
   'profile.premiumDesc': 'Unlimited scans, detailed reports & more',
   'profile.myFavorites': 'My Favorites',
-  'profile.avoidList': 'Avoid List',
+  'profile.avoidList': 'Products to Avoid',
   'profile.scanHistory': 'Scan History',
   'profile.language': 'Language',
   'profile.notifications': 'Notifications',
@@ -216,13 +216,15 @@ export default {
   'history.title': 'Scan History',
   'history.all': 'All',
   'history.favorites': 'Favorites',
-  'history.avoid': 'Avoid',
   'history.empty': 'No scans yet',
   'history.emptyDesc': 'Products you scan will appear here',
   'history.emptyFavorites': 'No favorites yet',
   'history.emptyFavoritesDesc': 'Save products you love to find them here',
-  'history.emptyAvoid': 'No items to avoid',
-  'history.emptyAvoidDesc': 'Products you want to avoid will appear here',
+
+  // Avoid list screen
+  'avoidList.title': 'Products to Avoid',
+  'avoidList.empty': 'No products listed yet',
+  'avoidList.emptyDesc': 'Check back soon for our curated list of products to watch out for',
 
   // Notifications screen
   'notifications.title': 'Notifications',

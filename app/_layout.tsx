@@ -150,7 +150,7 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
-            name="notifications"
+            name="avoid-list"
             options={{
               presentation: 'modal',
               animation: 'slide_from_bottom',

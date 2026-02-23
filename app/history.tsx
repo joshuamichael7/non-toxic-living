@@ -26,7 +26,7 @@ const colors = {
   toxicLight: 'rgba(239, 68, 68, 0.15)',
 };
 
-type FilterTab = 'all' | 'favorites' | 'avoid';
+type FilterTab = 'all' | 'favorites';
 
 interface ScanItem {
   id: string;
@@ -85,19 +85,16 @@ export default function HistoryScreen() {
   const tabs: { key: FilterTab; label: string }[] = [
     { key: 'all', label: t('history.all') },
     { key: 'favorites', label: t('history.favorites') },
-    { key: 'avoid', label: t('history.avoid') },
   ];
 
   const emptyMessages: Record<FilterTab, { title: string; desc: string; icon: any }> = {
     all: { title: t('history.empty'), desc: t('history.emptyDesc'), icon: 'scan-outline' },
     favorites: { title: t('history.emptyFavorites'), desc: t('history.emptyFavoritesDesc'), icon: 'heart-outline' },
-    avoid: { title: t('history.emptyAvoid'), desc: t('history.emptyAvoidDesc'), icon: 'close-circle-outline' },
   };
 
   const titleForTab: Record<FilterTab, string> = {
     all: t('history.title'),
     favorites: t('profile.myFavorites'),
-    avoid: t('profile.avoidList'),
   };
 
   const renderScanItem = ({ item: scan }: { item: ScanItem }) => {
