@@ -24,12 +24,12 @@ const linkRows: {
   {
     icon: 'shield-outline',
     labelKey: 'about.privacyPolicy',
-    url: 'https://nontoxicliving.app/privacy',
+    url: 'https://nontoxicliving.netlify.app/privacy',
   },
   {
     icon: 'document-text-outline',
     labelKey: 'about.termsOfService',
-    url: 'https://nontoxicliving.app/terms',
+    url: 'https://nontoxicliving.netlify.app/terms',
   },
 ];
 
