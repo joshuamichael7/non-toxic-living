@@ -59,8 +59,10 @@ export default function ProfileScreen() {
       subtitle: tier === 'free' ? t('subscription.goPremiumDesc') : t('subscription.currentPlan', { plan: tier.charAt(0).toUpperCase() + tier.slice(1) }),
       onPress: () => router.push('/subscription' as any),
     },
-    { title: t('profile.scanHistory'), icon: 'time-outline' as const, onPress: () => router.push('/history') },
-    { title: t('profile.myFavorites'), icon: 'heart-outline' as const, onPress: () => router.push('/history?filter=favorites') },
+    ...(user ? [
+      { title: t('profile.scanHistory'), icon: 'time-outline' as const, onPress: () => router.push('/history') },
+      { title: t('profile.myFavorites'), icon: 'heart-outline' as const, onPress: () => router.push('/history?filter=favorites') },
+    ] : []),
     { title: t('profile.avoidList'), icon: 'warning-outline' as const, onPress: () => router.push('/avoid-list') },
     { title: t('profile.language'), icon: 'language-outline' as const, subtitle: currentLanguageLabel, onPress: () => setShowLanguagePicker(true) },
     { title: t('profile.helpSupport'), icon: 'help-circle-outline' as const, onPress: () => router.push('/help') },

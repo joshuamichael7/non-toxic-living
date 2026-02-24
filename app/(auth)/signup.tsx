@@ -102,6 +102,14 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
+      {/* Close button for guest users to return to browsing */}
+      <Pressable
+        onPress={() => router.replace('/(tabs)')}
+        style={{ position: 'absolute', top: 60, right: 20, zIndex: 10, padding: 8 }}
+        hitSlop={12}
+      >
+        <Ionicons name="close" size={28} color={colors.inkSecondary} />
+      </Pressable>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

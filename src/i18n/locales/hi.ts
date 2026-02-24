@@ -240,6 +240,8 @@ export default {
   'subscription.restored': 'खरीदारी पुनर्स्थापित हो गई!',
   'subscription.restoreNone': 'कोई पिछली खरीदारी नहीं मिली',
   'subscription.cancelAnytime': 'कभी भी रद्द करें। सदस्यताएं रद्द होने तक स्वतः नवीनीकृत होती हैं।',
+  'subscription.termsOfUse': 'उपयोग की शर्तें',
+  'subscription.privacyPolicy': 'गोपनीयता नीति',
   'subscription.purchaseError': 'खरीदारी विफल हुई। कृपया पुनः प्रयास करें।',
   'subscription.processing': 'प्रोसेसिंग...',
   'subscription.oneMonthFree': '1 महीना मुफ़्त',

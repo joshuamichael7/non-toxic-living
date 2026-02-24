@@ -240,6 +240,8 @@ export default {
   'subscription.restored': 'تم استعادة المشتريات!',
   'subscription.restoreNone': 'لم يتم العثور على مشتريات سابقة',
   'subscription.cancelAnytime': 'يمكنك الإلغاء في أي وقت. يتم تجديد الاشتراكات تلقائيًا حتى يتم إلغاؤها.',
+  'subscription.termsOfUse': 'شروط الاستخدام',
+  'subscription.privacyPolicy': 'سياسة الخصوصية',
   'subscription.purchaseError': 'فشل الشراء. يرجى المحاولة مرة أخرى.',
   'subscription.processing': 'جارٍ المعالجة...',
   'subscription.oneMonthFree': 'شهر واحد مجاني',

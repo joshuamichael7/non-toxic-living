@@ -240,6 +240,8 @@ export default {
   'subscription.restored': '구매가 복원되었습니다!',
   'subscription.restoreNone': '이전 구매 내역이 없습니다',
   'subscription.cancelAnytime': '언제든 취소 가능합니다. 구독은 취소할 때까지 자동 갱신됩니다.',
+  'subscription.termsOfUse': '이용약관',
+  'subscription.privacyPolicy': '개인정보 처리방침',
   'subscription.purchaseError': '구매에 실패했습니다. 다시 시도해주세요.',
   'subscription.processing': '처리 중...',
   'subscription.oneMonthFree': '1개월 무료',

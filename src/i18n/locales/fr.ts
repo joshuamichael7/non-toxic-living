@@ -240,6 +240,8 @@ export default {
   'subscription.restored': 'Achats restaurés !',
   'subscription.restoreNone': 'Aucun achat précédent trouvé',
   'subscription.cancelAnytime': 'Annulez à tout moment. Les abonnements se renouvellent automatiquement jusqu\'à leur annulation.',
+  'subscription.termsOfUse': 'Conditions d\'utilisation',
+  'subscription.privacyPolicy': 'Politique de confidentialité',
   'subscription.purchaseError': 'Échec de l\'achat. Veuillez réessayer.',
   'subscription.processing': 'Traitement...',
   'subscription.oneMonthFree': '1 mois gratuit',

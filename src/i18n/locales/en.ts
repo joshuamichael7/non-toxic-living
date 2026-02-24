@@ -176,6 +176,10 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': 'No label? Describe it',
+  'scan.signInRequired': 'Account Required',
+  'scan.signInRequiredMessage': 'Create a free account to start scanning products. Our AI-powered analysis requires an account.',
+  'scan.signUp': 'Sign Up',
+  'scan.notNow': 'Not Now',
 
   // Describe screen
   'describe.title': 'Describe Product',
@@ -303,6 +307,8 @@ export default {
   'subscription.restored': 'Purchases restored!',
   'subscription.restoreNone': 'No previous purchases found',
   'subscription.cancelAnytime': 'Cancel anytime. Subscriptions auto-renew until cancelled.',
+  'subscription.termsOfUse': 'Terms of Use',
+  'subscription.privacyPolicy': 'Privacy Policy',
   'subscription.purchaseError': 'Purchase failed. Please try again.',
   'subscription.processing': 'Processing...',
   'subscription.oneMonthFree': '1 month free',

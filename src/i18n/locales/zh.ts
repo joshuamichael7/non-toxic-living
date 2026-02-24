@@ -240,6 +240,8 @@ export default {
   'subscription.restored': '购买已恢复！',
   'subscription.restoreNone': '未找到之前的购买记录',
   'subscription.cancelAnytime': '随时取消。订阅会自动续期，直到取消为止。',
+  'subscription.termsOfUse': '使用条款',
+  'subscription.privacyPolicy': '隐私政策',
   'subscription.purchaseError': '购买失败，请重试。',
   'subscription.processing': '处理中...',
   'subscription.oneMonthFree': '免费1个月',

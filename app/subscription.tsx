@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Alert, Linking, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Alert, Linking, Platform, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -348,6 +348,16 @@ export default function SubscriptionScreen() {
         </Pressable>
 
         <Text style={styles.legalText}>{t('subscription.cancelAnytime')}</Text>
+
+        <View style={styles.legalLinks}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://nontoxicliving.netlify.app/terms')}>
+            <Text style={styles.legalLink}>{t('subscription.termsOfUse')}</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalDivider}>|</Text>
+          <TouchableOpacity onPress={() => Linking.openURL('https://nontoxicliving.netlify.app/privacy')}>
+            <Text style={styles.legalLink}>{t('subscription.privacyPolicy')}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -484,4 +494,7 @@ const styles = StyleSheet.create({
   restoreButton: { alignItems: 'center', paddingVertical: 16, marginTop: 8 },
   restoreText: { fontSize: 15, fontWeight: '600', color: colors.inkSecondary, textDecorationLine: 'underline' },
   legalText: { fontSize: 12, color: colors.inkMuted, textAlign: 'center', lineHeight: 18, paddingHorizontal: 20 },
+  legalLinks: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 12, gap: 8 },
+  legalLink: { fontSize: 12, color: colors.inkSecondary, textDecorationLine: 'underline' },
+  legalDivider: { fontSize: 12, color: colors.inkMuted },
 });

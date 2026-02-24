@@ -240,6 +240,8 @@ export default {
   'subscription.restored': '購入が復元されました！',
   'subscription.restoreNone': '以前の購入が見つかりません',
   'subscription.cancelAnytime': 'いつでもキャンセル可能。サブスクリプションはキャンセルするまで自動更新されます。',
+  'subscription.termsOfUse': '利用規約',
+  'subscription.privacyPolicy': 'プライバシーポリシー',
   'subscription.purchaseError': '購入に失敗しました。もう一度お試しください。',
   'subscription.processing': '処理中...',
   'subscription.oneMonthFree': '1ヶ月無料',

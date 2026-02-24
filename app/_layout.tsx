@@ -107,11 +107,8 @@ export default function RootLayout() {
       // User just signed in — go to tabs
       console.log('[Layout] User signed in, navigating to tabs');
       router.replace('/(tabs)');
-    } else if (!user && !inAuthGroup) {
-      // User signed out — go to login
-      console.log('[Layout] User signed out, navigating to login');
-      router.replace('/(auth)/login');
     }
+    // Guest users can browse freely — no redirect to login
   }, [user, isReady, segments]);
 
   // Don't render anything until auth is initialized

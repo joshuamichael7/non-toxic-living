@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Animated, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -109,9 +109,26 @@ export default function ScanScreen() {
     return false; // not exceeded
   };
 
+  // Prompt guest users to sign up before scanning
+  const requireAuth = (): boolean => {
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser) return false; // authenticated, proceed
+
+    Alert.alert(
+      t('scan.signInRequired'),
+      t('scan.signInRequiredMessage'),
+      [
+        { text: t('scan.notNow'), style: 'cancel' },
+        { text: t('scan.signUp'), onPress: () => router.push('/(auth)/signup') },
+      ],
+    );
+    return true; // blocked
+  };
+
   // Open native camera and process the photo
   const handleScan = async () => {
     if (isCapturingRef.current || isProcessing) return;
+    if (requireAuth()) return;
 
     isCapturingRef.current = true;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -356,6 +373,7 @@ export default function ScanScreen() {
         {/* No-label option */}
         <Pressable
           onPress={async () => {
+            if (requireAuth()) return;
             const exceeded = await handleQuotaCheck();
             if (exceeded) return;
             router.push('/describe');
