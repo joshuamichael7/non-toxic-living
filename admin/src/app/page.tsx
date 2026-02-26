@@ -32,7 +32,7 @@ function Header() {
           </Link>
         </nav>
         <a
-          href="https://apps.apple.com/app/non-toxic-living/id000000000"
+          href="https://apps.apple.com/us/app/notox-product-scanner/id6758887710"
           className="rounded-full px-5 py-2 text-sm font-semibold text-white transition-colors"
           style={{ background: 'var(--color-oxygen)' }}
         >
@@ -100,7 +100,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <a
-              href="https://apps.apple.com/app/non-toxic-living/id000000000"
+              href="https://apps.apple.com/us/app/notox-product-scanner/id6758887710"
               className="inline-flex items-center gap-2.5 rounded-full px-8 py-4 text-sm font-semibold text-white transition-colors"
               style={{ background: 'var(--color-oxygen)', boxShadow: '0 12px 40px -8px rgba(14, 165, 233, 0.35)' }}
             >
@@ -530,7 +530,7 @@ export default function LandingPage() {
           </h2>
           <div className="mt-10">
             <a
-              href="https://apps.apple.com/app/non-toxic-living/id000000000"
+              href="https://apps.apple.com/us/app/notox-product-scanner/id6758887710"
               className="inline-flex items-center gap-2.5 rounded-full px-8 py-4 text-sm font-semibold text-white transition-colors"
               style={{ background: 'var(--color-oxygen)', boxShadow: '0 12px 40px -8px rgba(14, 165, 233, 0.35)' }}
             >
