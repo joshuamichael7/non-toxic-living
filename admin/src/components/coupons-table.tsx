@@ -28,7 +28,9 @@ interface Coupon {
   created_at: string;
   impressions: number;
   clicks: number;
-  redemption_type: string;
+  redeemable_online: boolean;
+  redeemable_in_store: boolean;
+  redeemable_ibotta: boolean;
 }
 
 interface Props {
@@ -164,9 +166,13 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
                   <div className="text-sm text-gray-900">{coupon.title}</div>
                 </td>
                 <td className="px-4 py-3">
-                  <code className="px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-700">
-                    {coupon.coupon_code}
-                  </code>
+                  {coupon.coupon_code ? (
+                    <code className="px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-700">
+                      {coupon.coupon_code}
+                    </code>
+                  ) : (
+                    <span className="text-xs text-gray-400">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
@@ -179,17 +185,17 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                    coupon.redemption_type === 'online' ? 'bg-blue-50 text-blue-700' :
-                    coupon.redemption_type === 'in_store' ? 'bg-amber-50 text-amber-700' :
-                    coupon.redemption_type === 'ibotta' ? 'bg-orange-50 text-orange-700' :
-                    'bg-purple-50 text-purple-700'
-                  }`}>
-                    {coupon.redemption_type === 'online' ? 'Online' :
-                     coupon.redemption_type === 'in_store' ? 'In-Store' :
-                     coupon.redemption_type === 'ibotta' ? 'Ibotta' :
-                     'Both'}
-                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {coupon.redeemable_online && (
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Online</span>
+                    )}
+                    {coupon.redeemable_in_store && (
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">In-Store</span>
+                    )}
+                    {coupon.redeemable_ibotta && (
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700">Ibotta</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <span className="text-sm text-gray-600">{(coupon.impressions || 0).toLocaleString()}</span>

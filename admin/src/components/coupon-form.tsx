@@ -16,7 +16,7 @@ const CATEGORIES = [
 ];
 
 const DISCOUNT_TYPES = ['percent', 'fixed', 'free_shipping', 'bogo', 'other'] as const;
-const REDEMPTION_TYPES = ['online', 'in_store', 'both', 'ibotta'] as const;
+const PER_USER_PERIODS = ['total', 'daily', 'weekly', 'monthly'] as const;
 
 interface SwapOption {
   id: string;
@@ -43,9 +43,12 @@ interface CouponData {
   expires_at: string;
   max_redemptions: number | null;
   per_user_limit: number | null;
+  per_user_period: string;
   is_active: boolean;
   sort_order: number;
-  redemption_type: string;
+  redeemable_online: boolean;
+  redeemable_in_store: boolean;
+  redeemable_ibotta: boolean;
   barcode_image_url: string;
   store_name: string;
 }
@@ -66,9 +69,12 @@ const emptyCoupon: CouponData = {
   expires_at: '',
   max_redemptions: null,
   per_user_limit: null,
+  per_user_period: 'total',
   is_active: true,
   sort_order: 100,
-  redemption_type: 'online',
+  redeemable_online: true,
+  redeemable_in_store: false,
+  redeemable_ibotta: false,
   barcode_image_url: '',
   store_name: '',
 };
@@ -168,8 +174,13 @@ export function CouponForm({ initialData, isEditing }: Props) {
     e.preventDefault();
     setError(null);
 
-    if (!form.brand_name.trim() || !form.title.trim() || !form.coupon_code.trim()) {
-      setError('Brand name, title, and coupon code are required.');
+    if (!form.brand_name.trim() || !form.title.trim()) {
+      setError('Brand name and title are required.');
+      return;
+    }
+
+    if (!form.redeemable_online && !form.redeemable_in_store && !form.redeemable_ibotta) {
+      setError('Select at least one redemption method (Online, In-Store, or Ibotta).');
       return;
     }
 
@@ -180,7 +191,7 @@ export function CouponForm({ initialData, isEditing }: Props) {
       brand_name: form.brand_name.trim(),
       title: form.title.trim(),
       description: form.description.trim() || null,
-      coupon_code: form.coupon_code.trim(),
+      coupon_code: form.coupon_code.trim() || null,
       discount_type: form.discount_type || null,
       discount_value: form.discount_value,
       category: form.category,
@@ -192,9 +203,12 @@ export function CouponForm({ initialData, isEditing }: Props) {
       expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
       max_redemptions: form.max_redemptions,
       per_user_limit: form.per_user_limit,
+      per_user_period: form.per_user_limit ? form.per_user_period : 'total',
       is_active: form.is_active,
       sort_order: form.sort_order,
-      redemption_type: form.redemption_type,
+      redeemable_online: form.redeemable_online,
+      redeemable_in_store: form.redeemable_in_store,
+      redeemable_ibotta: form.redeemable_ibotta,
       barcode_image_url: form.barcode_image_url.trim() || null,
       store_name: form.store_name.trim() || null,
     };
@@ -273,13 +287,13 @@ export function CouponForm({ initialData, isEditing }: Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Coupon Code *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
             <input
               type="text"
               value={form.coupon_code}
               onChange={(e) => update('coupon_code', e.target.value.toUpperCase())}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
-              placeholder="e.g. NONTOXIC20"
+              placeholder="e.g. NONTOXIC20 (optional)"
             />
           </div>
           <div>
@@ -443,7 +457,7 @@ export function CouponForm({ initialData, isEditing }: Props) {
       <section className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-1">Redemption Limits</h2>
         <p className="text-sm text-gray-500 mb-4">Control how many times this coupon can be used globally and per user.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Global Max Redemptions</label>
             <input
@@ -468,45 +482,80 @@ export function CouponForm({ initialData, isEditing }: Props) {
             />
             <p className="text-xs text-gray-400 mt-1">How many times each user can redeem. Empty = unlimited.</p>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Reset Period</label>
+            <select
+              value={form.per_user_period}
+              onChange={(e) => update('per_user_period', e.target.value)}
+              disabled={!form.per_user_limit}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50 disabled:bg-gray-50"
+            >
+              {PER_USER_PERIODS.map((period) => (
+                <option key={period} value={period}>
+                  {period === 'total' ? 'Never (total)' :
+                   period === 'daily' ? 'Daily' :
+                   period === 'weekly' ? 'Weekly' :
+                   'Monthly'}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">How often the per-user count resets. Requires per-user limit.</p>
+          </div>
         </div>
       </section>
 
       {/* Display & Redemption Settings */}
       <section className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Display & Redemption</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order (Priority)</label>
-            <input
-              type="number"
-              min={0}
-              value={form.sort_order}
-              onChange={(e) => update('sort_order', parseInt(e.target.value) || 100)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-            />
-            <p className="text-xs text-gray-400 mt-1">Lower numbers appear first. Default is 100.</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Redemption Type</label>
-            <select
-              value={form.redemption_type}
-              onChange={(e) => update('redemption_type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              {REDEMPTION_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type === 'online' ? 'Online Only' :
-                   type === 'in_store' ? 'In-Store Only' :
-                   type === 'ibotta' ? 'Ibotta / Cashback' :
-                   'Both (Online + In-Store)'}
-                </option>
-              ))}
-            </select>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order (Priority)</label>
+          <input
+            type="number"
+            min={0}
+            value={form.sort_order}
+            onChange={(e) => update('sort_order', parseInt(e.target.value) || 100)}
+            className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+          />
+          <p className="text-xs text-gray-400 mt-1">Lower numbers appear first. Default is 100.</p>
+        </div>
+
+        {/* Redemption methods - checkboxes */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <label className="block text-sm font-medium text-gray-700 mb-3">Redemption Methods *</label>
+          <p className="text-xs text-gray-500 mb-3">Select all ways users can redeem this deal. You can combine multiple methods.</p>
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.redeemable_online}
+                onChange={(e) => update('redeemable_online', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Online</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.redeemable_in_store}
+                onChange={(e) => update('redeemable_in_store', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm text-gray-700">In-Store</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.redeemable_ibotta}
+                onChange={(e) => update('redeemable_ibotta', e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+              />
+              <span className="text-sm text-gray-700">Ibotta / Cashback</span>
+            </label>
           </div>
         </div>
 
-        {/* Ibotta fields */}
-        {form.redemption_type === 'ibotta' && (
+        {/* Ibotta fields - shown when ibotta is checked */}
+        {form.redeemable_ibotta && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex items-start gap-2 mb-3 bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
               <svg className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -530,8 +579,8 @@ export function CouponForm({ initialData, isEditing }: Props) {
           </div>
         )}
 
-        {/* In-store fields */}
-        {(form.redemption_type === 'in_store' || form.redemption_type === 'both') && (
+        {/* In-store fields - shown when in-store is checked */}
+        {form.redeemable_in_store && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>

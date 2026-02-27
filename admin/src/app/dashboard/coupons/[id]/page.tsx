@@ -30,7 +30,7 @@ export default async function EditCouponPage({
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Edit Coupon</h1>
-        <p className="text-sm text-gray-500 mt-1">{coupon.brand_name} — {coupon.coupon_code}</p>
+        <p className="text-sm text-gray-500 mt-1">{coupon.brand_name}{coupon.coupon_code ? ` — ${coupon.coupon_code}` : ''}</p>
       </div>
       <CouponForm
         isEditing
@@ -51,9 +51,12 @@ export default async function EditCouponPage({
           expires_at: formatDatetimeLocal(coupon.expires_at),
           max_redemptions: coupon.max_redemptions,
           per_user_limit: coupon.per_user_limit ?? null,
+          per_user_period: coupon.per_user_period || 'total',
           is_active: coupon.is_active,
           sort_order: coupon.sort_order ?? 100,
-          redemption_type: coupon.redemption_type || 'online',
+          redeemable_online: coupon.redeemable_online ?? true,
+          redeemable_in_store: coupon.redeemable_in_store ?? false,
+          redeemable_ibotta: coupon.redeemable_ibotta ?? false,
           barcode_image_url: coupon.barcode_image_url || '',
           store_name: coupon.store_name || '',
         }}

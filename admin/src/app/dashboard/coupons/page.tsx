@@ -18,7 +18,7 @@ export default async function CouponsPage({
 
   let query = supabase
     .from('coupons')
-    .select('id, brand_name, title, coupon_code, category, discount_type, discount_value, is_active, expires_at, created_at, impressions, clicks, redemption_type', { count: 'exact' })
+    .select('id, brand_name, title, coupon_code, category, discount_type, discount_value, is_active, expires_at, created_at, impressions, clicks, redeemable_online, redeemable_in_store, redeemable_ibotta', { count: 'exact' })
     .order('sort_order', { ascending: true })
     .range(offset, offset + pageSize - 1);
 

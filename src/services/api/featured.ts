@@ -14,6 +14,9 @@ export interface FeaturedItem {
   discount_text: string | null;
   badge_text: string | null;
   redemption_type: string;
+  redeemable_online: boolean;
+  redeemable_in_store: boolean;
+  redeemable_ibotta: boolean;
   barcode_image_url: string | null;
   ibotta_url: string | null;
   store_name: string | null;
@@ -28,7 +31,7 @@ export interface FeaturedDeal extends FeaturedItem {
   linked_product?: { id: string; name: string; brand: string; score: number; category: string } | null;
 }
 
-const FEATURED_FIELDS = 'id, type, title, subtitle, brand_name, description, image_url, action_url, action_label, coupon_code, discount_text, badge_text, redemption_type, barcode_image_url, ibotta_url, store_name, sort_order, expires_at, swap_id, product_id';
+const FEATURED_FIELDS = 'id, type, title, subtitle, brand_name, description, image_url, action_url, action_label, coupon_code, discount_text, badge_text, redemption_type, redeemable_online, redeemable_in_store, redeemable_ibotta, barcode_image_url, ibotta_url, store_name, sort_order, expires_at, swap_id, product_id';
 
 /**
  * Fetch active featured items for the home screen carousel.

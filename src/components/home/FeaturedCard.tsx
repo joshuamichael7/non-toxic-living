@@ -71,9 +71,9 @@ export function FeaturedCard({ item }: FeaturedCardProps) {
     setShowBarcode(!showBarcode);
   };
 
-  const isOnline = item.redemption_type === 'online';
-  const isInStore = item.redemption_type === 'in_store';
-  const isBoth = item.redemption_type === 'both';
+  const isOnline = item.redeemable_online;
+  const isInStore = item.redeemable_in_store;
+  const isIbotta = item.redeemable_ibotta;
   const isCoupon = item.type === 'coupon';
 
   // Determine button label
@@ -168,8 +168,8 @@ export function FeaturedCard({ item }: FeaturedCardProps) {
       {/* Spacer if no discount text */}
       {!item.discount_text && <View style={{ height: 6 }} />}
 
-      {/* Primary action button */}
-      {(!isCoupon || isOnline || isBoth) && (
+      {/* Primary action button (online) */}
+      {(!isCoupon || isOnline) && (
         <Pressable
           onPress={handleAction}
           style={{
@@ -183,7 +183,7 @@ export function FeaturedCard({ item }: FeaturedCardProps) {
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.25,
             shadowRadius: 8,
-            marginBottom: isCoupon && isBoth ? 8 : 0,
+            marginBottom: isCoupon && (isInStore || isIbotta) ? 8 : 0,
           }}
         >
           <Ionicons name={getButtonIcon()} size={16} color="white" style={{ marginRight: 6 }} />
@@ -193,50 +193,51 @@ export function FeaturedCard({ item }: FeaturedCardProps) {
         </Pressable>
       )}
 
-      {/* In-store only button (for coupons) */}
+      {/* In-store button */}
       {isCoupon && isInStore && (
         <Pressable
           onPress={handleInStoreRedeem}
           style={{
-            backgroundColor: colors.oxygen,
+            backgroundColor: isOnline ? 'transparent' : colors.oxygen,
             borderRadius: 14,
             paddingVertical: 12,
             alignItems: 'center',
             flexDirection: 'row',
             justifyContent: 'center',
+            borderWidth: isOnline ? 1.5 : 0,
+            borderColor: colors.oxygen,
+            marginBottom: isIbotta ? 8 : 0,
           }}
         >
-          <Ionicons name="storefront-outline" size={16} color="white" style={{ marginRight: 6 }} />
-          <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>
+          <Ionicons name="storefront-outline" size={16} color={isOnline ? colors.oxygen : 'white'} style={{ marginRight: 6 }} />
+          <Text style={{ color: isOnline ? colors.oxygen : 'white', fontWeight: '700', fontSize: 14 }}>
             {t('deals.showAtCheckout')}
           </Text>
         </Pressable>
       )}
 
-      {/* Secondary in-store button (for coupon type=both) */}
-      {isCoupon && isBoth && (
+      {/* Ibotta cashback button */}
+      {isCoupon && isIbotta && item.ibotta_url && (
         <Pressable
-          onPress={handleInStoreRedeem}
+          onPress={() => { trackClick(item.id); Linking.openURL(item.ibotta_url!); }}
           style={{
-            backgroundColor: 'transparent',
+            backgroundColor: '#F97316',
             borderRadius: 14,
             paddingVertical: 12,
             alignItems: 'center',
             flexDirection: 'row',
             justifyContent: 'center',
-            borderWidth: 1.5,
-            borderColor: colors.oxygen,
           }}
         >
-          <Ionicons name="storefront-outline" size={16} color={colors.oxygen} style={{ marginRight: 6 }} />
-          <Text style={{ color: colors.oxygen, fontWeight: '700', fontSize: 14 }}>
-            {t('deals.showAtCheckout')}
+          <Ionicons name="cash-outline" size={16} color="white" style={{ marginRight: 6 }} />
+          <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>
+            {t('deals.getCashback')}
           </Text>
         </Pressable>
       )}
 
       {/* Expanded barcode/code display for in-store */}
-      {showBarcode && isCoupon && (isInStore || isBoth) && (
+      {showBarcode && isCoupon && isInStore && (
         <View style={{
           marginTop: 12,
           backgroundColor: 'white',

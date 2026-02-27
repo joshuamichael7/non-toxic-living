@@ -48,9 +48,9 @@ export function SwapDealBanner({ deals }: SwapDealBannerProps) {
     <View style={{ gap: 12 }}>
       {deals.map((deal) => {
         const isCopied = copiedId === deal.id;
-        const isOnline = deal.redemption_type === 'online' || deal.redemption_type === 'both';
-        const isInStore = deal.redemption_type === 'in_store' || deal.redemption_type === 'both';
-        const isIbotta = deal.redemption_type === 'ibotta';
+        const isOnline = deal.redeemable_online;
+        const isInStore = deal.redeemable_in_store;
+        const isIbotta = deal.redeemable_ibotta;
 
         return (
           <View
