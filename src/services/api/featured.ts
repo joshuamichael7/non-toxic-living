@@ -15,6 +15,7 @@ export interface FeaturedItem {
   badge_text: string | null;
   redemption_type: string;
   barcode_image_url: string | null;
+  ibotta_url: string | null;
   store_name: string | null;
   sort_order: number;
   expires_at: string | null;
@@ -27,7 +28,7 @@ export interface FeaturedDeal extends FeaturedItem {
   linked_product?: { id: string; name: string; brand: string; score: number; category: string } | null;
 }
 
-const FEATURED_FIELDS = 'id, type, title, subtitle, brand_name, description, image_url, action_url, action_label, coupon_code, discount_text, badge_text, redemption_type, barcode_image_url, store_name, sort_order, expires_at, swap_id, product_id';
+const FEATURED_FIELDS = 'id, type, title, subtitle, brand_name, description, image_url, action_url, action_label, coupon_code, discount_text, badge_text, redemption_type, barcode_image_url, ibotta_url, store_name, sort_order, expires_at, swap_id, product_id';
 
 /**
  * Fetch active featured items for the home screen carousel.
@@ -115,6 +116,24 @@ export async function getDealsForProduct(
     }
   }
   return combined.slice(0, 5);
+}
+
+/**
+ * Fetch deals linked to a specific swap.
+ * Used by swap detail modals to show relevant deals/coupons.
+ */
+export async function getDealsForSwap(swapId: string): Promise<FeaturedDeal[]> {
+  const { data, error } = await (supabase as any)
+    .from('featured_items')
+    .select(`${FEATURED_FIELDS}, linked_swap:swaps!swap_id(id, name, brand, score, category)`)
+    .eq('swap_id', swapId)
+    .limit(5);
+
+  if (error) {
+    console.error('[Featured] Failed to fetch deals for swap:', error);
+    return [];
+  }
+  return data || [];
 }
 
 /**

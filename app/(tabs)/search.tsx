@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import { searchCombined } from '@/services/api/analyze';
 import type { CombinedSearchResult } from '@/services/api/analyze';
-import { getFeaturedDeals, getDealsForSwapIds, trackClick, type FeaturedDeal } from '@/services/api/featured';
+import { getFeaturedDeals, getDealsForSwapIds, getDealsForSwap, trackClick, type FeaturedDeal } from '@/services/api/featured';
+import { SwapDealBanner } from '@/components/swaps/SwapDealBanner';
 
 // Aerogel Design System Colors
 const colors = {
@@ -38,6 +39,8 @@ export default function SearchScreen() {
   const [dealsResults, setDealsResults] = useState<FeaturedDeal[]>([]);
   const [showingDeals, setShowingDeals] = useState(false);
   const [dealMap, setDealMap] = useState<Map<string, { discount_text: string | null; badge_text: string | null; coupon_code: string | null }>>(new Map());
+  const [swapDeals, setSwapDeals] = useState<FeaturedDeal[]>([]);
+  const [loadingSwapDeals, setLoadingSwapDeals] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -90,6 +93,9 @@ export default function SearchScreen() {
   const handleResultPress = (item: CombinedSearchResult) => {
     if (item.source === 'swap') {
       setSelectedSwap(item);
+      setSwapDeals([]);
+      setLoadingSwapDeals(true);
+      getDealsForSwap(item.id).then(setSwapDeals).catch(() => {}).finally(() => setLoadingSwapDeals(false));
     } else {
       router.push(`/result/product-${item.id}`);
     }
@@ -658,6 +664,29 @@ export default function SearchScreen() {
                       <Text style={{ fontSize: 13, fontWeight: '600', color: colors.safe }}>{badge}</Text>
                     </View>
                   ))}
+                </View>
+              )}
+
+              {/* Deals & Discounts */}
+              {swapDeals.length > 0 && (
+                <View style={{ marginBottom: 20 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: colors.purpleGlow,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="pricetag" size={16} color={colors.purple} />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('coupon.deals')}
+                    </Text>
+                  </View>
+                  <SwapDealBanner deals={swapDeals} />
                 </View>
               )}
             </ScrollView>

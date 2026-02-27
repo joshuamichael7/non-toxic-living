@@ -182,9 +182,13 @@ export function CouponsTable({ coupons, totalPages, currentPage, search, categor
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                     coupon.redemption_type === 'online' ? 'bg-blue-50 text-blue-700' :
                     coupon.redemption_type === 'in_store' ? 'bg-amber-50 text-amber-700' :
+                    coupon.redemption_type === 'ibotta' ? 'bg-orange-50 text-orange-700' :
                     'bg-purple-50 text-purple-700'
                   }`}>
-                    {coupon.redemption_type === 'online' ? 'Online' : coupon.redemption_type === 'in_store' ? 'In-Store' : 'Both'}
+                    {coupon.redemption_type === 'online' ? 'Online' :
+                     coupon.redemption_type === 'in_store' ? 'In-Store' :
+                     coupon.redemption_type === 'ibotta' ? 'Ibotta' :
+                     'Both'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">

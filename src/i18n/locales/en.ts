@@ -3,6 +3,7 @@ export default {
   'tab.home': 'Home',
   'tab.scan': 'Scan',
   'tab.search': 'Search',
+  'tab.deals': 'Deals',
   'tab.profile': 'Profile',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': 'Start Scanning',
   'home.categories': 'Categories',
   'home.insights': 'Insights',
+  'home.topDeals': 'Top Deals',
   'home.recentScans': 'Recent Scans',
   'home.seeAll': 'See all',
 
@@ -277,11 +279,27 @@ export default {
 
   // Deals
   'deals.title': 'Deals & Discounts',
+  'deals.subtitle': 'Save money on safer products',
+  'deals.savingsValueProp': 'Members save an average of $15/month on healthier alternatives',
+  'deals.howItWorks': 'How It Works',
+  'deals.howStep1Title': 'Browse Deals',
+  'deals.howStep1Desc': 'Find discounts on verified safe products',
+  'deals.howStep2Title': 'Copy Code or Tap Link',
+  'deals.howStep2Desc': 'Use promo codes online or show at checkout',
+  'deals.howStep3Title': 'Save Money',
+  'deals.howStep3Desc': 'Enjoy healthier products for less',
+  'deals.allDeals': 'All Deals',
+  'deals.emptyTitle': 'Deals Coming Soon',
+  'deals.emptyDesc': 'We\'re partnering with top non-toxic brands to bring you exclusive discounts',
+  'deals.filterAll': 'All',
+  'deals.seeAll': 'See All',
   'deals.shopNow': 'Shop Now',
   'deals.showAtCheckout': 'Show at Checkout',
   'deals.useInStore': 'Use In Store',
   'deals.shopOnline': 'Shop Online',
   'deals.codeCopied': 'Code Copied!',
+  'deals.getCashback': 'Get Cashback',
+  'deals.ibottaDesc': 'Earn cashback on this purchase via Ibotta',
   'deals.noneAvailable': 'No deals available right now',
 
   // Featured

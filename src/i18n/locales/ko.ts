@@ -3,6 +3,7 @@ export default {
   'tab.home': '홈',
   'tab.scan': '스캔',
   'tab.search': '검색',
+  'tab.deals': '딜',
   'tab.profile': '프로필',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': '스캔 시작',
   'home.categories': '카테고리',
   'home.insights': '인사이트',
+  'home.topDeals': '인기 딜',
   'home.recentScans': '최근 스캔',
   'home.seeAll': '전체 보기',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': '특가 및 할인',
+  'deals.subtitle': '더 안전한 제품을 절약하세요',
+  'deals.savingsValueProp': '회원들은 월 평균 $15를 더 건강한 대안에서 절약합니다',
+  'deals.howItWorks': '이용 방법',
+  'deals.howStep1Title': '딜 둘러보기',
+  'deals.howStep1Desc': '인증된 안전 제품 할인 찾기',
+  'deals.howStep2Title': '코드 복사 또는 링크 탭',
+  'deals.howStep2Desc': '온라인 프로모 코드 사용 또는 결제 시 제시',
+  'deals.howStep3Title': '절약하기',
+  'deals.howStep3Desc': '더 건강한 제품을 더 저렴하게',
+  'deals.allDeals': '모든 딜',
+  'deals.emptyTitle': '곧 딜이 옵니다',
+  'deals.emptyDesc': '최고의 무독성 브랜드와 파트너십을 맺어 독점 할인을 제공합니다',
+  'deals.filterAll': '전체',
+  'deals.seeAll': '모두 보기',
   'deals.shopNow': '지금 구매',
   'deals.showAtCheckout': '결제 시 제시',
   'deals.useInStore': '매장에서 사용',
   'deals.shopOnline': '온라인 구매',
   'deals.codeCopied': '코드가 복사되었습니다!',
+  'deals.getCashback': '캐시백 받기',
+  'deals.ibottaDesc': 'Ibotta를 통해 이 구매에서 캐시백을 받으세요',
   'deals.noneAvailable': '현재 이용 가능한 딜이 없습니다',
 
   // Featured

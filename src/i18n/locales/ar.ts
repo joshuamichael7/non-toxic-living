@@ -3,6 +3,7 @@ export default {
   'tab.home': 'الرئيسية',
   'tab.scan': 'مسح',
   'tab.search': 'بحث',
+  'tab.deals': 'العروض',
   'tab.profile': 'الملف الشخصي',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': 'ابدأ المسح',
   'home.categories': 'الفئات',
   'home.insights': 'رؤى',
+  'home.topDeals': 'أفضل العروض',
   'home.recentScans': 'عمليات المسح الأخيرة',
   'home.seeAll': 'عرض الكل',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': 'العروض والخصومات',
+  'deals.subtitle': 'وفّر المال على منتجات أكثر أماناً',
+  'deals.savingsValueProp': 'يوفر الأعضاء ما متوسطه $15/شهرياً على بدائل أكثر صحة',
+  'deals.howItWorks': 'كيف يعمل',
+  'deals.howStep1Title': 'تصفح العروض',
+  'deals.howStep1Desc': 'اعثر على خصومات على منتجات آمنة مُوثّقة',
+  'deals.howStep2Title': 'انسخ الرمز أو اضغط على الرابط',
+  'deals.howStep2Desc': 'استخدم رموز الخصم عبر الإنترنت أو أظهرها عند الدفع',
+  'deals.howStep3Title': 'وفّر المال',
+  'deals.howStep3Desc': 'استمتع بمنتجات أكثر صحة بسعر أقل',
+  'deals.allDeals': 'جميع العروض',
+  'deals.emptyTitle': 'عروض قادمة قريباً',
+  'deals.emptyDesc': 'نحن نتشارك مع أفضل العلامات التجارية غير السامة لنقدم لك خصومات حصرية',
+  'deals.filterAll': 'الكل',
+  'deals.seeAll': 'عرض الكل',
   'deals.shopNow': 'تسوّق الآن',
   'deals.showAtCheckout': 'أظهر عند الدفع',
   'deals.useInStore': 'استخدم في المتجر',
   'deals.shopOnline': 'تسوّق عبر الإنترنت',
   'deals.codeCopied': 'تم نسخ الرمز!',
+  'deals.getCashback': 'احصل على استرداد نقدي',
+  'deals.ibottaDesc': 'احصل على استرداد نقدي على هذه المشتريات عبر Ibotta',
   'deals.noneAvailable': 'لا توجد عروض متاحة حالياً',
 
   // Featured

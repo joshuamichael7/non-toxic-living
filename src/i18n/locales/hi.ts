@@ -3,6 +3,7 @@ export default {
   'tab.home': 'होम',
   'tab.scan': 'स्कैन',
   'tab.search': 'खोजें',
+  'tab.deals': 'ऑफर',
   'tab.profile': 'प्रोफ़ाइल',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': 'स्कैनिंग शुरू करें',
   'home.categories': 'श्रेणियां',
   'home.insights': 'जानकारी',
+  'home.topDeals': 'शीर्ष ऑफर',
   'home.recentScans': 'हाल के स्कैन',
   'home.seeAll': 'सभी देखें',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': 'ऑफर और छूट',
+  'deals.subtitle': 'सुरक्षित उत्पादों पर पैसे बचाएं',
+  'deals.savingsValueProp': 'सदस्य स्वस्थ विकल्पों पर औसतन $15/माह बचाते हैं',
+  'deals.howItWorks': 'यह कैसे काम करता है',
+  'deals.howStep1Title': 'ऑफर ब्राउज़ करें',
+  'deals.howStep1Desc': 'प्रमाणित सुरक्षित उत्पादों पर छूट खोजें',
+  'deals.howStep2Title': 'कोड कॉपी करें या लिंक टैप करें',
+  'deals.howStep2Desc': 'ऑनलाइन प्रोमो कोड का उपयोग करें या चेकआउट पर दिखाएं',
+  'deals.howStep3Title': 'पैसे बचाएं',
+  'deals.howStep3Desc': 'स्वस्थ उत्पादों का कम कीमत में आनंद लें',
+  'deals.allDeals': 'सभी ऑफर',
+  'deals.emptyTitle': 'ऑफर जल्द आ रहे हैं',
+  'deals.emptyDesc': 'हम शीर्ष गैर-विषाक्त ब्रांडों के साथ साझेदारी कर रहे हैं ताकि आपको विशेष छूट मिल सके',
+  'deals.filterAll': 'सभी',
+  'deals.seeAll': 'सभी देखें',
   'deals.shopNow': 'अभी खरीदें',
   'deals.showAtCheckout': 'चेकआउट पर दिखाएं',
   'deals.useInStore': 'स्टोर में उपयोग करें',
   'deals.shopOnline': 'ऑनलाइन खरीदें',
   'deals.codeCopied': 'कोड कॉपी किया गया!',
+  'deals.getCashback': 'कैशबैक प्राप्त करें',
+  'deals.ibottaDesc': 'Ibotta के माध्यम से इस खरीदारी पर कैशबैक प्राप्त करें',
   'deals.noneAvailable': 'अभी कोई डील उपलब्ध नहीं है',
 
   // Featured

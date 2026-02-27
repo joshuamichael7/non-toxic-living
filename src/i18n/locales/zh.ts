@@ -3,6 +3,7 @@ export default {
   'tab.home': '首页',
   'tab.scan': '扫描',
   'tab.search': '搜索',
+  'tab.deals': '优惠',
   'tab.profile': '个人资料',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': '开始扫描',
   'home.categories': '分类',
   'home.insights': '资讯',
+  'home.topDeals': '热门优惠',
   'home.recentScans': '最近扫描',
   'home.seeAll': '查看全部',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': '优惠和折扣',
+  'deals.subtitle': '在更安全的产品上省钱',
+  'deals.savingsValueProp': '会员每月平均节省$15选购更健康的替代品',
+  'deals.howItWorks': '使用方法',
+  'deals.howStep1Title': '浏览优惠',
+  'deals.howStep1Desc': '找到经过验证的安全产品折扣',
+  'deals.howStep2Title': '复制代码或点击链接',
+  'deals.howStep2Desc': '使用在线优惠码或在结账时出示',
+  'deals.howStep3Title': '省钱',
+  'deals.howStep3Desc': '以更低价格享受更健康的产品',
+  'deals.allDeals': '所有优惠',
+  'deals.emptyTitle': '优惠即将推出',
+  'deals.emptyDesc': '我们正在与顶级无毒品牌合作，为您带来独家折扣',
+  'deals.filterAll': '全部',
+  'deals.seeAll': '查看全部',
   'deals.shopNow': '立即购买',
   'deals.showAtCheckout': '结账时出示',
   'deals.useInStore': '到店使用',
   'deals.shopOnline': '在线购买',
   'deals.codeCopied': '优惠码已复制！',
+  'deals.getCashback': '获取返现',
+  'deals.ibottaDesc': '通过Ibotta在此次购买中获得返现',
   'deals.noneAvailable': '目前没有可用的优惠',
 
   // Featured

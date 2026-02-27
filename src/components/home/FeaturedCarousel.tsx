@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, Text, ScrollView, Pressable, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { getActiveFeaturedItems, trackImpression, type FeaturedItem } from '@/services/api/featured';
@@ -7,13 +7,18 @@ import { FeaturedCard } from './FeaturedCard';
 
 const colors = {
   inkSecondary: '#64748B',
+  oxygen: '#0EA5E9',
 };
 
 const CARD_WIDTH = 280;
 const GAP = 12;
 const AUTO_SCROLL_INTERVAL = 5000;
 
-export function FeaturedCarousel() {
+interface FeaturedCarouselProps {
+  onSeeAll?: () => void;
+}
+
+export function FeaturedCarousel({ onSeeAll }: FeaturedCarouselProps) {
   const { t } = useTranslation();
   const [items, setItems] = useState<FeaturedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,17 +94,24 @@ export function FeaturedCarousel() {
 
   return (
     <View style={{ marginBottom: 24 }}>
-      <Text style={{
-        fontSize: 13,
-        fontWeight: '600',
-        color: colors.inkSecondary,
-        paddingHorizontal: 24,
-        marginBottom: 14,
-        letterSpacing: 0.5,
-        textTransform: 'uppercase',
-      }}>
-        {t('featured.title')}
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginBottom: 14 }}>
+        <Text style={{
+          fontSize: 13,
+          fontWeight: '600',
+          color: colors.inkSecondary,
+          letterSpacing: 0.5,
+          textTransform: 'uppercase',
+        }}>
+          {t('home.topDeals')}
+        </Text>
+        {onSeeAll && (
+          <Pressable onPress={onSeeAll}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.oxygen }}>
+              {t('deals.seeAll')}
+            </Text>
+          </Pressable>
+        )}
+      </View>
       <ScrollView
         ref={scrollRef}
         horizontal

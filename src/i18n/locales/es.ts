@@ -3,6 +3,7 @@ export default {
   'tab.home': 'Inicio',
   'tab.scan': 'Escanear',
   'tab.search': 'Buscar',
+  'tab.deals': 'Ofertas',
   'tab.profile': 'Perfil',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': 'Empezar a escanear',
   'home.categories': 'Categorías',
   'home.insights': 'Información',
+  'home.topDeals': 'Mejores Ofertas',
   'home.recentScans': 'Escaneos recientes',
   'home.seeAll': 'Ver todo',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': 'Ofertas y Descuentos',
+  'deals.subtitle': 'Ahorra dinero en productos más seguros',
+  'deals.savingsValueProp': 'Los miembros ahorran un promedio de $15/mes en alternativas más saludables',
+  'deals.howItWorks': 'Cómo Funciona',
+  'deals.howStep1Title': 'Explora Ofertas',
+  'deals.howStep1Desc': 'Encuentra descuentos en productos seguros verificados',
+  'deals.howStep2Title': 'Copia el Código o Toca el Enlace',
+  'deals.howStep2Desc': 'Usa códigos promocionales en línea o muestra al pagar',
+  'deals.howStep3Title': 'Ahorra Dinero',
+  'deals.howStep3Desc': 'Disfruta de productos más saludables por menos',
+  'deals.allDeals': 'Todas las Ofertas',
+  'deals.emptyTitle': 'Ofertas Próximamente',
+  'deals.emptyDesc': 'Estamos asociándonos con las mejores marcas no tóxicas para traerte descuentos exclusivos',
+  'deals.filterAll': 'Todas',
+  'deals.seeAll': 'Ver Todas',
   'deals.shopNow': 'Comprar Ahora',
   'deals.showAtCheckout': 'Mostrar al Pagar',
   'deals.useInStore': 'Usar en Tienda',
   'deals.shopOnline': 'Comprar en Línea',
   'deals.codeCopied': '¡Código Copiado!',
+  'deals.getCashback': 'Obtener Reembolso',
+  'deals.ibottaDesc': 'Obtén reembolso en esta compra a través de Ibotta',
   'deals.noneAvailable': 'No hay ofertas disponibles en este momento',
 
   // Featured

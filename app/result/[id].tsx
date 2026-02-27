@@ -11,8 +11,9 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { StorePrompt } from '@/components/swaps/StorePrompt';
 import { getScanById, saveScanToList, getSwapsForProduct, getProductById } from '@/services/api/analyze';
 import { CouponCard } from '@/components/swaps/CouponCard';
-import { getDealsForProduct, type FeaturedDeal } from '@/services/api/featured';
+import { getDealsForProduct, getDealsForSwap, getDealsForSwapIds, type FeaturedDeal } from '@/services/api/featured';
 import { FeaturedCard } from '@/components/home/FeaturedCard';
+import { SwapDealBanner } from '@/components/swaps/SwapDealBanner';
 import type { AnalysisResult, Concern, Swap } from '@/services/api/analyze';
 
 // Aerogel Design System Colors
@@ -64,6 +65,8 @@ export default function ResultScreen() {
   const [filteredSwaps, setFilteredSwaps] = useState<Swap[] | null>(null);
   const [loadingSwaps, setLoadingSwaps] = useState(false);
   const [deals, setDeals] = useState<FeaturedDeal[]>([]);
+  const [swapDealMap, setSwapDealMap] = useState<Map<string, { discount_text: string | null; badge_text: string | null; coupon_code: string | null }>>(new Map());
+  const [swapDeals, setSwapDeals] = useState<FeaturedDeal[]>([]);
 
   // Load scan from DB when viewing a past scan, or product from products table
   useEffect(() => {
@@ -148,6 +151,17 @@ export default function ResultScreen() {
 
     if (productId || category) {
       getDealsForProduct(productId, category).then(setDeals).catch(() => {});
+    }
+  }, [id, dbResult, currentResult]);
+
+  // Fetch deal badges for swap recommendations
+  useEffect(() => {
+    const source = id === 'scan' && currentResult ? currentResult : dbResult;
+    if (!source?.swaps || source.swaps.length === 0) return;
+
+    const swapIds = source.swaps.map((s) => s.id).filter(Boolean);
+    if (swapIds.length > 0) {
+      getDealsForSwapIds(swapIds).then(setSwapDealMap).catch(() => {});
     }
   }, [id, dbResult, currentResult]);
 
@@ -591,10 +605,18 @@ export default function ResultScreen() {
             )}
 
             <View style={{ gap: 10 }}>
-              {(filteredSwaps || result.swaps).map((swap) => (
+              {(filteredSwaps || result.swaps).map((swap) => {
+                const deal = swap.id ? swapDealMap.get(swap.id) : undefined;
+                return (
                 <Pressable
                   key={swap.id}
-                  onPress={() => setSelectedSwap(swap)}
+                  onPress={() => {
+                    setSelectedSwap(swap);
+                    setSwapDeals([]);
+                    if (swap.id) {
+                      getDealsForSwap(swap.id).then(setSwapDeals).catch(() => {});
+                    }
+                  }}
                   style={{
                     backgroundColor: colors.glassSolid,
                     borderRadius: 20,
@@ -624,7 +646,21 @@ export default function ResultScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 15, fontWeight: '600', color: colors.ink, marginBottom: 2 }}>{swap.name}</Text>
-                    <Text style={{ fontSize: 13, color: colors.inkSecondary }}>{swap.brand}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 13, color: colors.inkSecondary }}>{swap.brand}</Text>
+                      {deal && (
+                        <View style={{
+                          backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                          borderRadius: 6,
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                        }}>
+                          <Text style={{ fontSize: 10, fontWeight: '700', color: '#8B5CF6' }}>
+                            {deal.discount_text || 'DEAL'}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
                   <View style={{
                     width: 36,
@@ -637,7 +673,8 @@ export default function ResultScreen() {
                     <Ionicons name="arrow-forward" size={18} color={colors.oxygen} />
                   </View>
                 </Pressable>
-              ))}
+                );
+              })}
             </View>
           </View>
         )}
@@ -908,6 +945,29 @@ export default function ResultScreen() {
                       <Text style={{ fontSize: 13, fontWeight: '600', color: colors.safe }}>{badge}</Text>
                     </View>
                   ))}
+                </View>
+              )}
+
+              {/* Deals & Discounts for this swap */}
+              {swapDeals.length > 0 && (
+                <View style={{ marginBottom: 20 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                    <View style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 10,
+                      backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 10,
+                    }}>
+                      <Ionicons name="pricetag" size={16} color="#8B5CF6" />
+                    </View>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                      {t('coupon.deals')}
+                    </Text>
+                  </View>
+                  <SwapDealBanner deals={swapDeals} />
                 </View>
               )}
             </ScrollView>

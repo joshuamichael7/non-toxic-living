@@ -3,6 +3,7 @@ export default {
   'tab.home': 'ホーム',
   'tab.scan': 'スキャン',
   'tab.search': '検索',
+  'tab.deals': 'お得情報',
   'tab.profile': 'プロフィール',
 
   // Home screen
@@ -14,6 +15,7 @@ export default {
   'home.startScanning': 'スキャン開始',
   'home.categories': 'カテゴリー',
   'home.insights': 'インサイト',
+  'home.topDeals': '注目のお得情報',
   'home.recentScans': '最近のスキャン',
   'home.seeAll': 'すべて見る',
 
@@ -210,11 +212,27 @@ export default {
 
   // Deals
   'deals.title': 'お得情報と割引',
+  'deals.subtitle': 'より安全な製品でお得に',
+  'deals.savingsValueProp': '会員は月平均$15をより健康的な代替品で節約しています',
+  'deals.howItWorks': '利用方法',
+  'deals.howStep1Title': 'お得情報を閲覧',
+  'deals.howStep1Desc': '認証済みの安全な製品の割引を見つける',
+  'deals.howStep2Title': 'コードをコピーまたはリンクをタップ',
+  'deals.howStep2Desc': 'オンラインでプロモコードを使用またはレジで提示',
+  'deals.howStep3Title': '節約する',
+  'deals.howStep3Desc': 'より健康的な製品をお得に',
+  'deals.allDeals': 'すべてのお得情報',
+  'deals.emptyTitle': 'まもなくお得情報が登場',
+  'deals.emptyDesc': 'トップの無毒ブランドと提携して限定割引をお届けします',
+  'deals.filterAll': 'すべて',
+  'deals.seeAll': 'すべて見る',
   'deals.shopNow': '今すぐ購入',
   'deals.showAtCheckout': 'レジで提示',
   'deals.useInStore': '店舗で使用',
   'deals.shopOnline': 'オンラインで購入',
   'deals.codeCopied': 'コードをコピーしました！',
+  'deals.getCashback': 'キャッシュバックを獲得',
+  'deals.ibottaDesc': 'Ibottaを通じてこの購入でキャッシュバックを獲得',
   'deals.noneAvailable': '現在利用可能なディールはありません',
 
   // Featured
