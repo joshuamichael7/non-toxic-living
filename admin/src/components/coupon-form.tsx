@@ -79,14 +79,25 @@ const emptyCoupon: CouponData = {
   store_name: '',
 };
 
+interface Prefill {
+  product_id: string;
+  brand_name: string;
+  category: string;
+}
+
 interface Props {
   initialData?: CouponData;
   isEditing?: boolean;
+  prefill?: Prefill;
 }
 
-export function CouponForm({ initialData, isEditing }: Props) {
+export function CouponForm({ initialData, isEditing, prefill }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<CouponData>(initialData || emptyCoupon);
+  const [form, setForm] = useState<CouponData>(() => {
+    if (initialData) return initialData;
+    if (prefill) return { ...emptyCoupon, product_id: prefill.product_id, brand_name: prefill.brand_name, category: prefill.category };
+    return emptyCoupon;
+  });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,14 +109,15 @@ export function CouponForm({ initialData, isEditing }: Props) {
   const [searchingSwaps, setSearchingSwaps] = useState(false);
   const [showSwapDropdown, setShowSwapDropdown] = useState(false);
 
-  // Load linked swap on mount if editing
+  // Load linked swap on mount if editing or pre-filled
+  const linkedProductId = initialData?.product_id || prefill?.product_id;
   useEffect(() => {
-    if (initialData?.product_id) {
+    if (linkedProductId) {
       const supabase = createClient();
       supabase
         .from('swaps')
         .select('id, name, brand, category, score')
-        .eq('id', initialData.product_id)
+        .eq('id', linkedProductId)
         .single()
         .then(({ data }) => {
           if (data) {
@@ -114,7 +126,7 @@ export function CouponForm({ initialData, isEditing }: Props) {
           }
         });
     }
-  }, [initialData?.product_id]);
+  }, [linkedProductId]);
 
   const searchSwaps = useCallback(async (query: string) => {
     if (query.length < 2) {
