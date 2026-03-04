@@ -17,6 +17,9 @@ const C = {
   safe: '#10B981',
   safeLight: 'rgba(16,185,129,0.15)',
   safeSolid: '#D1FAE5',
+  okay: '#84CC16',
+  okayLight: 'rgba(132,204,22,0.15)',
+  okaySolid: 'rgba(132,204,22,0.25)',
   caution: '#F59E0B',
   cautionLight: 'rgba(245,158,11,0.15)',
   cautionSolid: '#FEF3C7',
@@ -50,9 +53,10 @@ const SCREENS: ScreenDef[] = [
   { id: 'plan', name: 'Choose Plan', tab: null },
 ];
 
-function verdictColor(score: number) { return score <= 33 ? C.toxic : score <= 66 ? C.caution : C.safe; }
-function verdictBg(score: number) { return score <= 33 ? C.toxicSolid : score <= 66 ? C.cautionSolid : C.safeSolid; }
-function verdictLabel(score: number) { return score <= 33 ? 'TOXIC' : score <= 66 ? 'CAUTION' : 'SAFE'; }
+function verdictColor(score: number) { return score <= 33 ? C.toxic : score <= 66 ? C.caution : score <= 79 ? C.okay : C.safe; }
+function verdictBg(score: number) { return score <= 33 ? C.toxicSolid : score <= 66 ? C.cautionSolid : score <= 79 ? C.okaySolid : C.safeSolid; }
+function verdictLight(score: number) { return score <= 33 ? C.toxicLight : score <= 66 ? C.cautionLight : score <= 79 ? C.okayLight : C.safeLight; }
+function verdictLabel(score: number) { return score <= 33 ? 'TOXIC' : score <= 66 ? 'CAUTION' : score <= 79 ? 'OKAY' : 'SAFE'; }
 
 const font = 'var(--font-manrope), system-ui, -apple-system, sans-serif';
 
@@ -308,37 +312,31 @@ function HomeScreen({ width }: { width: number }) {
         </div>
       </div>
 
-      {/* Featured peek — naturally clipped by overflow */}
+      {/* Featured Swaps peek */}
       <div>
-        <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured</div>
+        <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:12 }}>Featured Swaps</div>
         <div style={{ display:'flex', gap:12, overflow:'hidden' }}>
-          <GlassCard style={{ width:260, minWidth:260, padding:20, borderRadius:24 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-              <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
-              <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>25% OFF</span>
-            </div>
-            <div style={{ width:'100%', height:120, borderRadius:12, marginBottom:12, background:'#F5F5F5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-              <img src="/screenshots/lodge-skillet.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'contain' }} />
-            </div>
-            <div style={{ fontSize:11, fontWeight:600, letterSpacing:0.5, color:C.inkSecondary, textTransform:'uppercase' as const, marginBottom:4 }}>AMAZON</div>
-            <div style={{ fontSize:15, fontWeight:700, color:C.ink, lineHeight:'1.3', marginBottom:4 }}>12-Inch Cast Iron Skillet</div>
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
-              <span style={{ fontSize:16, fontWeight:800, color:C.oxygen }}>$29.99</span>
-              <span style={{ fontSize:13, color:C.inkMuted, textDecoration:'line-through' as const }}>$39.99</span>
-            </div>
-            <button style={{ width:'100%', padding:'12px 0', borderRadius:14, background:C.oxygen, color:C.white, border:'none', fontSize:14, fontWeight:700, fontFamily:font, display:'flex', alignItems:'center', justifyContent:'center', gap:6, boxShadow:`0 4px 8px ${C.oxygenGlow}` }}>
-              <IconCart size={16} /> Shop Now
-            </button>
-          </GlassCard>
-          <GlassCard style={{ width:260, minWidth:260, padding:20, borderRadius:24 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-              <span style={{ fontSize:10, fontWeight:700, letterSpacing:0.5, color:C.safe, background:C.safeLight, padding:'4px 8px', borderRadius:8 }}>FEATURED</span>
-              <span style={{ fontSize:12, fontWeight:700, color:C.oxygen }}>20% OFF</span>
-            </div>
-            <div style={{ width:'100%', height:120, borderRadius:12, background:'#F5F5F5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-              <img src="/screenshots/dr-bronners-soap.png" alt="" style={{ height:'100%', objectFit:'contain' }} />
-            </div>
-          </GlassCard>
+          {[
+            { name: 'Castile Soap Concentrate', brand: "Dr. Bronner's", score: 96 },
+            { name: 'Free & Clear Detergent', brand: 'Seventh Generation', score: 88 },
+          ].map((swap, i) => (
+            <GlassCard key={i} style={{ width:240, minWidth:240, padding:20, borderRadius:24 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+                <ScoreBadge score={swap.score} size={52} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:C.ink, lineHeight:1.3 }}>{swap.name}</div>
+                  <div style={{ fontSize:12, color:C.inkSecondary, marginTop:2 }}>{swap.brand}</div>
+                </div>
+              </div>
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap' as const }}>
+                {['Amazon', 'Target'].map(s => (
+                  <span key={s} style={{ padding:'6px 12px', borderRadius:20, background:C.oxygen, fontSize:12, fontWeight:700, color:C.white }}>
+                    {s} →
+                  </span>
+                ))}
+              </div>
+            </GlassCard>
+          ))}
         </div>
       </div>
     </div>
@@ -437,7 +435,7 @@ function HomeDealsScreen({ width }: { width: number }) {
               <span style={{
                 fontSize:12, fontWeight:600,
                 color: verdictColor(scan.score),
-                background: scan.score <= 33 ? C.toxicLight : scan.score <= 66 ? C.cautionLight : C.safeLight,
+                background: verdictLight(scan.score),
                 border: `1px solid ${verdictColor(scan.score)}`,
                 borderRadius:10, padding:'6px 12px',
               }}>{verdictLabel(scan.score)}</span>
@@ -612,8 +610,11 @@ function SwapDetailScreen({ width }: { width: number }) {
             <span style={{ fontSize:13, fontWeight:600, letterSpacing:0.3, color:C.inkSecondary, textTransform:'uppercase' as const }}>Available At</span>
           </div>
           <div style={{ display:'flex', flexWrap:'wrap' as const, gap:8 }}>
-            {['Amazon', 'Target', 'Whole Foods', 'Thrive Market'].map(s => (
-              <span key={s} style={{ padding:'8px 14px', borderRadius:12, background:C.canvas, border:`1px solid ${C.glassBorder}`, fontSize:13, fontWeight:500, color:C.ink }}>{s}</span>
+            {['Amazon', 'Target', 'Thrive Market'].map(s => (
+              <span key={s} style={{ padding:'10px 16px', borderRadius:20, background:C.oxygen, fontSize:14, fontWeight:700, color:C.white, display:'inline-flex', alignItems:'center', gap:4, boxShadow:`0 3px 6px ${C.oxygenGlow}` }}>{s} →</span>
+            ))}
+            {['Whole Foods'].map(s => (
+              <span key={s} style={{ padding:'10px 16px', borderRadius:20, background:C.glass, border:`1px solid ${C.glassBorder}`, fontSize:14, fontWeight:500, color:C.inkMuted }}>{s}</span>
             ))}
           </div>
         </GlassCard>
@@ -753,8 +754,8 @@ function ResultSafeScreen({ width }: { width: number }) {
             Dr. Bronner&apos;s Pure Castile Soap
           </div>
           <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:12 }}>Dr. Bronner&apos;s</div>
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}33` }}>
-            <IconShieldCheck color={C.safe} size={16} />
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}` }}>
+            <IconCheck color={C.safe} size={16} />
             <span style={{ fontSize:14, fontWeight:700, color:C.safe }}>Safe</span>
           </div>
         </GlassCard>
@@ -828,9 +829,9 @@ function ResultToxicScreen({ width }: { width: number }) {
             Tide Original Detergent
           </div>
           <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:10 }}>Procter &amp; Gamble</div>
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.toxicLight, border:`1px solid ${C.toxic}33` }}>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:12, background:C.toxicLight, border:`1px solid ${C.toxic}` }}>
             <IconWarning color={C.toxic} size={16} />
-            <span style={{ fontSize:14, fontWeight:700, color:C.toxic }}>Avoid</span>
+            <span style={{ fontSize:14, fontWeight:700, color:C.toxic }}>Toxic</span>
           </div>
         </GlassCard>
 
@@ -865,18 +866,27 @@ function ResultToxicScreen({ width }: { width: number }) {
           <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:10 }}>Better Alternatives</div>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {[
-              { name: 'Free & Clear Detergent', brand: 'Seventh Generation', score: 88 },
-              { name: 'Concentrate Cleaner', brand: 'Branch Basics', score: 95 },
-              { name: 'Laundry Powder', brand: "Molly\u2019s Suds", score: 90 },
+              { name: 'Free & Clear Detergent', brand: 'Seventh Generation', score: 88, stores: ['Amazon', 'Target'] },
+              { name: 'Concentrate Cleaner', brand: 'Branch Basics', score: 95, stores: ['Amazon'] },
+              { name: 'Laundry Powder', brand: "Molly\u2019s Suds", score: 90, stores: ['Amazon', 'Walmart'] },
             ].map((swap, i) => (
-              <GlassCard key={i} style={{ padding:12, borderRadius:18, display:'flex', alignItems:'center', gap:12 }}>
-                <ScoreBadge score={swap.score} size={46} />
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:14, fontWeight:600, color:C.ink }}>{swap.name}</div>
-                  <div style={{ fontSize:12, color:C.inkSecondary, marginTop:2 }}>{swap.brand}</div>
+              <GlassCard key={i} style={{ padding:14, borderRadius:18 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
+                  <ScoreBadge score={swap.score} size={52} />
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:C.ink }}>{swap.name}</div>
+                    <div style={{ fontSize:12, color:C.inkSecondary, marginTop:2 }}>{swap.brand}</div>
+                  </div>
+                  <div style={{ width:34, height:34, borderRadius:11, background:C.oxygenGlow, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <IconArrowRight color={C.white} size={16} />
+                  </div>
                 </div>
-                <div style={{ width:34, height:34, borderRadius:11, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <IconArrowRight color={C.oxygen} size={16} />
+                <div style={{ display:'flex', gap:6 }}>
+                  {swap.stores.map(s => (
+                    <span key={s} style={{ padding:'6px 12px', borderRadius:20, background:C.oxygen, fontSize:12, fontWeight:700, color:C.white }}>
+                      {s} →
+                    </span>
+                  ))}
                 </div>
               </GlassCard>
             ))}
