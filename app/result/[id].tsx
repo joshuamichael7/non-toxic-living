@@ -8,7 +8,9 @@ import * as Haptics from 'expo-haptics';
 
 import { useScanStore } from '@/stores/useScanStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { StorePrompt } from '@/components/swaps/StorePrompt';
+import { STORE_SEARCH_MAP, STORES_WITH_INVENTORY } from '@/constants/stores';
 import { getScanById, saveScanToList, getSwapsForProduct, getProductById } from '@/services/api/analyze';
 import { CouponCard } from '@/components/swaps/CouponCard';
 import { getDealsForProduct, getDealsForSwap, getDealsForSwapIds, type FeaturedDeal } from '@/services/api/featured';
@@ -49,6 +51,7 @@ export default function ResultScreen() {
   const { currentResult, clearScan } = useScanStore();
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const { preferredStore, setPreferredStore } = usePreferencesStore();
 
   const verdictConfig = {
     safe: { bg: colors.safeLight, color: colors.safe, borderColor: colors.safe, label: t('verdict.safe'), icon: 'checkmark-circle' as const },
@@ -61,7 +64,16 @@ export default function ResultScreen() {
   const [loading, setLoading] = useState(false);
   const [scanId, setScanId] = useState<string | null>(null);
   const [selectedSwap, setSelectedSwap] = useState<Swap | null>(null);
-  const [sessionStore, setSessionStore] = useState<string | null>(null);
+  const [sessionStore, setSessionStore] = useState<string | null>(preferredStore ?? null);
+
+  const handleSetStore = (store: string) => {
+    setSessionStore(store);
+    setPreferredStore(store);
+  };
+  const handleClearStore = () => {
+    setSessionStore(null);
+    setPreferredStore(null);
+  };
   const [filteredSwaps, setFilteredSwaps] = useState<Swap[] | null>(null);
   const [loadingSwaps, setLoadingSwaps] = useState(false);
   const [deals, setDeals] = useState<FeaturedDeal[]>([]);
@@ -594,8 +606,8 @@ export default function ResultScreen() {
               <View style={{ marginBottom: 12, marginHorizontal: -20 }}>
                 <StorePrompt
                   currentStore={sessionStore || null}
-                  onStoreSet={(store) => setSessionStore(store)}
-                  onStoreClear={() => setSessionStore(null)}
+                  onStoreSet={handleSetStore}
+                  onStoreClear={handleClearStore}
                 />
               </View>
             )}
@@ -911,18 +923,49 @@ export default function ResultScreen() {
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                    {selectedSwap.available_stores.map((store) => (
-                      <View key={store} style={{
-                        backgroundColor: colors.canvas,
-                        borderRadius: 12,
-                        paddingVertical: 8,
-                        paddingHorizontal: 14,
-                        borderWidth: 1,
-                        borderColor: colors.glassBorder,
-                      }}>
-                        <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
-                      </View>
-                    ))}
+                    {selectedSwap.available_stores.map((store) => {
+                      const searchFn = STORE_SEARCH_MAP[store];
+                      const hasInventory = STORES_WITH_INVENTORY.has(store);
+                      const query = `${selectedSwap.brand} ${selectedSwap.name}`;
+                      if (searchFn) {
+                        return (
+                          <Pressable
+                            key={store}
+                            onPress={() => Linking.openURL(searchFn(query))}
+                            style={({ pressed }) => ({
+                              backgroundColor: pressed ? colors.oxygenGlow : colors.canvas,
+                              borderRadius: 12,
+                              paddingVertical: 8,
+                              paddingHorizontal: 14,
+                              borderWidth: 1,
+                              borderColor: pressed ? colors.oxygen : colors.glassBorder,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: 5,
+                            })}
+                          >
+                            <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
+                            <Ionicons
+                              name={hasInventory ? 'storefront-outline' : 'open-outline'}
+                              size={12}
+                              color={colors.oxygen}
+                            />
+                          </Pressable>
+                        );
+                      }
+                      return (
+                        <View key={store} style={{
+                          backgroundColor: colors.canvas,
+                          borderRadius: 12,
+                          paddingVertical: 8,
+                          paddingHorizontal: 14,
+                          borderWidth: 1,
+                          borderColor: colors.glassBorder,
+                        }}>
+                          <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
+                        </View>
+                      );
+                    })}
                   </View>
                 </View>
               )}

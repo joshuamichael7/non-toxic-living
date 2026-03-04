@@ -171,6 +171,7 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': 'لا توجد ملصق؟ صِفه',
+  'scan.setStore': 'Set store',
 
   // Describe screen
   'describe.title': 'وصف المنتج',

@@ -171,6 +171,7 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': '¿Sin etiqueta? Descríbelo',
+  'scan.setStore': 'Set store',
 
   // Describe screen
   'describe.title': 'Describir producto',

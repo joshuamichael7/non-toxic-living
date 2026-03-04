@@ -171,6 +171,7 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': '라벨이 없나요? 설명하세요',
+  'scan.setStore': 'Set store',
 
   // Describe screen
   'describe.title': '제품 설명',

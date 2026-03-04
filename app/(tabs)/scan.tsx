@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Animated, Alert } from 'react-native';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { View, Text, Pressable, ActivityIndicator, Animated, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
 import { supabase } from '@/lib/supabase';
 import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
+import { COMMON_STORES } from '@/constants/stores';
 
 // Aerogel Design System Colors
 const colors = {
@@ -62,6 +63,22 @@ type ScanStage = 'idle' | 'capturing' | 'reading' | 'analyzing' | 'error';
 export default function ScanScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+
+  const { preferredStore, setPreferredStore } = usePreferencesStore();
+  const [showStoreInput, setShowStoreInput] = useState(false);
+  const [storeInputValue, setStoreInputValue] = useState('');
+
+  const storeMatches = useMemo(() => {
+    if (!storeInputValue.trim()) return COMMON_STORES.slice(0, 6);
+    const q = storeInputValue.toLowerCase();
+    return COMMON_STORES.filter((s) => s.toLowerCase().includes(q)).slice(0, 6);
+  }, [storeInputValue]);
+
+  const handleSelectStore = (store: string) => {
+    setPreferredStore(store);
+    setShowStoreInput(false);
+    setStoreInputValue('');
+  };
 
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
@@ -206,6 +223,7 @@ export default function ScanScreen() {
       // Send to Edge Function for analysis
       const language = usePreferencesStore.getState().language;
       const userId = useAuthStore.getState().user?.id;
+      const store = usePreferencesStore.getState().preferredStore;
       const analysisResult = await analyzeIngredients({
         text: ocrResult.ocrResult.text || undefined,
         imageBase64: ocrResult.shouldSendImage ? photo.base64 : undefined,
@@ -214,6 +232,7 @@ export default function ScanScreen() {
         clientSteps: ocrResult.clientSteps,
         language,
         userId,
+        store: store ?? undefined,
       });
 
       console.log('Analysis complete:', analysisResult.productName, '- Score:', analysisResult.score);
@@ -339,11 +358,96 @@ export default function ScanScreen() {
           color: colors.inkSecondary,
           textAlign: 'center',
           lineHeight: 24,
-          marginBottom: 48,
+          marginBottom: 24,
           paddingHorizontal: 16,
         }}>
           {t('scan.subtitle')}
         </Text>
+
+        {/* Store chip — optional, persistent */}
+        {!showStoreInput ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 24 }}>
+            {preferredStore ? (
+              <>
+                <Pressable
+                  onPress={() => { setStoreInputValue(preferredStore); setShowStoreInput(true); }}
+                  style={{
+                    flexDirection: 'row', alignItems: 'center',
+                    backgroundColor: colors.oxygenGlow, borderRadius: 20,
+                    paddingVertical: 8, paddingHorizontal: 12,
+                  }}
+                >
+                  <Ionicons name="storefront-outline" size={13} color={colors.oxygen} />
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.oxygen, marginLeft: 6 }}>
+                    {t('store.shoppingAt', { store: preferredStore })}
+                  </Text>
+                </Pressable>
+                <Pressable onPress={() => setPreferredStore(null)} hitSlop={10} style={{ marginLeft: 6 }}>
+                  <Ionicons name="close-circle" size={18} color={colors.inkSecondary} />
+                </Pressable>
+              </>
+            ) : (
+              <Pressable
+                onPress={() => setShowStoreInput(true)}
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+              >
+                <Ionicons name="storefront-outline" size={13} color={colors.inkSecondary} />
+                <Text style={{ fontSize: 13, color: colors.inkSecondary, marginLeft: 5 }}>
+                  {t('scan.setStore')}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        ) : (
+          <View style={{
+            alignSelf: 'stretch', marginBottom: 16,
+            backgroundColor: colors.glassSolid, borderRadius: 16,
+            padding: 14, borderWidth: 1, borderColor: colors.oxygen,
+          }}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TextInput
+                value={storeInputValue}
+                onChangeText={setStoreInputValue}
+                placeholder={t('store.inputPlaceholder')}
+                placeholderTextColor={colors.inkSecondary}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={() => {
+                  if (storeInputValue.trim()) handleSelectStore(storeInputValue.trim());
+                }}
+                style={{
+                  flex: 1, backgroundColor: colors.canvas, borderRadius: 10,
+                  paddingHorizontal: 12, paddingVertical: 10,
+                  fontSize: 14, color: colors.ink,
+                  borderWidth: 1, borderColor: colors.glassBorder,
+                }}
+              />
+              <Pressable
+                onPress={() => { setShowStoreInput(false); setStoreInputValue(''); }}
+                style={{ justifyContent: 'center', paddingHorizontal: 4 }}
+                hitSlop={8}
+              >
+                <Text style={{ fontSize: 13, color: colors.inkSecondary }}>{t('common.cancel')}</Text>
+              </Pressable>
+            </View>
+            {storeMatches.length > 0 && (
+              <View style={{ marginTop: 8, gap: 2 }}>
+                {storeMatches.map((store) => (
+                  <Pressable
+                    key={store}
+                    onPress={() => handleSelectStore(store)}
+                    style={({ pressed }) => ({
+                      backgroundColor: pressed ? colors.oxygenGlow : colors.canvas,
+                      borderRadius: 8, paddingVertical: 9, paddingHorizontal: 12,
+                    })}
+                  >
+                    <Text style={{ fontSize: 14, color: colors.ink }}>{store}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Scan Button */}
         <Pressable

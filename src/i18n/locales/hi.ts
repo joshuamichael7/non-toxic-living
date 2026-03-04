@@ -171,6 +171,7 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': 'कोई लेबल नहीं? इसका वर्णन करें',
+  'scan.setStore': 'Set store',
 
   // Describe screen
   'describe.title': 'उत्पाद का वर्णन करें',

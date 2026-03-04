@@ -178,6 +178,7 @@ export default {
 
   // Scan - No label option
   'scan.noLabel': 'No label? Describe it',
+  'scan.setStore': 'Set store',
   'scan.signInRequired': 'Account Required',
   'scan.signInRequiredMessage': 'Create a free account to start scanning products. Our AI-powered analysis requires an account.',
   'scan.signUp': 'Sign Up',
