@@ -15,7 +15,7 @@ export default {
   'home.startScanning': '스캔 시작',
   'home.categories': '카테고리',
   'home.insights': '인사이트',
-  'home.topDeals': '인기 딜',
+  'home.topDeals': '추천 대안 제품',
   'home.recentScans': '최근 스캔',
   'home.seeAll': '전체 보기',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': '안전',
+  'verdict.okay': '괜찮음',
   'verdict.caution': '주의',
   'verdict.toxic': '피하기',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'Pro 플랜',
   'profile.powerPlan': 'Power 플랜',
 
+  // Credits (scan credit packs)
+  'credits.title': '스캔 크레딧',
+  'credits.balance': '남은 스캔: {{count}}회',
+  'credits.pack200Label': '200회 스캔',
+  'credits.pack500Label': '500회 스캔',
+  'credits.pack200Desc': '가끔 스캔하는 분께 적합',
+  'credits.pack500Desc': '최고의 가성비 · 20% 절약',
+  'credits.neverExpire': '크레딧은 만료되지 않습니다',
+  'credits.buyMore': '크레딧 더 구매하기',
+  'credits.restore': '구매 복원',
+  'credits.outTitle': '스캔 크레딧 소진',
+  'credits.outDesc': '계속 스캔하려면 크레딧 팩을 구매하세요',
+  'credits.trialBanner': '10회 무료 체험 스캔이 있습니다',
+  'credits.lowCredits': '스캔 횟수가 부족합니다',
+
   // Quota
   'quota.title': '스캔 한도에 도달했습니다',
   'quota.description': '이번 달 {{limit}}회 중 {{used}}회 스캔을 사용했습니다.',
   'quota.resetsIn': '{{days}}일 후 초기화',
   'quota.upgradePro': 'Pro로 업그레이드',
   'quota.dismiss': '나중에',
-  'quota.scanUsage': '스캔 사용량',
+  'quota.scanUsage': '스캔 크레딧',
   'quota.scansThisMonth': '이번 달 스캔',
   'quota.resetsOn': '{{date}}에 초기화',
-  'quota.upgradePrompt': '스캔 횟수가 부족한가요?',
-  'quota.upgrade': '업그레이드',
+  'quota.upgradePrompt': '크레딧 부족? 스캔 크레딧을 충전하세요.',
+  'quota.upgrade': '크레딧 구매',
 
   // Common
   'common.cancel': '취소',

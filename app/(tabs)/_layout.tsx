@@ -81,10 +81,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="deals"
         options={{
-          title: t('tab.deals'),
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'pricetag' : 'pricetag-outline'} color={color} focused={focused} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen

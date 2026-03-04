@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'スキャン開始',
   'home.categories': 'カテゴリー',
   'home.insights': 'インサイト',
-  'home.topDeals': '注目のお得情報',
+  'home.topDeals': '注目の代替品',
   'home.recentScans': '最近のスキャン',
   'home.seeAll': 'すべて見る',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': '安全',
+  'verdict.okay': 'まあ安全',
   'verdict.caution': '注意',
   'verdict.toxic': '回避',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'Pro プラン',
   'profile.powerPlan': 'Power プラン',
 
+  // Credits (scan credit packs)
+  'credits.title': 'スキャンクレジット',
+  'credits.balance': '残り{{count}}回スキャン可能',
+  'credits.pack200Label': '200回スキャン',
+  'credits.pack500Label': '500回スキャン',
+  'credits.pack200Desc': '時々スキャンする方に最適',
+  'credits.pack500Desc': '最高のお得感・20%節約',
+  'credits.neverExpire': 'クレジットに有効期限なし',
+  'credits.buyMore': 'クレジットを追加購入',
+  'credits.restore': '購入を復元',
+  'credits.outTitle': 'スキャンクレジット不足',
+  'credits.outDesc': 'クレジットパックを購入してスキャンを続ける',
+  'credits.trialBanner': '10回の無料トライアルスキャンがあります',
+  'credits.lowCredits': 'スキャン残数が少なくなっています',
+
   // Quota
   'quota.title': 'スキャン回数の上限に達しました',
   'quota.description': '今月 {{limit}} 回中 {{used}} 回のスキャンを使用しました。',
   'quota.resetsIn': '{{days}} 日後にリセット',
   'quota.upgradePro': 'Proにアップグレード',
   'quota.dismiss': 'また後で',
-  'quota.scanUsage': 'スキャン使用状況',
+  'quota.scanUsage': 'スキャンクレジット',
   'quota.scansThisMonth': '今月のスキャン',
   'quota.resetsOn': '{{date}}にリセット',
-  'quota.upgradePrompt': 'スキャン回数が少なくなっていませんか？',
-  'quota.upgrade': 'アップグレード',
+  'quota.upgradePrompt': 'クレジットが少なくなっています。追加購入してください。',
+  'quota.upgrade': 'クレジットを購入',
 
   // Common
   'common.cancel': 'キャンセル',

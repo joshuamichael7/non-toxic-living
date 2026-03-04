@@ -57,7 +57,7 @@ export type CommonStore = typeof COMMON_STORES[number];
  */
 export const STORE_SEARCH_MAP: Record<string, (query: string) => string> = {
   // ── Tier 1: Full search + real in-store inventory ─────────────────────────
-  'Target': (q) => `https://www.target.com/s?searchTerm=${encodeURIComponent(q)}`,
+  'Target': (q) => `https://www.target.com/s?searchTerm=${encodeURIComponent(q)}&category=0%7CDefault%7Crelevance%7Call`,
   'Walmart': (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
   // Kroger family — all same URL pattern, just different domain
   'Kroger': (q) => `https://www.kroger.com/search?query=${encodeURIComponent(q)}`,

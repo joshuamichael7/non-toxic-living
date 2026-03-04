@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'स्कैनिंग शुरू करें',
   'home.categories': 'श्रेणियां',
   'home.insights': 'जानकारी',
-  'home.topDeals': 'शीर्ष ऑफर',
+  'home.topDeals': 'विशेष स्वैप',
   'home.recentScans': 'हाल के स्कैन',
   'home.seeAll': 'सभी देखें',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': 'सुरक्षित',
+  'verdict.okay': 'ठीक',
   'verdict.caution': 'सावधानी',
   'verdict.toxic': 'बचें',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'Pro योजना',
   'profile.powerPlan': 'Power योजना',
 
+  // Credits (scan credit packs)
+  'credits.title': 'स्कैन क्रेडिट',
+  'credits.balance': '{{count}} स्कैन शेष',
+  'credits.pack200Label': '200 स्कैन',
+  'credits.pack500Label': '500 स्कैन',
+  'credits.pack200Desc': 'कभी-कभी स्कैन के लिए उत्तम',
+  'credits.pack500Desc': 'सर्वोत्तम मूल्य · 20% की बचत',
+  'credits.neverExpire': 'क्रेडिट कभी समाप्त नहीं होते',
+  'credits.buyMore': 'अधिक क्रेडिट खरीदें',
+  'credits.restore': 'खरीदारी पुनर्स्थापित करें',
+  'credits.outTitle': 'स्कैन क्रेडिट समाप्त',
+  'credits.outDesc': 'स्कैन जारी रखने के लिए क्रेडिट पैक खरीदें',
+  'credits.trialBanner': 'आपके पास शुरुआत के लिए 10 निःशुल्क परीक्षण स्कैन हैं',
+  'credits.lowCredits': 'स्कैन क्रेडिट कम हो रहे हैं',
+
   // Quota
   'quota.title': 'स्कैन सीमा पूरी हो गई',
   'quota.description': 'आपने इस महीने {{limit}} में से {{used}} स्कैन का उपयोग किया है।',
   'quota.resetsIn': '{{days}} दिनों में रीसेट होगा',
   'quota.upgradePro': 'Pro में अपग्रेड करें',
   'quota.dismiss': 'बाद में',
-  'quota.scanUsage': 'स्कैन उपयोग',
+  'quota.scanUsage': 'स्कैन क्रेडिट',
   'quota.scansThisMonth': 'इस महीने के स्कैन',
   'quota.resetsOn': '{{date}} को रीसेट होगा',
-  'quota.upgradePrompt': 'स्कैन कम हो रहे हैं?',
-  'quota.upgrade': 'अपग्रेड करें',
+  'quota.upgradePrompt': 'क्रेडिट कम हैं? अधिक स्कैन खरीदें।',
+  'quota.upgrade': 'क्रेडिट खरीदें',
 
   // Common
   'common.cancel': 'रद्द करें',

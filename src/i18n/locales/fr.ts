@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'Commencer à scanner',
   'home.categories': 'Catégories',
   'home.insights': 'Informations',
-  'home.topDeals': 'Meilleures Offres',
+  'home.topDeals': 'Alternatives en Vedette',
   'home.recentScans': 'Scans récents',
   'home.seeAll': 'Tout voir',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': 'Sûr',
+  'verdict.okay': 'Correct',
   'verdict.caution': 'Prudence',
   'verdict.toxic': 'À éviter',
 
@@ -292,16 +293,31 @@ export default {
   'profile.powerPlan': 'Forfait Power',
 
   // Quota
+  // Credits (scan credit packs)
+  'credits.title': 'Crédits de Scan',
+  'credits.balance': '{{count}} scans restants',
+  'credits.pack200Label': '200 Scans',
+  'credits.pack500Label': '500 Scans',
+  'credits.pack200Desc': 'Parfait pour les scans occasionnels',
+  'credits.pack500Desc': "Meilleure valeur · 20% d'économies",
+  'credits.neverExpire': "Les crédits n'expirent jamais",
+  'credits.buyMore': 'Acheter Plus de Crédits',
+  'credits.restore': 'Restaurer les Achats',
+  'credits.outTitle': 'Plus de Crédits de Scan',
+  'credits.outDesc': 'Achetez un pack de crédits pour continuer à scanner',
+  'credits.trialBanner': 'Vous avez 10 scans d\'essai gratuits pour commencer',
+  'credits.lowCredits': 'Crédits presque épuisés',
+
   'quota.title': 'Limite de scans atteinte',
   'quota.description': 'Vous avez utilisé {{used}} sur {{limit}} scans ce mois-ci.',
   'quota.resetsIn': 'Renouvellement dans {{days}} jours',
   'quota.upgradePro': 'Passer à Pro',
   'quota.dismiss': 'Peut-être plus tard',
-  'quota.scanUsage': 'Utilisation des Scans',
+  'quota.scanUsage': 'Crédits de Scan',
   'quota.scansThisMonth': 'scans ce mois-ci',
   'quota.resetsOn': 'Renouvellement le {{date}}',
-  'quota.upgradePrompt': 'Bientôt à court de scans ?',
-  'quota.upgrade': 'Passer au Niveau Supérieur',
+  'quota.upgradePrompt': 'Crédits insuffisants ? Rechargez vos scans.',
+  'quota.upgrade': 'Acheter des Crédits',
 
   // Common
   'common.cancel': 'Annuler',

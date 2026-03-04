@@ -41,7 +41,7 @@ const DEVICES: Record<string, { name: string; w: number; h: number; scale: numbe
 type ScreenDef = { id: string; name: string; tab: string | null };
 const SCREENS: ScreenDef[] = [
   { id: 'home', name: 'Home', tab: 'home' },
-  { id: 'home-deals', name: 'Home (Deals)', tab: 'home' },
+  { id: 'credits', name: 'Scan Credits', tab: null },
   { id: 'scan', name: 'Scan', tab: 'scan' },
   { id: 'search-food', name: 'Search', tab: 'search' },
   { id: 'result-safe', name: 'Result (Safe)', tab: null },
@@ -636,94 +636,89 @@ function SwapDetailScreen({ width }: { width: number }) {
    SCREEN: PLAN SELECTION
    ========================================================== */
 function PlanScreen({ width }: { width: number }) {
+  return <CreditsScreen width={width} />;
+}
+
+function CreditsScreen({ width }: { width: number }) {
   const pad = width > 700 ? 32 : 20;
+  const packs = [
+    {
+      credits: 200, price: '$3.99',
+      accent: C.oxygen, accentDeep: C.oxygenDeep, accentGlow: C.oxygenGlow, accentLight: C.oxygenGlowSubtle,
+      badge: null as string | null,
+      features: ['200 scans, no expiry', 'Full ingredient analysis', 'Safe swap recommendations'],
+    },
+    {
+      credits: 500, price: '$7.99',
+      accent: C.safe, accentDeep: '#059669', accentGlow: 'rgba(16,185,129,0.4)', accentLight: C.safeLight,
+      badge: 'BEST VALUE',
+      features: ['500 scans, no expiry', 'Full ingredient analysis', 'Safe swap recommendations'],
+    },
+  ];
+
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', background:C.canvas }}>
       {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', padding:`16px ${pad}px` }}>
-        <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <IconX size={18} />
+      <div style={{ display:'flex', alignItems:'center', padding:`16px ${pad}px 28px` }}>
+        <div style={{ width:32, height:32, borderRadius:10, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <IconX size={16} />
         </div>
-        <span style={{ flex:1, textAlign:'center' as const, fontSize:18, fontWeight:700, color:C.ink }}>Choose Your Plan</span>
-        <div style={{ width:44 }} />
+        <span style={{ flex:1, textAlign:'center' as const, fontSize:20, fontWeight:800, color:C.ink }}>Scan Credits</span>
+        <div style={{ width:32 }} />
       </div>
 
-      <div style={{ flex:1, padding:`0 ${pad}px`, display:'flex', flexDirection:'column', overflowY:'hidden' }}>
-        <div style={{ fontSize:15, color:C.inkSecondary, textAlign:'center' as const, marginBottom:24, lineHeight:1.5 }}>
-          Unlock more scans and premium features
-        </div>
-
-        {/* Toggle */}
-        <div style={{ display:'flex', borderRadius:16, background:C.glass, padding:4, marginBottom:24 }}>
-          <div style={{ flex:1, padding:'12px 0', borderRadius:12, background:C.white, textAlign:'center' as const, fontSize:14, fontWeight:600, color:C.ink, boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>Monthly</div>
-          <div style={{ flex:1, padding:'12px 0', borderRadius:12, textAlign:'center' as const, fontSize:14, fontWeight:600, color:C.inkMuted }}>Annual</div>
-        </div>
-
-        {/* Free Tier */}
-        <div style={{ borderRadius:24, padding:20, marginBottom:12, border:`1.5px solid ${C.safe}`, background:C.glass }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <span style={{ fontSize:20, fontWeight:800, color:C.ink }}>Free</span>
-              <span style={{ fontSize:11, fontWeight:700, color:C.safe, background:C.safeLight, padding:'3px 8px', borderRadius:8 }}>Current</span>
-            </div>
-            <span style={{ fontSize:24, fontWeight:800, color:C.ink }}>Free</span>
+      <div style={{ flex:1, padding:`0 ${pad}px`, display:'flex', flexDirection:'column', gap:14, overflowY:'hidden' }}>
+        {/* Balance card */}
+        <div style={{ borderRadius:24, padding:24, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', flexDirection:'column', alignItems:'center', boxShadow:'0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ width:56, height:56, borderRadius:28, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12 }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={C.oxygen} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
           </div>
-          {['5 scans per month', 'Basic ingredient analysis'].map(f => (
-            <div key={f} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-              <div style={{ width:22, height:22, borderRadius:11, background:C.safeLight, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <IconCheck color={C.safe} size={12} />
-              </div>
-              <span style={{ fontSize:14, fontWeight:500, color:C.inkSecondary }}>{f}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Pro Tier */}
-        <div style={{ borderRadius:24, padding:20, marginBottom:12, border:`1.5px solid ${C.oxygen}`, background:C.glass }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <span style={{ fontSize:20, fontWeight:800, color:C.oxygen }}>Pro</span>
-              <span style={{ fontSize:11, fontWeight:700, color:C.safe, background:C.safeLight, padding:'3px 8px', borderRadius:8 }}>Most popular</span>
-            </div>
-            <div style={{ textAlign:'right' as const }}>
-              <div style={{ fontSize:24, fontWeight:800, color:C.oxygen }}>$7.99</div>
-              <div style={{ fontSize:13, color:C.inkSecondary, marginTop:2 }}>/month</div>
-            </div>
+          <span style={{ fontSize:48, fontWeight:900, color:C.ink, lineHeight:1.1 }}>10</span>
+          <span style={{ fontSize:15, color:C.inkSecondary, marginTop:4 }}>scans remaining</span>
+          <div style={{ marginTop:14, background:C.safeLight, borderRadius:10, padding:'8px 14px' }}>
+            <span style={{ fontSize:13, fontWeight:600, color:C.safe }}>You have 10 free trial scans to get started</span>
           </div>
-          {['200 scans per month', 'Detailed safety reports', 'Priority support'].map(f => (
-            <div key={f} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-              <div style={{ width:22, height:22, borderRadius:11, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <IconCheck color={C.oxygen} size={12} />
-              </div>
-              <span style={{ fontSize:14, fontWeight:500, color:C.inkSecondary }}>{f}</span>
-            </div>
-          ))}
-          <button style={{
-            width:'100%', padding:'14px 0', borderRadius:16, marginTop:8,
-            background:C.oxygen, color:C.white, border:'none',
-            fontSize:15, fontWeight:700, fontFamily:font, cursor:'pointer',
-            boxShadow:`0 6px 12px ${C.oxygenGlow}`,
-          }}>Subscribe</button>
         </div>
 
-        {/* Power Tier */}
-        <div style={{ borderRadius:24, padding:20, border:`1.5px solid ${C.glassBorder}`, background:C.glass }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16 }}>
-            <span style={{ fontSize:20, fontWeight:800, color:C.ink }}>Power</span>
-            <div style={{ textAlign:'right' as const }}>
-              <div style={{ fontSize:24, fontWeight:800, color:C.ink }}>$14.99</div>
-              <div style={{ fontSize:13, color:C.inkSecondary, marginTop:2 }}>/month</div>
+        {/* Never expire */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+          <span style={{ fontSize:13, fontWeight:600, color:C.safe }}>∞ Credits never expire</span>
+        </div>
+
+        {/* Pack cards */}
+        {packs.map(pack => (
+          <div key={pack.credits} style={{ borderRadius:24, background:C.glass, border:`1.5px solid ${pack.badge ? pack.accent : C.glassBorder}`, overflow:'hidden', boxShadow: pack.badge ? `0 8px 16px ${pack.accentGlow}` : '0 4px 10px rgba(0,0,0,0.05)' }}>
+            {/* Colored header */}
+            <div style={{ background:pack.accent, padding:'18px 20px 20px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                <span style={{ fontSize:26, fontWeight:900, color:C.white }}>{pack.credits} Scans</span>
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:6 }}>
+                  {pack.badge && (
+                    <span style={{ fontSize:10, fontWeight:800, color:C.white, background:'rgba(255,255,255,0.25)', borderRadius:8, padding:'3px 8px', letterSpacing:0.5 }}>{pack.badge}</span>
+                  )}
+                  <span style={{ fontSize:30, fontWeight:900, color:C.white }}>{pack.price}</span>
+                </div>
+              </div>
+            </div>
+            {/* Features + CTA */}
+            <div style={{ padding:'16px 20px 20px', display:'flex', flexDirection:'column', gap:10 }}>
+              {pack.features.map(f => (
+                <div key={f} style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <div style={{ width:22, height:22, borderRadius:11, background:pack.accentLight, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <IconCheck color={pack.accent} size={12} />
+                  </div>
+                  <span style={{ fontSize:14, fontWeight:500, color:C.inkSecondary }}>{f}</span>
+                </div>
+              ))}
+              <button style={{
+                width:'100%', padding:'15px 0', borderRadius:16, marginTop:8,
+                background:pack.accent, color:C.white, border:'none',
+                fontSize:16, fontWeight:800, fontFamily:font, cursor:'pointer',
+                boxShadow:`0 6px 12px ${pack.accentGlow}`,
+              }}>Get {pack.credits} Scans · {pack.price}</button>
             </div>
           </div>
-          {['500 scans per month', 'Everything in Pro'].map(f => (
-            <div key={f} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-              <div style={{ width:22, height:22, borderRadius:11, background:C.safeLight, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <IconCheck color={C.safe} size={12} />
-              </div>
-              <span style={{ fontSize:14, fontWeight:500, color:C.inkSecondary }}>{f}</span>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -906,7 +901,7 @@ const foodResults = [
 function renderScreen(id: string, width: number) {
   switch (id) {
     case 'home': return <HomeScreen width={width} />;
-    case 'home-deals': return <HomeDealsScreen width={width} />;
+    case 'credits': return <CreditsScreen width={width} />;
     case 'scan': return <ScanScreen width={width} />;
     case 'search-food': return <SearchResultsScreen width={width} query="Food & Drinks" count={17} results={foodResults} />;
     case 'result-safe': return <ResultSafeScreen width={width} />;

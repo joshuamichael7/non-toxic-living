@@ -32,6 +32,8 @@ const colors = {
   inkMuted: '#94A3B8',
   safe: '#10B981',
   safeLight: 'rgba(16, 185, 129, 0.15)',
+  okay: '#84CC16',
+  okayLight: 'rgba(132, 204, 22, 0.15)',
   caution: '#F59E0B',
   cautionLight: 'rgba(245, 158, 11, 0.15)',
   toxic: '#EF4444',
@@ -55,9 +57,18 @@ export default function ResultScreen() {
 
   const verdictConfig = {
     safe: { bg: colors.safeLight, color: colors.safe, borderColor: colors.safe, label: t('verdict.safe'), icon: 'checkmark-circle' as const },
+    okay: { bg: colors.okayLight, color: colors.okay, borderColor: colors.okay, label: t('verdict.okay'), icon: 'checkmark-circle' as const },
     caution: { bg: colors.cautionLight, color: colors.caution, borderColor: colors.caution, label: t('verdict.caution'), icon: 'alert-circle' as const },
     toxic: { bg: colors.toxicLight, color: colors.toxic, borderColor: colors.toxic, label: t('verdict.toxic'), icon: 'close-circle' as const },
   };
+
+  // Derive 4-tier verdict from score for consistent display (ignores stored string)
+  function getVerdictFromScore(score: number): keyof typeof verdictConfig {
+    if (score >= 80) return 'safe';
+    if (score >= 67) return 'okay';
+    if (score >= 34) return 'caution';
+    return 'toxic';
+  }
 
   const [saved, setSaved] = useState(false);
   const [dbResult, setDbResult] = useState<AnalysisResult | null>(null);
@@ -94,11 +105,9 @@ export default function ResultScreen() {
           if (product) {
             // Try to fetch swaps for this product's category
             let swaps: any[] = [];
-            if (product.score < 67) {
-              try {
-                swaps = await getSwapsForProduct(productId);
-              } catch {}
-            }
+            try {
+              swaps = await getSwapsForProduct(productId);
+            } catch {}
             setDbResult({ ...product, swaps });
           }
         })
@@ -115,7 +124,7 @@ export default function ResultScreen() {
 
         // If swaps aren't saved in analysis JSON, fetch them from DB
         let swaps = analysis?.swaps || [];
-        if (swaps.length === 0 && scan.product_id && scan.score < 67) {
+        if (swaps.length === 0 && scan.product_id) {
           try {
             swaps = await getSwapsForProduct(scan.product_id);
           } catch {}
@@ -249,7 +258,7 @@ export default function ResultScreen() {
     );
   }
 
-  const config = verdictConfig[result.verdict];
+  const config = verdictConfig[getVerdictFromScore(result.score)];
 
   const handleClose = () => {
     clearScan();
@@ -925,44 +934,45 @@ export default function ResultScreen() {
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                     {selectedSwap.available_stores.map((store) => {
                       const searchFn = STORE_SEARCH_MAP[store];
-                      const hasInventory = STORES_WITH_INVENTORY.has(store);
                       const query = `${selectedSwap.brand} ${selectedSwap.name}`;
                       if (searchFn) {
                         return (
                           <Pressable
                             key={store}
                             onPress={() => Linking.openURL(searchFn(query))}
-                            style={({ pressed }) => ({
-                              backgroundColor: pressed ? colors.oxygenGlow : colors.canvas,
-                              borderRadius: 12,
-                              paddingVertical: 8,
-                              paddingHorizontal: 14,
-                              borderWidth: 1,
-                              borderColor: pressed ? colors.oxygen : colors.glassBorder,
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              gap: 5,
-                            })}
+                            style={{ opacity: 1 }}
                           >
-                            <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
-                            <Ionicons
-                              name={hasInventory ? 'storefront-outline' : 'open-outline'}
-                              size={12}
-                              color={colors.oxygen}
-                            />
+                            {({ pressed }) => (
+                              <View style={{
+                                backgroundColor: pressed ? colors.oxygenDeep : colors.oxygen,
+                                borderRadius: 20,
+                                paddingVertical: 10,
+                                paddingHorizontal: 16,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 6,
+                                shadowColor: colors.oxygen,
+                                shadowOffset: { width: 0, height: 3 },
+                                shadowOpacity: 0.3,
+                                shadowRadius: 6,
+                              }}>
+                                <Text style={{ fontSize: 14, fontWeight: '700', color: 'white' }}>{store}</Text>
+                                <Ionicons name="arrow-forward-circle" size={16} color="white" />
+                              </View>
+                            )}
                           </Pressable>
                         );
                       }
                       return (
                         <View key={store} style={{
-                          backgroundColor: colors.canvas,
-                          borderRadius: 12,
-                          paddingVertical: 8,
-                          paddingHorizontal: 14,
+                          backgroundColor: colors.glassSolid,
+                          borderRadius: 20,
+                          paddingVertical: 10,
+                          paddingHorizontal: 16,
                           borderWidth: 1,
                           borderColor: colors.glassBorder,
                         }}>
-                          <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink }}>{store}</Text>
+                          <Text style={{ fontSize: 14, fontWeight: '500', color: colors.inkMuted }}>{store}</Text>
                         </View>
                       );
                     })}

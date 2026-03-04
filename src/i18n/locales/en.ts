@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'Start Scanning',
   'home.categories': 'Categories',
   'home.insights': 'Insights',
-  'home.topDeals': 'Top Deals',
+  'home.topDeals': 'Featured Swaps',
   'home.recentScans': 'Recent Scans',
   'home.seeAll': 'See all',
 
@@ -102,6 +102,7 @@ export default {
 
   // Verdicts
   'verdict.safe': 'Safe',
+  'verdict.okay': 'Okay',
   'verdict.caution': 'Caution',
   'verdict.toxic': 'Avoid',
 
@@ -376,17 +377,32 @@ export default {
   'profile.proPlan': 'Pro Plan',
   'profile.powerPlan': 'Power Plan',
 
+  // Credits (scan credit packs)
+  'credits.title': 'Scan Credits',
+  'credits.balance': '{{count}} scans remaining',
+  'credits.pack200Label': '200 Scans',
+  'credits.pack500Label': '500 Scans',
+  'credits.pack200Desc': 'Great for occasional scanning',
+  'credits.pack500Desc': 'Best value · 20% savings',
+  'credits.neverExpire': 'Credits never expire',
+  'credits.buyMore': 'Buy More Credits',
+  'credits.restore': 'Restore Purchases',
+  'credits.outTitle': 'Out of Scan Credits',
+  'credits.outDesc': 'Purchase a credit pack to continue scanning',
+  'credits.trialBanner': 'You have 10 free trial scans to get started',
+  'credits.lowCredits': 'Running low on scans',
+
   // Quota
   'quota.title': 'Scan Limit Reached',
   'quota.description': "You've used {{used}} of {{limit}} scans this month.",
   'quota.resetsIn': 'Resets in {{days}} days',
   'quota.upgradePro': 'Upgrade Now',
   'quota.dismiss': 'Maybe later',
-  'quota.scanUsage': 'Scan Usage',
+  'quota.scanUsage': 'Scan Credits',
   'quota.scansThisMonth': 'scans this month',
   'quota.resetsOn': 'Resets {{date}}',
-  'quota.upgradePrompt': 'Running low on scans?',
-  'quota.upgrade': 'Upgrade',
+  'quota.upgradePrompt': 'Running low? Stock up on scan credits.',
+  'quota.upgrade': 'Buy Credits',
 
   // Common
   'common.cancel': 'Cancel',

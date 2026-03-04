@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { getUserScans } from '@/services/api/analyze';
 import { usePreferencesStore, SUPPORTED_LANGUAGES } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { ScanQuotaTracker } from '@/components/profile/ScanQuotaTracker';
 
 // Aerogel Design System Colors
@@ -34,11 +34,18 @@ export default function ProfileScreen() {
 
   const { language, setLanguage } = usePreferencesStore();
   const { user, signOut } = useAuthStore();
-  const { tier } = useSubscriptionStore();
+  const { credits } = useCreditStore();
 
   const currentLanguageLabel = SUPPORTED_LANGUAGES.find(l => l.code === language)?.label ?? 'English';
 
   const [stats, setStats] = useState({ totalScans: 0, toxinsFound: 0, safeProducts: 0 });
+
+  // Refresh credit balance whenever this tab is focused (e.g. after scanning)
+  useFocusEffect(
+    useCallback(() => {
+      useCreditStore.getState().refreshCredits();
+    }, [])
+  );
 
   useEffect(() => {
     if (!user?.id) return;
@@ -54,9 +61,9 @@ export default function ProfileScreen() {
 
   const menuItems = [
     {
-      title: tier === 'free' ? t('subscription.goPremium') : t('subscription.managePlan'),
-      icon: 'diamond-outline' as const,
-      subtitle: tier === 'free' ? t('subscription.goPremiumDesc') : t('subscription.currentPlan', { plan: tier.charAt(0).toUpperCase() + tier.slice(1) }),
+      title: t('credits.title'),
+      icon: 'scan-outline' as const,
+      subtitle: t('credits.balance', { count: credits }),
       onPress: () => router.push('/subscription' as any),
     },
     ...(user ? [
@@ -115,7 +122,7 @@ export default function ProfileScreen() {
                   {user?.user_metadata?.display_name || user?.email || t('profile.guestUser')}
                 </Text>
                 <Text style={{ color: colors.inkSecondary, fontSize: 14, marginTop: 2 }}>
-                  {tier === 'power' ? t('profile.powerPlan') : tier === 'pro' ? t('profile.proPlan') : t('profile.freePlan')}
+                  {t('credits.balance', { count: credits })}
                 </Text>
               </View>
               {user ? (
@@ -245,7 +252,7 @@ export default function ProfileScreen() {
         {/* App Version */}
         <View style={{ paddingHorizontal: 24, marginTop: 16, alignItems: 'center' }}>
           <Text style={{ color: colors.inkMuted, fontSize: 13, fontWeight: '500' }}>
-            {t('profile.version', { version: '1.0.0' })}
+            {t('profile.version', { version: '1.1.0' })}
           </Text>
         </View>
       </ScrollView>

@@ -11,32 +11,17 @@ const colors = {
   ink: '#1A1A1A',
   inkSecondary: '#64748B',
   caution: '#F59E0B',
+  cautionGlow: 'rgba(245, 158, 11, 0.12)',
 };
 
 interface QuotaExceededModalProps {
   visible: boolean;
   onClose: () => void;
-  scansUsed: number;
-  scansLimit: number;
-  resetsAt: string;
 }
 
-export function QuotaExceededModal({
-  visible,
-  onClose,
-  scansUsed,
-  scansLimit,
-  resetsAt,
-}: QuotaExceededModalProps) {
+export function QuotaExceededModal({ visible, onClose }: QuotaExceededModalProps) {
   const { t } = useTranslation();
   const router = useRouter();
-
-  const resetDate = new Date(resetsAt);
-  const now = new Date();
-  const daysUntilReset = Math.max(
-    1,
-    Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  );
 
   return (
     <Modal
@@ -65,7 +50,7 @@ export function QuotaExceededModal({
             width: 64,
             height: 64,
             borderRadius: 32,
-            backgroundColor: colors.oxygenGlow,
+            backgroundColor: colors.cautionGlow,
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: 20,
@@ -81,7 +66,7 @@ export function QuotaExceededModal({
             textAlign: 'center',
             marginBottom: 8,
           }}>
-            {t('quota.title')}
+            {t('credits.outTitle')}
           </Text>
 
           {/* Description */}
@@ -90,37 +75,12 @@ export function QuotaExceededModal({
             color: colors.inkSecondary,
             textAlign: 'center',
             lineHeight: 22,
-            marginBottom: 20,
+            marginBottom: 28,
           }}>
-            {t('quota.description', { used: scansUsed, limit: scansLimit })}
+            {t('credits.outDesc')}
           </Text>
 
-          {/* Usage bar */}
-          <View style={{
-            width: '100%',
-            height: 8,
-            backgroundColor: colors.canvas,
-            borderRadius: 4,
-            marginBottom: 8,
-            overflow: 'hidden',
-          }}>
-            <View style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: colors.caution,
-              borderRadius: 4,
-            }} />
-          </View>
-
-          <Text style={{
-            fontSize: 13,
-            color: colors.inkSecondary,
-            marginBottom: 24,
-          }}>
-            {t('quota.resetsIn', { days: daysUntilReset })}
-          </Text>
-
-          {/* Upgrade button */}
+          {/* Buy credits button */}
           <Pressable
             onPress={() => {
               onClose();
@@ -140,7 +100,7 @@ export function QuotaExceededModal({
             }}
           >
             <Text style={{ color: 'white', fontWeight: '700', fontSize: 17 }}>
-              {t('quota.upgradePro')}
+              {t('credits.buyMore')}
             </Text>
           </Pressable>
 

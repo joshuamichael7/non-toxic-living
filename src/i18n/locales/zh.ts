@@ -15,7 +15,7 @@ export default {
   'home.startScanning': '开始扫描',
   'home.categories': '分类',
   'home.insights': '资讯',
-  'home.topDeals': '热门优惠',
+  'home.topDeals': '精选替代品',
   'home.recentScans': '最近扫描',
   'home.seeAll': '查看全部',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': '安全',
+  'verdict.okay': '尚可',
   'verdict.caution': '注意',
   'verdict.toxic': '避免',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'Pro 计划',
   'profile.powerPlan': 'Power 计划',
 
+  // Credits (scan credit packs)
+  'credits.title': '扫描积分',
+  'credits.balance': '剩余 {{count}} 次扫描',
+  'credits.pack200Label': '200次扫描',
+  'credits.pack500Label': '500次扫描',
+  'credits.pack200Desc': '适合偶尔扫描',
+  'credits.pack500Desc': '最佳性价比·节省20%',
+  'credits.neverExpire': '积分永不过期',
+  'credits.buyMore': '购买更多积分',
+  'credits.restore': '恢复购买',
+  'credits.outTitle': '扫描积分已用完',
+  'credits.outDesc': '购买积分包以继续扫描',
+  'credits.trialBanner': '您有10次免费试用扫描以开始使用',
+  'credits.lowCredits': '扫描次数即将用完',
+
   // Quota
   'quota.title': '扫描次数已达上限',
   'quota.description': '您本月已使用 {{used}} 次（共 {{limit}} 次）扫描。',
   'quota.resetsIn': '{{days}} 天后重置',
   'quota.upgradePro': '升级到 Pro',
   'quota.dismiss': '以后再说',
-  'quota.scanUsage': '扫描使用情况',
+  'quota.scanUsage': '扫描积分',
   'quota.scansThisMonth': '本月扫描次数',
   'quota.resetsOn': '{{date}}重置',
-  'quota.upgradePrompt': '扫描次数快用完了？',
-  'quota.upgrade': '升级',
+  'quota.upgradePrompt': '积分不足？购买更多扫描次数。',
+  'quota.upgrade': '购买积分',
 
   // Common
   'common.cancel': '取消',

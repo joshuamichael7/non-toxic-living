@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Animated, Alert, TextInput } from 'react-native';
+import { useState, useRef, useCallback } from 'react';
+import { View, Text, Pressable, ActivityIndicator, Animated, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -13,10 +13,9 @@ import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
-import { supabase } from '@/lib/supabase';
+import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
-import { COMMON_STORES } from '@/constants/stores';
+
 
 // Aerogel Design System Colors
 const colors = {
@@ -31,63 +30,17 @@ const colors = {
   error: '#EF4444',
 };
 
-const TIER_LIMITS: Record<string, number> = { free: 5, pro: 200, power: 500 };
-
-async function checkQuotaExceeded(): Promise<{ exceeded: boolean; scansUsed: number; scansLimit: number; resetsAt: string }> {
-  const userId = useAuthStore.getState().user?.id;
-  const tier = useSubscriptionStore.getState().tier;
-  if (!userId) return { exceeded: false, scansUsed: 0, scansLimit: 0, resetsAt: '' };
-
-  const limit = TIER_LIMITS[tier] ?? 5;
-
-  const { data } = await (supabase as any)
-    .from('profiles')
-    .select('scans_this_month, scans_month_reset_at')
-    .eq('id', userId)
-    .single() as { data: { scans_this_month: number; scans_month_reset_at: string } | null };
-
-  if (!data) return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: '' };
-
-  // If the reset date has passed, the month has rolled over — user has 0 scans used
-  const resetAt = new Date(data.scans_month_reset_at);
-  if (resetAt < new Date()) {
-    return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
-  }
-
-  const exceeded = (data.scans_this_month || 0) >= limit;
-  return { exceeded, scansUsed: data.scans_this_month || 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
-}
-
 type ScanStage = 'idle' | 'capturing' | 'reading' | 'analyzing' | 'error';
 
 export default function ScanScreen() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const { preferredStore, setPreferredStore } = usePreferencesStore();
-  const [showStoreInput, setShowStoreInput] = useState(false);
-  const [storeInputValue, setStoreInputValue] = useState('');
-
-  const storeMatches = useMemo(() => {
-    if (!storeInputValue.trim()) return COMMON_STORES.slice(0, 6);
-    const q = storeInputValue.toLowerCase();
-    return COMMON_STORES.filter((s) => s.toLowerCase().includes(q)).slice(0, 6);
-  }, [storeInputValue]);
-
-  const handleSelectStore = (store: string) => {
-    setPreferredStore(store);
-    setShowStoreInput(false);
-    setStoreInputValue('');
-  };
+  const { preferredStore } = usePreferencesStore();
 
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
-  const [quotaModal, setQuotaModal] = useState<{
-    visible: boolean;
-    scansUsed: number;
-    scansLimit: number;
-    resetsAt: string;
-  }>({ visible: false, scansUsed: 0, scansLimit: 0, resetsAt: '' });
+  const [quotaModalVisible, setQuotaModalVisible] = useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -106,24 +59,14 @@ export default function ScanScreen() {
     }, [pulseAnim])
   );
 
-  // Check quota before opening camera or describe screen
-  const handleQuotaCheck = async (): Promise<boolean> => {
-    try {
-      const quota = await checkQuotaExceeded();
-      if (quota.exceeded) {
-        setQuotaModal({
-          visible: true,
-          scansUsed: quota.scansUsed,
-          scansLimit: quota.scansLimit,
-          resetsAt: quota.resetsAt,
-        });
-        return true; // exceeded
-      }
-    } catch (err) {
-      // If quota check fails, let the server-side check handle it
-      console.warn('Client quota check failed, proceeding:', err);
+  // Check credits before opening camera or describe screen
+  const handleQuotaCheck = (): boolean => {
+    const { credits } = useCreditStore.getState();
+    if (credits <= 0) {
+      setQuotaModalVisible(true);
+      return true; // no credits
     }
-    return false; // not exceeded
+    return false; // has credits
   };
 
   // Prompt guest users to sign up before scanning
@@ -150,8 +93,8 @@ export default function ScanScreen() {
     isCapturingRef.current = true;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Pre-check quota before opening camera
-    const exceeded = await handleQuotaCheck();
+    // Pre-check credits before opening camera
+    const exceeded = handleQuotaCheck();
     if (exceeded) {
       isCapturingRef.current = false;
       return;
@@ -240,6 +183,7 @@ export default function ScanScreen() {
       pulse.stop();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCurrentResult(analysisResult);
+      useCreditStore.getState().decrementCredit(); // optimistic UI update
 
       router.push('/result/scan');
     } catch (error) {
@@ -248,12 +192,9 @@ export default function ScanScreen() {
 
       if (isQuotaExceededError(error)) {
         setScanStage('idle');
-        setQuotaModal({
-          visible: true,
-          scansUsed: error.scansUsed,
-          scansLimit: error.scansLimit,
-          resetsAt: error.resetsAt,
-        });
+        setQuotaModalVisible(true);
+        // Sync credit store since server decremented to 0
+        useCreditStore.getState().refreshCredits();
       } else {
         setScanStage('error');
         const msg = error instanceof Error ? error.message : 'Scan failed';
@@ -364,91 +305,6 @@ export default function ScanScreen() {
           {t('scan.subtitle')}
         </Text>
 
-        {/* Store chip — optional, persistent */}
-        {!showStoreInput ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 24 }}>
-            {preferredStore ? (
-              <>
-                <Pressable
-                  onPress={() => { setStoreInputValue(preferredStore); setShowStoreInput(true); }}
-                  style={{
-                    flexDirection: 'row', alignItems: 'center',
-                    backgroundColor: colors.oxygenGlow, borderRadius: 20,
-                    paddingVertical: 8, paddingHorizontal: 12,
-                  }}
-                >
-                  <Ionicons name="storefront-outline" size={13} color={colors.oxygen} />
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.oxygen, marginLeft: 6 }}>
-                    {t('store.shoppingAt', { store: preferredStore })}
-                  </Text>
-                </Pressable>
-                <Pressable onPress={() => setPreferredStore(null)} hitSlop={10} style={{ marginLeft: 6 }}>
-                  <Ionicons name="close-circle" size={18} color={colors.inkSecondary} />
-                </Pressable>
-              </>
-            ) : (
-              <Pressable
-                onPress={() => setShowStoreInput(true)}
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-              >
-                <Ionicons name="storefront-outline" size={13} color={colors.inkSecondary} />
-                <Text style={{ fontSize: 13, color: colors.inkSecondary, marginLeft: 5 }}>
-                  {t('scan.setStore')}
-                </Text>
-              </Pressable>
-            )}
-          </View>
-        ) : (
-          <View style={{
-            alignSelf: 'stretch', marginBottom: 16,
-            backgroundColor: colors.glassSolid, borderRadius: 16,
-            padding: 14, borderWidth: 1, borderColor: colors.oxygen,
-          }}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TextInput
-                value={storeInputValue}
-                onChangeText={setStoreInputValue}
-                placeholder={t('store.inputPlaceholder')}
-                placeholderTextColor={colors.inkSecondary}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={() => {
-                  if (storeInputValue.trim()) handleSelectStore(storeInputValue.trim());
-                }}
-                style={{
-                  flex: 1, backgroundColor: colors.canvas, borderRadius: 10,
-                  paddingHorizontal: 12, paddingVertical: 10,
-                  fontSize: 14, color: colors.ink,
-                  borderWidth: 1, borderColor: colors.glassBorder,
-                }}
-              />
-              <Pressable
-                onPress={() => { setShowStoreInput(false); setStoreInputValue(''); }}
-                style={{ justifyContent: 'center', paddingHorizontal: 4 }}
-                hitSlop={8}
-              >
-                <Text style={{ fontSize: 13, color: colors.inkSecondary }}>{t('common.cancel')}</Text>
-              </Pressable>
-            </View>
-            {storeMatches.length > 0 && (
-              <View style={{ marginTop: 8, gap: 2 }}>
-                {storeMatches.map((store) => (
-                  <Pressable
-                    key={store}
-                    onPress={() => handleSelectStore(store)}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed ? colors.oxygenGlow : colors.canvas,
-                      borderRadius: 8, paddingVertical: 9, paddingHorizontal: 12,
-                    })}
-                  >
-                    <Text style={{ fontSize: 14, color: colors.ink }}>{store}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-          </View>
-        )}
-
         {/* Scan Button */}
         <Pressable
           onPress={handleScan}
@@ -478,7 +334,7 @@ export default function ScanScreen() {
         <Pressable
           onPress={async () => {
             if (requireAuth()) return;
-            const exceeded = await handleQuotaCheck();
+            const exceeded = handleQuotaCheck();
             if (exceeded) return;
             router.push('/describe');
           }}
@@ -515,11 +371,8 @@ export default function ScanScreen() {
       </View>
 
       <QuotaExceededModal
-        visible={quotaModal.visible}
-        onClose={() => setQuotaModal(prev => ({ ...prev, visible: false }))}
-        scansUsed={quotaModal.scansUsed}
-        scansLimit={quotaModal.scansLimit}
-        resetsAt={quotaModal.resetsAt}
+        visible={quotaModalVisible}
+        onClose={() => setQuotaModalVisible(false)}
       />
     </SafeAreaView>
   );

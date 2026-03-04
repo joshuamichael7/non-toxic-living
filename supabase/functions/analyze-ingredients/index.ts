@@ -244,40 +244,40 @@ Deno.serve(async (req) => {
     }
 
     // =========================================================================
-    // STEP 1.5: Check scan quota (skip for cached results — already returned above)
+    // STEP 1.5: Check & decrement scan credits (skip for cached results)
     // =========================================================================
     if (userId) {
       const quotaStart = Date.now()
       try {
-        const { data: quotaResult, error: quotaError } = await supabase.rpc(
-          'check_and_increment_scan_quota',
+        const { data: creditResult, error: creditError } = await supabase.rpc(
+          'check_and_decrement_credits',
           { user_uuid: userId }
         )
 
-        if (quotaError) {
-          console.warn('Quota check failed (allowing scan):', quotaError)
+        if (creditError) {
+          console.warn('Credit check failed (allowing scan):', creditError)
           pipelineSteps.push({
-            name: 'Quota Check',
+            name: 'Credit Check',
             status: 'failed',
             durationMs: Date.now() - quotaStart,
-            detail: `Quota check error: ${quotaError.message}`,
+            detail: `Credit check error: ${creditError.message}`,
           })
-        } else if (quotaResult && quotaResult.length > 0) {
-          const quota = quotaResult[0]
+        } else if (creditResult && creditResult.length > 0) {
+          const credit = creditResult[0]
           pipelineSteps.push({
-            name: 'Quota Check',
-            status: quota.allowed ? 'success' : 'failed',
+            name: 'Credit Check',
+            status: credit.allowed ? 'success' : 'failed',
             durationMs: Date.now() - quotaStart,
-            detail: `${quota.scans_used}/${quota.scans_limit} scans used`,
+            detail: credit.allowed
+              ? `${credit.credits_remaining} credits remaining`
+              : 'No credits remaining',
           })
 
-          if (!quota.allowed) {
-            console.log('Quota exceeded for user:', userId, quota)
+          if (!credit.allowed) {
+            console.log('No credits for user:', userId)
             return new Response(JSON.stringify({
               error: 'quota_exceeded',
-              scansUsed: quota.scans_used,
-              scansLimit: quota.scans_limit,
-              resetsAt: quota.resets_at,
+              creditsRemaining: 0,
               pipelineTrace: {
                 steps: pipelineSteps,
                 extractedText: '',
@@ -292,12 +292,12 @@ Deno.serve(async (req) => {
           }
         }
       } catch (err) {
-        console.warn('Quota check exception (allowing scan):', err)
+        console.warn('Credit check exception (allowing scan):', err)
         pipelineSteps.push({
-          name: 'Quota Check',
+          name: 'Credit Check',
           status: 'failed',
           durationMs: Date.now() - quotaStart,
-          detail: 'Quota check exception — allowing scan',
+          detail: 'Credit check exception — allowing scan',
         })
       }
     }
@@ -653,6 +653,12 @@ ${ingredientText}`
       detail: `Score: ${analysis.score}, Verdict: ${analysis.verdict}, Concerns: ${analysis.concerns?.length || 0}`,
     })
 
+    // Normalize to 4-tier verdict from score (AI may return 3-tier)
+    analysis.verdict = analysis.score >= 80 ? 'safe'
+      : analysis.score >= 67 ? 'okay'
+      : analysis.score >= 34 ? 'caution'
+      : 'toxic'
+
     console.log('Analysis complete:', { score: analysis.score, verdict: analysis.verdict, model: analysisModel })
 
     // =========================================================================
@@ -729,9 +735,7 @@ ${ingredientText}`
     // =========================================================================
     // STEP 6: Get swap recommendations + coupons (filtered against blocklist)
     // =========================================================================
-    const swaps = analysis.score < 67
-      ? await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
-      : []
+    const swaps = await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
 
     // Fetch matching coupons for this category
     const coupons = await getCouponsForCategory(supabase, analysis.category)

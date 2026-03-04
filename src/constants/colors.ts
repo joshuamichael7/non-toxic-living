@@ -15,6 +15,11 @@ export const colors = {
     light: '#D1FAE5',
     glow: 'rgba(16, 185, 129, 0.25)',
   },
+  okay: {
+    DEFAULT: '#84CC16',
+    light: 'rgba(132, 204, 22, 0.15)',
+    glow: 'rgba(132, 204, 22, 0.25)',
+  },
   caution: {
     DEFAULT: '#F59E0B',
     light: '#FEF3C7',

@@ -74,9 +74,7 @@ export interface AnalyzeRequest {
 
 export interface QuotaExceededError {
   type: 'quota_exceeded';
-  scansUsed: number;
-  scansLimit: number;
-  resetsAt: string;
+  creditsRemaining: number;
 }
 
 export function isQuotaExceededError(error: unknown): error is QuotaExceededError {
@@ -120,9 +118,7 @@ export async function analyzeIngredients(request: AnalyzeRequest): Promise<Analy
     console.log('Quota exceeded:', data);
     throw {
       type: 'quota_exceeded',
-      scansUsed: data.scansUsed,
-      scansLimit: data.scansLimit,
-      resetsAt: data.resetsAt,
+      creditsRemaining: data.creditsRemaining ?? 0,
     } as QuotaExceededError;
   }
 

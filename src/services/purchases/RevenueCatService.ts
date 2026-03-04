@@ -10,19 +10,15 @@ import { supabase } from '@/lib/supabase';
 const IOS_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '';
 const ANDROID_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || '';
 
-export type SubscriptionTier = 'free' | 'pro' | 'power';
-export type BillingPeriod = 'monthly' | 'annual';
-
-export interface BillingInfo {
-  billingPeriod: BillingPeriod | null;
-  willRenew: boolean;
-  expirationDate: string | null;
-}
+/** Credits awarded per product identifier */
+const CREDITS_BY_PRODUCT: Record<string, number> = {
+  ntl_credits_200: 200,
+  ntl_credits_500: 500,
+};
 
 /**
  * Initialize RevenueCat SDK.
  * Call once at app startup after auth is ready.
- * Uses Supabase user ID as the RevenueCat appUserID.
  */
 export async function initializePurchases(userId?: string): Promise<void> {
   const apiKey = Platform.OS === 'ios' ? IOS_KEY : ANDROID_KEY;
@@ -41,24 +37,24 @@ export async function initializePurchases(userId?: string): Promise<void> {
 }
 
 /**
- * Get current offerings (available subscription packages).
+ * Get the credits offering from RevenueCat.
+ * Looks for an offering named "credits", falls back to "current".
  */
-export async function getOfferings(): Promise<PurchasesOffering | null> {
+export async function getCreditOfferings(): Promise<PurchasesOffering | null> {
   try {
     const offerings = await Purchases.getOfferings();
-    const current = offerings.current;
-    if (current) {
-      console.log('[Offerings] Current offering:', current.identifier);
-      console.log('[Offerings] Packages:', current.availablePackages.map(p => ({
+    const creditsOffering = offerings.all['credits'] || offerings.current;
+    if (creditsOffering) {
+      console.log('[Offerings] Using offering:', creditsOffering.identifier);
+      console.log('[Offerings] Packages:', creditsOffering.availablePackages.map(p => ({
         id: p.identifier,
         productId: p.product.identifier,
         price: p.product.priceString,
-        subscriptionPeriod: p.product.subscriptionPeriod,
       })));
     } else {
-      console.log('[Offerings] No current offering found');
+      console.log('[Offerings] No offering found');
     }
-    return current;
+    return creditsOffering;
   } catch (error) {
     console.error('[Offerings] Failed to get offerings:', error);
     return null;
@@ -66,37 +62,42 @@ export async function getOfferings(): Promise<PurchasesOffering | null> {
 }
 
 /**
- * Purchase a subscription package.
- * Returns CustomerInfo on success, null if user cancelled.
+ * Purchase a credit pack.
+ * Returns the number of credits awarded on success, null if user cancelled.
  * Throws on error.
  */
-export async function purchasePackage(
+export async function purchaseCreditPack(
   pkg: PurchasesPackage,
-): Promise<CustomerInfo | null> {
-  console.log('[Purchase] Starting purchase:', {
+): Promise<number | null> {
+  console.log('[Purchase] Starting credit pack purchase:', {
     packageId: pkg.identifier,
     productId: pkg.product.identifier,
     price: pkg.product.priceString,
-    offeringId: pkg.offeringIdentifier,
   });
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
-    console.log('[Purchase] Success:', {
-      activeEntitlements: Object.keys(customerInfo.entitlements.active),
-    });
-    // Sync to Supabase as safety net (webhook is authoritative)
-    const tier = getTierFromCustomerInfo(customerInfo);
-    const expiresAt = getExpirationFromCustomerInfo(customerInfo);
-    await syncToSupabase(tier, expiresAt);
-    return customerInfo;
+    console.log('[Purchase] Success. All purchased products:', customerInfo.allPurchasedProductIdentifiers);
+
+    // Determine credits from product ID
+    const productId = pkg.product.identifier;
+    const credits = Object.entries(CREDITS_BY_PRODUCT).find(
+      ([key]) => productId.includes(key)
+    )?.[1] ?? 0;
+
+    if (credits > 0) {
+      // Client-side safety net: add credits immediately in case webhook is slow
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await addCreditsAfterPurchase(user.id, credits);
+      }
+    }
+
+    return credits;
   } catch (error: any) {
     console.log('[Purchase] Error:', {
       code: error.code,
       message: error.message,
       userCancelled: error.userCancelled,
-      underlyingErrorMessage: error.underlyingErrorMessage,
-      readableErrorCode: error.readableErrorCode,
-      raw: JSON.stringify(error, null, 2),
     });
     if (error.userCancelled) {
       return null;
@@ -106,160 +107,54 @@ export async function purchasePackage(
 }
 
 /**
+ * Add credits to a user's profile.
+ * Called as a client-side safety net after a successful purchase,
+ * in case the RevenueCat webhook is slow.
+ */
+export async function addCreditsAfterPurchase(
+  userId: string,
+  credits: number,
+): Promise<number> {
+  try {
+    const { data, error } = await (supabase as any).rpc('add_scan_credits', {
+      user_uuid: userId,
+      amount: credits,
+    });
+    if (error) {
+      console.error('[Credits] Failed to add credits:', error);
+      return 0;
+    }
+    console.log('[Credits] Added', credits, '→ new balance:', data);
+    return data as number;
+  } catch (err) {
+    console.error('[Credits] Exception adding credits:', err);
+    return 0;
+  }
+}
+
+/**
  * Restore previous purchases (for reinstalls or device switches).
+ * After restoring, the webhook will re-fire or the client can re-add credits.
  */
 export async function restorePurchases(): Promise<CustomerInfo> {
   const customerInfo = await Purchases.restorePurchases();
-  const tier = getTierFromCustomerInfo(customerInfo);
-  const expiresAt = getExpirationFromCustomerInfo(customerInfo);
-  await syncToSupabase(tier, expiresAt);
+  console.log('[Restore] Restored purchases. Products:', customerInfo.allPurchasedProductIdentifiers);
   return customerInfo;
 }
 
 /**
- * Get current customer info without making a purchase.
+ * Get current customer info (used for restore flow).
  */
 export async function getCustomerInfo(): Promise<CustomerInfo | null> {
   try {
-    // Always invalidate cache first so we get fresh data from RevenueCat servers,
-    // not stale device-side cache that doesn't reflect recent plan changes.
     await Purchases.invalidateCustomerInfoCache();
     const info = await Purchases.getCustomerInfo();
-
-    // Log everything RevenueCat tells us
-    const activeEntitlements = Object.entries(info.entitlements.active).map(([key, ent]) => ({
-      entitlement: key,
-      productIdentifier: ent.productIdentifier,
-      willRenew: ent.willRenew,
-      expirationDate: ent.expirationDate,
-      isActive: ent.isActive,
-      isSandbox: ent.isSandbox,
-    }));
-    const allEntitlements = Object.entries(info.entitlements.all).map(([key, ent]) => ({
-      entitlement: key,
-      productIdentifier: ent.productIdentifier,
-      isActive: ent.isActive,
-    }));
-    console.log('[RC:CustomerInfo] ===== REVENUECAT STATE =====');
-    console.log('[RC:CustomerInfo] Active entitlements:', JSON.stringify(activeEntitlements, null, 2));
-    console.log('[RC:CustomerInfo] All entitlements:', JSON.stringify(allEntitlements, null, 2));
-    console.log('[RC:CustomerInfo] Active subscriptions:', JSON.stringify(info.activeSubscriptions));
-    console.log('[RC:CustomerInfo] All purchased product IDs:', JSON.stringify(info.allPurchasedProductIdentifiers));
-
+    console.log('[RC:CustomerInfo] All purchased product IDs:', info.allPurchasedProductIdentifiers);
     return info;
   } catch (error) {
     console.error('Failed to get customer info:', error);
     return null;
   }
-}
-
-/**
- * Map RevenueCat entitlements to our tier system.
- * power_access > pro_access > free
- */
-export function getTierFromCustomerInfo(info: CustomerInfo): SubscriptionTier {
-  const hasPower = !!info.entitlements.active['power_access'];
-  const hasPro = !!info.entitlements.active['pro_access'];
-  const result = hasPower ? 'power' : hasPro ? 'pro' : 'free';
-  console.log(`[RC:Tier] power_access=${hasPower}, pro_access=${hasPro} → tier=${result}`);
-  return result;
-}
-
-/**
- * Get expiration date from the active entitlement.
- */
-function getExpirationFromCustomerInfo(info: CustomerInfo): string | null {
-  const powerEntitlement = info.entitlements.active['power_access'];
-  if (powerEntitlement?.expirationDate) {
-    return powerEntitlement.expirationDate;
-  }
-  const proEntitlement = info.entitlements.active['pro_access'];
-  if (proEntitlement?.expirationDate) {
-    return proEntitlement.expirationDate;
-  }
-  return null;
-}
-
-/**
- * Extract billing info (period, willRenew, expiration) from active entitlements.
- * Uses productIdentifier to determine monthly vs annual.
- */
-export function getBillingInfoFromCustomerInfo(info: CustomerInfo): BillingInfo {
-  const entitlement =
-    info.entitlements.active['power_access'] ||
-    info.entitlements.active['pro_access'];
-
-  if (!entitlement) {
-    return { billingPeriod: null, willRenew: false, expirationDate: null };
-  }
-
-  const isAnnual = entitlement.productIdentifier.includes('annual');
-  return {
-    billingPeriod: isAnnual ? 'annual' : 'monthly',
-    willRenew: entitlement.willRenew,
-    expirationDate: entitlement.expirationDate,
-  };
-}
-
-/**
- * Sync subscription state to Supabase profiles table.
- * This is a client-side safety net — the webhook is the authoritative source.
- * On upgrade from free, also resets scan quota and starts a fresh billing cycle.
- */
-async function syncToSupabase(
-  tier: SubscriptionTier,
-  expiresAt: string | null,
-): Promise<void> {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Check current tier to detect upgrades
-    const { data: profile } = await (supabase as any)
-      .from('profiles')
-      .select('subscription')
-      .eq('id', user.id)
-      .single() as { data: { subscription: string } | null };
-
-    const isUpgrade = profile && profile.subscription !== tier && tier !== 'free';
-
-    const updateData: Record<string, any> = {
-      subscription: tier,
-      subscription_expires_at: expiresAt,
-    };
-
-    // Reset scan quota on upgrade so user gets full allotment immediately
-    if (isUpgrade) {
-      const resetDate = new Date();
-      resetDate.setMonth(resetDate.getMonth() + 1);
-      updateData.scans_this_month = 0;
-      updateData.scans_month_reset_at = resetDate.toISOString();
-    }
-
-    await (supabase as any)
-      .from('profiles')
-      .update(updateData)
-      .eq('id', user.id);
-  } catch (error) {
-    console.error('Failed to sync subscription to Supabase:', error);
-  }
-}
-
-/**
- * Add a listener for real-time subscription changes.
- * Fires when RevenueCat SDK receives updates (renewals, cancellations, external changes).
- * Returns an unsubscribe function.
- */
-export function addSubscriptionListener(
-  onUpdate: (info: CustomerInfo) => void
-): () => void {
-  const wrappedListener = (info: CustomerInfo) => {
-    console.log('[RC:Listener] Customer info updated — active entitlements:',
-      Object.keys(info.entitlements.active));
-    onUpdate(info);
-  };
-  Purchases.addCustomerInfoUpdateListener(wrappedListener);
-  return () => Purchases.removeCustomerInfoUpdateListener(wrappedListener);
 }
 
 /**

@@ -11,8 +11,7 @@ import { analyzeIngredients, isQuotaExceededError } from '@/services/api/analyze
 import { useScanStore } from '@/stores/useScanStore';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
-import { supabase } from '@/lib/supabase';
+import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { QuotaExceededModal } from '@/components/ui/QuotaExceededModal';
 
 // Aerogel Design System Colors
@@ -29,31 +28,6 @@ const colors = {
   error: '#EF4444',
 };
 
-const TIER_LIMITS: Record<string, number> = { free: 5, pro: 200, power: 500 };
-
-async function checkQuotaExceeded(): Promise<{ exceeded: boolean; scansUsed: number; scansLimit: number; resetsAt: string }> {
-  const userId = useAuthStore.getState().user?.id;
-  const tier = useSubscriptionStore.getState().tier;
-  if (!userId) return { exceeded: false, scansUsed: 0, scansLimit: 0, resetsAt: '' };
-
-  const limit = TIER_LIMITS[tier] ?? 5;
-
-  const { data } = await (supabase as any)
-    .from('profiles')
-    .select('scans_this_month, scans_month_reset_at')
-    .eq('id', userId)
-    .single() as { data: { scans_this_month: number; scans_month_reset_at: string } | null };
-
-  if (!data) return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: '' };
-
-  const resetAt = new Date(data.scans_month_reset_at);
-  if (resetAt < new Date()) {
-    return { exceeded: false, scansUsed: 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
-  }
-
-  const exceeded = (data.scans_this_month || 0) >= limit;
-  return { exceeded, scansUsed: data.scans_this_month || 0, scansLimit: limit, resetsAt: data.scans_month_reset_at };
-}
 
 const PRODUCT_TYPES = [
   { key: 'food', icon: 'nutrition-outline' as const },
@@ -83,12 +57,7 @@ export default function DescribeScreen() {
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [quotaModal, setQuotaModal] = useState<{
-    visible: boolean;
-    scansUsed: number;
-    scansLimit: number;
-    resetsAt: string;
-  }>({ visible: false, scansUsed: 0, scansLimit: 0, resetsAt: '' });
+  const [quotaModalVisible, setQuotaModalVisible] = useState(false);
 
   const materialsRef = useRef<TextInput>(null);
 
@@ -118,20 +87,11 @@ export default function DescribeScreen() {
       return;
     }
 
-    // Pre-check quota before sending to server
-    try {
-      const quota = await checkQuotaExceeded();
-      if (quota.exceeded) {
-        setQuotaModal({
-          visible: true,
-          scansUsed: quota.scansUsed,
-          scansLimit: quota.scansLimit,
-          resetsAt: quota.resetsAt,
-        });
-        return;
-      }
-    } catch (err) {
-      console.warn('Client quota check failed, proceeding:', err);
+    // Pre-check credits before sending to server
+    const { credits } = useCreditStore.getState();
+    if (credits <= 0) {
+      setQuotaModalVisible(true);
+      return;
     }
 
     setValidationError(null);
@@ -182,12 +142,8 @@ export default function DescribeScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
       if (isQuotaExceededError(error)) {
-        setQuotaModal({
-          visible: true,
-          scansUsed: error.scansUsed,
-          scansLimit: error.scansLimit,
-          resetsAt: error.resetsAt,
-        });
+        setQuotaModalVisible(true);
+        useCreditStore.getState().refreshCredits();
       } else {
         const msg = error instanceof Error ? error.message : 'Analysis failed';
         setError(msg);
@@ -456,11 +412,8 @@ export default function DescribeScreen() {
       </View>
 
       <QuotaExceededModal
-        visible={quotaModal.visible}
-        onClose={() => setQuotaModal(prev => ({ ...prev, visible: false }))}
-        scansUsed={quotaModal.scansUsed}
-        scansLimit={quotaModal.scansLimit}
-        resetsAt={quotaModal.resetsAt}
+        visible={quotaModalVisible}
+        onClose={() => setQuotaModalVisible(false)}
       />
     </SafeAreaView>
   );

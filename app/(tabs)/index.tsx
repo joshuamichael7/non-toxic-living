@@ -186,8 +186,8 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Featured / Top Deals */}
-        <FeaturedCarousel onSeeAll={() => router.push('/deals')} />
+        {/* Featured Swaps */}
+        <FeaturedCarousel />
 
         {/* Recent Scans */}
         <View style={{ paddingHorizontal: 24 }}>

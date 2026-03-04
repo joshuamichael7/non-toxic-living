@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'Empezar a escanear',
   'home.categories': 'Categorías',
   'home.insights': 'Información',
-  'home.topDeals': 'Mejores Ofertas',
+  'home.topDeals': 'Alternativas Destacadas',
   'home.recentScans': 'Escaneos recientes',
   'home.seeAll': 'Ver todo',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': 'Seguro',
+  'verdict.okay': 'Aceptable',
   'verdict.caution': 'Precaución',
   'verdict.toxic': 'Evitar',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'Plan Pro',
   'profile.powerPlan': 'Plan Power',
 
+  // Credits (scan credit packs)
+  'credits.title': 'Créditos de Escaneo',
+  'credits.balance': '{{count}} escaneos restantes',
+  'credits.pack200Label': '200 Escaneos',
+  'credits.pack500Label': '500 Escaneos',
+  'credits.pack200Desc': 'Ideal para escaneos ocasionales',
+  'credits.pack500Desc': 'Mejor valor · 20% de ahorro',
+  'credits.neverExpire': 'Los créditos no caducan',
+  'credits.buyMore': 'Comprar Más Créditos',
+  'credits.restore': 'Restaurar Compras',
+  'credits.outTitle': 'Sin Créditos de Escaneo',
+  'credits.outDesc': 'Compra un paquete de créditos para continuar escaneando',
+  'credits.trialBanner': 'Tienes 10 escaneos de prueba gratuitos para empezar',
+  'credits.lowCredits': 'Pocos escaneos restantes',
+
   // Quota
   'quota.title': 'Límite de escaneos alcanzado',
   'quota.description': 'Has usado {{used}} de {{limit}} escaneos este mes.',
   'quota.resetsIn': 'Se renueva en {{days}} días',
   'quota.upgradePro': 'Mejorar a Pro',
   'quota.dismiss': 'Quizás después',
-  'quota.scanUsage': 'Uso de Escaneos',
+  'quota.scanUsage': 'Créditos de Escaneo',
   'quota.scansThisMonth': 'escaneos este mes',
   'quota.resetsOn': 'Se renueva el {{date}}',
-  'quota.upgradePrompt': '¿Te estás quedando sin escaneos?',
-  'quota.upgrade': 'Mejorar',
+  'quota.upgradePrompt': '¿Pocos créditos? Consigue más escaneos.',
+  'quota.upgrade': 'Comprar Créditos',
 
   // Common
   'common.cancel': 'Cancelar',

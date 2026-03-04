@@ -15,7 +15,7 @@ export default {
   'home.startScanning': 'ابدأ المسح',
   'home.categories': 'الفئات',
   'home.insights': 'رؤى',
-  'home.topDeals': 'أفضل العروض',
+  'home.topDeals': 'البدائل المميزة',
   'home.recentScans': 'عمليات المسح الأخيرة',
   'home.seeAll': 'عرض الكل',
 
@@ -101,6 +101,7 @@ export default {
 
   // Verdicts
   'verdict.safe': 'آمن',
+  'verdict.okay': 'مقبول',
   'verdict.caution': 'تحذير',
   'verdict.toxic': 'تجنب',
 
@@ -291,17 +292,32 @@ export default {
   'profile.proPlan': 'خطة Pro',
   'profile.powerPlan': 'خطة Power',
 
+  // Credits (scan credit packs)
+  'credits.title': 'رصيد المسح',
+  'credits.balance': '{{count}} عمليات مسح متبقية',
+  'credits.pack200Label': '200 مسح',
+  'credits.pack500Label': '500 مسح',
+  'credits.pack200Desc': 'مثالي للمسح العرضي',
+  'credits.pack500Desc': 'أفضل قيمة · توفير 20%',
+  'credits.neverExpire': 'الرصيد لا ينتهي أبداً',
+  'credits.buyMore': 'شراء المزيد من الرصيد',
+  'credits.restore': 'استعادة المشتريات',
+  'credits.outTitle': 'نفد رصيد المسح',
+  'credits.outDesc': 'اشترِ حزمة رصيد للاستمرار في المسح',
+  'credits.trialBanner': 'لديك 10 عمليات مسح تجريبية مجانية للبدء',
+  'credits.lowCredits': 'الرصيد على وشك النفاد',
+
   // Quota
   'quota.title': 'تم الوصول إلى حد المسح',
   'quota.description': 'لقد استخدمت {{used}} من {{limit}} عملية مسح هذا الشهر.',
   'quota.resetsIn': 'يتجدد خلال {{days}} أيام',
   'quota.upgradePro': 'الترقية إلى Pro',
   'quota.dismiss': 'ربما لاحقًا',
-  'quota.scanUsage': 'استخدام المسح',
+  'quota.scanUsage': 'رصيد المسح',
   'quota.scansThisMonth': 'عملية مسح هذا الشهر',
   'quota.resetsOn': 'يتجدد في {{date}}',
-  'quota.upgradePrompt': 'هل أوشكت عمليات المسح على النفاد؟',
-  'quota.upgrade': 'ترقية',
+  'quota.upgradePrompt': 'رصيدك منخفض؟ أضف عمليات مسح.',
+  'quota.upgrade': 'شراء الرصيد',
 
   // Common
   'common.cancel': 'إلغاء',

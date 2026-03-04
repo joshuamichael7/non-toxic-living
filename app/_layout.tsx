@@ -10,7 +10,7 @@ import '../global.css';
 import '@/i18n';
 import { usePreferencesStore } from '@/stores/usePreferencesStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useSubscriptionStore } from '@/stores/useSubscriptionStore';
+import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { initializePurchases, loginUser, logoutUser } from '@/services/purchases/RevenueCatService';
 import { supabase } from '@/lib/supabase';
 
@@ -57,8 +57,8 @@ export default function RootLayout() {
       const currentUser = useAuthStore.getState().user;
       await initializePurchases(currentUser?.id);
 
-      // Initialize subscription store (reads from Supabase + RevenueCat)
-      await useSubscriptionStore.getState().initialize();
+      // Initialize credit store (reads scan_credits from Supabase)
+      await useCreditStore.getState().initialize();
 
       // Mark ready and hide splash screen
       setIsReady(true);
@@ -81,10 +81,10 @@ export default function RootLayout() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         await loginUser(session.user.id);
-        await useSubscriptionStore.getState().initialize();
+        await useCreditStore.getState().initialize();
       } else if (event === 'SIGNED_OUT') {
         await logoutUser();
-        useSubscriptionStore.getState().setTier('free');
+        await useCreditStore.getState().initialize(); // resets to 0 since user is null
       }
     });
 
