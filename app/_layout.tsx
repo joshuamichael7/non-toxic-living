@@ -107,7 +107,7 @@ export default function RootLayout() {
 
   // Register navigation callback for password recovery deep links
   useEffect(() => {
-    _navigateToResetPassword = () => router.push('/(auth)/reset-password');
+    _navigateToResetPassword = () => router.replace('/reset-password' as any);
     return () => { _navigateToResetPassword = null; };
   }, [router]);
 

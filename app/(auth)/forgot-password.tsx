@@ -39,7 +39,7 @@ export default function ForgotPasswordScreen() {
 
     setIsLoading(true);
     const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: 'nontoxicliving://auth/reset-password',
+      redirectTo: 'nontoxicliving://reset-password',
     });
     setIsLoading(false);
 
