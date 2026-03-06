@@ -48,7 +48,10 @@ export default function ProfileScreen() {
   );
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setStats({ totalScans: 0, toxinsFound: 0, safeProducts: 0 });
+      return;
+    }
     getUserScans(user.id, 50)
       .then((scans) => {
         const totalScans = scans.length;
