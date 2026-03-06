@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import * as Linking from 'expo-linking';
 
 import { supabase } from '@/lib/supabase';
 
@@ -34,43 +33,42 @@ export default function ResetPasswordScreen() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  // Ensure the recovery session is established before allowing password update.
-  // _layout.tsx calls setSession from the deep link, but there's a race condition
-  // on cold start — so we also do it here as a guarantee.
+  // Wait for the recovery session to be established by _layout.tsx's handleAuthDeepLink.
+  // Use onAuthStateChange so we react immediately when setSession fires, rather than
+  // awaiting getSession() which can hang if no session exists yet.
   useEffect(() => {
-    async function ensureSession() {
-      // Check if session is already set (e.g. _layout.tsx beat us to it)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+    let resolved = false;
+
+    function markReady() {
+      if (!resolved) {
+        resolved = true;
         setSessionReady(true);
-        return;
       }
-
-      // Fall back: parse tokens from the initial URL ourselves
-      const url = await Linking.getInitialURL();
-      if (url) {
-        const fragment = url.split('#')[1];
-        if (fragment) {
-          const params = new URLSearchParams(fragment);
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-          if (accessToken && refreshToken) {
-            const { error: sessionErr } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-            if (!sessionErr) {
-              setSessionReady(true);
-              return;
-            }
-          }
-        }
-      }
-
-      setError('Reset link expired or invalid. Please request a new one.');
     }
 
-    ensureSession();
+    // React to PASSWORD_RECOVERY or SIGNED_IN fired by setSession in handleAuthDeepLink
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN')) {
+        markReady();
+      }
+    });
+
+    // Also check immediately in case setSession already ran before this screen mounted
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) markReady();
+    }).catch(() => {});
+
+    // Show an error after 15s instead of spinning forever
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        setError('Reset link expired or invalid. Please request a new one.');
+      }
+    }, 15000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleReset = async () => {
