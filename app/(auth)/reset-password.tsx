@@ -46,10 +46,13 @@ export default function ResetPasswordScreen() {
       }
     }
 
-    // React to PASSWORD_RECOVERY or SIGNED_IN fired by setSession in handleAuthDeepLink
+    // React to any auth event that provides a session — covers:
+    // SIGNED_IN (warm start, deep link fires while app is open)
+    // PASSWORD_RECOVERY (Supabase-specific recovery event)
+    // INITIAL_SESSION (cold start — subscriber fires immediately with existing session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('[ResetPassword] onAuthStateChange:', event, session?.user?.email ?? 'no session');
-      if (session && (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN')) {
+      if (session) {
         markReady();
       }
     });
