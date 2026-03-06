@@ -91,11 +91,19 @@ export default function ResetPasswordScreen() {
 
     setIsLoading(true);
     try {
+      console.log('[ResetPassword] 1. calling getSession...');
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('[ResetPassword] session before updateUser:', session?.user?.email ?? 'NO SESSION', 'expires:', session?.expires_at);
+      console.log('[ResetPassword] 2. session:', session?.user?.email ?? 'NO SESSION', '| expires:', session?.expires_at);
 
-      const { error: err } = await supabase.auth.updateUser({ password });
-      console.log('[ResetPassword] updateUser result:', err ?? 'success');
+      if (!session) {
+        setError('Session expired. Please request a new reset link.');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('[ResetPassword] 3. calling updateUser...');
+      const { data, error: err } = await supabase.auth.updateUser({ password });
+      console.log('[ResetPassword] 4. updateUser done | error:', err?.message ?? 'none', '| user:', data?.user?.email ?? 'none');
 
       if (err) {
         setError(err.message);
@@ -103,7 +111,7 @@ export default function ResetPasswordScreen() {
         setDone(true);
       }
     } catch (e: any) {
-      console.log('[ResetPassword] updateUser threw:', e);
+      console.log('[ResetPassword] THREW:', e?.message ?? e);
       setError(e?.message ?? 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
