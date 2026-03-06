@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthStore } from '@/stores/useAuthStore';
+import { supabase } from '@/lib/supabase';
 
 const colors = {
   canvas: '#E8E8E8',
@@ -28,6 +29,8 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
 
   const handleSignIn = async () => {
     setError(null);
@@ -111,9 +114,16 @@ export default function LoginScreen() {
               autoCorrect={false}
             />
 
-            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
-              {t('auth.password')}
-            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary }}>
+                {t('auth.password')}
+              </Text>
+              <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.oxygen }}>
+                  {t('auth.forgotPassword')}
+                </Text>
+              </Pressable>
+            </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.canvas, borderRadius: 14, marginBottom: 24 }}>
               <TextInput
                 style={{
@@ -150,6 +160,46 @@ export default function LoginScreen() {
                 </Text>
               )}
             </Pressable>
+          </View>
+
+          {/* Magic link */}
+          <View style={{ marginTop: 16, alignItems: 'center' }}>
+            <Text style={{ color: colors.inkSecondary, fontSize: 13, marginBottom: 10 }}>
+              {t('auth.orDivider')}
+            </Text>
+            {magicLinkSent ? (
+              <View style={{ backgroundColor: 'rgba(16,185,129,0.12)', borderRadius: 14, padding: 14, alignItems: 'center', width: '100%' }}>
+                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+                <Text style={{ color: '#10B981', fontWeight: '600', fontSize: 14, marginTop: 6, textAlign: 'center' }}>
+                  {t('auth.magicLinkSent')}
+                </Text>
+              </View>
+            ) : (
+              <Pressable
+                onPress={async () => {
+                  if (!email.trim()) { setError(t('auth.emailRequired')); return; }
+                  setMagicLinkLoading(true);
+                  await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: 'nontoxicliving://auth/callback' } });
+                  setMagicLinkLoading(false);
+                  setMagicLinkSent(true);
+                }}
+                disabled={magicLinkLoading}
+                style={{
+                  width: '100%', paddingVertical: 14, borderRadius: 16, alignItems: 'center',
+                  backgroundColor: colors.glassSolid, borderWidth: 1, borderColor: colors.glassBorder,
+                  flexDirection: 'row', justifyContent: 'center', gap: 8,
+                }}
+              >
+                {magicLinkLoading ? <ActivityIndicator color={colors.oxygen} /> : (
+                  <>
+                    <Ionicons name="mail" size={18} color={colors.oxygen} />
+                    <Text style={{ color: colors.oxygen, fontWeight: '700', fontSize: 15 }}>
+                      {t('auth.sendMagicLink')}
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            )}
           </View>
 
           {/* Sign Up link */}

@@ -82,9 +82,11 @@ export default function RootLayout() {
       if (event === 'SIGNED_IN' && session?.user) {
         await loginUser(session.user.id);
         await useCreditStore.getState().initialize();
+        queryClient.clear(); // flush cached data so new user sees fresh data
       } else if (event === 'SIGNED_OUT') {
         await logoutUser();
-        await useCreditStore.getState().initialize(); // resets to 0 since user is null
+        await useCreditStore.getState().initialize();
+        queryClient.clear();
       }
     });
 
