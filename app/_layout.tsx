@@ -53,9 +53,14 @@ async function handleAuthDeepLink(url: string) {
   }
 
   if (accessToken && refreshToken) {
-    console.log('[Layout] calling setSession...');
-    const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-    console.log('[Layout] setSession done, error:', error?.message ?? 'none');
+    // Wrap setSession in a timeout — it can hang indefinitely if Supabase's
+    // internal async lock is held by a background token refresh.
+    console.log('[Layout] calling setSession (10s timeout)...');
+    await Promise.race([
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }),
+      new Promise<void>(resolve => setTimeout(resolve, 10000)),
+    ]);
+    console.log('[Layout] setSession done (or timed out)');
   } else {
     console.log('[Layout] handleAuthDeepLink: missing tokens, skipping setSession');
   }
@@ -79,7 +84,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function init() {
-      // Initialize auth
+      // Initialize auth — this registers the onAuthStateChange listener so
+      // any SIGNED_IN event from handleAuthDeepLink below is captured.
       await useAuthStore.getState().initialize();
 
       // Sync persisted language to i18n on app start
@@ -92,6 +98,12 @@ export default function RootLayout() {
       // Initialize credit store (reads scan_credits from Supabase)
       await useCreditStore.getState().initialize();
 
+      // Handle cold-start deep link AFTER auth listeners are registered.
+      // If we did this in parallel with init(), setSession could fire SIGNED_IN
+      // before onAuthStateChange was subscribed, dropping the event entirely.
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) await handleAuthDeepLink(initialUrl);
+
       // Mark ready and hide splash screen
       setIsReady(true);
       SplashScreen.hideAsync();
@@ -99,10 +111,7 @@ export default function RootLayout() {
 
     init();
 
-    // Handle deep links for email confirmation / password recovery
-    Linking.getInitialURL().then((url) => {
-      if (url) handleAuthDeepLink(url);
-    });
+    // Warm-start: handle deep links that arrive while the app is already running.
     const linkingSub = Linking.addEventListener('url', ({ url }) => {
       handleAuthDeepLink(url);
     });

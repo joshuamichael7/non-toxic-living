@@ -85,10 +85,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    // Clear state immediately so UI updates without waiting for the network call,
-    // which can hang if Supabase's internal async lock is held by a background refresh.
+    // Clear state immediately for instant UI feedback.
     set({ session: null, user: null });
-    supabase.auth.signOut().catch(() => {});
+    // scope: 'local' clears the session from AsyncStorage without making a
+    // server call, so it never hangs on Supabase's internal async lock.
+    // The server-side token expires naturally (1 hour). This also means we
+    // don't leave a fire-and-forget signOut() racing against subsequent
+    // setSession() calls (e.g. magic link sign-in), which was causing stale state.
+    await supabase.auth.signOut({ scope: 'local' });
   },
 
   clearError: () => set({ error: null }),
