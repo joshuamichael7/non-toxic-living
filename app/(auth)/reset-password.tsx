@@ -48,6 +48,7 @@ export default function ResetPasswordScreen() {
 
     // React to PASSWORD_RECOVERY or SIGNED_IN fired by setSession in handleAuthDeepLink
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[ResetPassword] onAuthStateChange:', event, session?.user?.email ?? 'no session');
       if (session && (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN')) {
         markReady();
       }
@@ -55,8 +56,9 @@ export default function ResetPasswordScreen() {
 
     // Also check immediately in case setSession already ran before this screen mounted
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('[ResetPassword] getSession on mount:', session?.user?.email ?? 'no session');
       if (session) markReady();
-    }).catch(() => {});
+    }).catch((e) => console.log('[ResetPassword] getSession error:', e));
 
     // Show an error after 15s instead of spinning forever
     const timeout = setTimeout(() => {
@@ -89,13 +91,19 @@ export default function ResetPasswordScreen() {
 
     setIsLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('[ResetPassword] session before updateUser:', session?.user?.email ?? 'NO SESSION', 'expires:', session?.expires_at);
+
       const { error: err } = await supabase.auth.updateUser({ password });
+      console.log('[ResetPassword] updateUser result:', err ?? 'success');
+
       if (err) {
         setError(err.message);
       } else {
         setDone(true);
       }
     } catch (e: any) {
+      console.log('[ResetPassword] updateUser threw:', e);
       setError(e?.message ?? 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
