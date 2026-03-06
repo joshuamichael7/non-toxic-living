@@ -116,9 +116,10 @@ export default function RootLayout() {
     if (!isReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const isResettingPassword = segments.includes('reset-password');
 
-    if (user && inAuthGroup) {
-      // User just signed in — go to tabs
+    if (user && inAuthGroup && !isResettingPassword) {
+      // User just signed in — go to tabs (but not if they're mid password reset)
       console.log('[Layout] User signed in, navigating to tabs');
       router.replace('/(tabs)');
     }
