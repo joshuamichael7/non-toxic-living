@@ -15,6 +15,9 @@ import { initializePurchases, loginUser, logoutUser } from '@/services/purchases
 import { supabase } from '@/lib/supabase';
 
 let _navigateToResetPassword: (() => void) | null = null;
+// Set to true before setSession() so the navigation effect doesn't redirect
+// to tabs while a password recovery deep link is being processed.
+let _recoveryInProgress = false;
 
 /** Extract tokens from a deep link URL and set the Supabase session */
 async function handleAuthDeepLink(url: string) {
@@ -26,10 +29,15 @@ async function handleAuthDeepLink(url: string) {
   const refreshToken = params.get('refresh_token');
   const type = params.get('type');
 
+  // Set flag synchronously before the first await so the navigation effect
+  // (which fires when SIGNED_IN lands) sees it and skips the tabs redirect.
+  if (type === 'recovery') {
+    _recoveryInProgress = true;
+  }
+
   if (accessToken && refreshToken) {
     await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
     if (type === 'recovery') {
-      // Navigate to the reset password screen
       _navigateToResetPassword?.();
     }
   }
@@ -107,7 +115,10 @@ export default function RootLayout() {
 
   // Register navigation callback for password recovery deep links
   useEffect(() => {
-    _navigateToResetPassword = () => router.push('/(auth)/reset-password' as any);
+    _navigateToResetPassword = () => {
+      _recoveryInProgress = false;
+      router.push('/(auth)/reset-password' as any);
+    };
     return () => { _navigateToResetPassword = null; };
   }, [router]);
 
@@ -118,8 +129,8 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === '(auth)';
     const isResettingPassword = segments.includes('reset-password');
 
-    if (user && inAuthGroup && !isResettingPassword) {
-      // User just signed in — go to tabs (but not if they're mid password reset)
+    if (user && inAuthGroup && !isResettingPassword && !_recoveryInProgress) {
+      // User just signed in — go to tabs (but not during password recovery)
       console.log('[Layout] User signed in, navigating to tabs');
       router.replace('/(tabs)');
     }
