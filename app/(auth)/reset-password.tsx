@@ -91,19 +91,9 @@ export default function ResetPasswordScreen() {
 
     setIsLoading(true);
     try {
-      console.log('[ResetPassword] 1. calling getSession...');
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('[ResetPassword] 2. session:', session?.user?.email ?? 'NO SESSION', '| expires:', session?.expires_at);
-
-      if (!session) {
-        setError('Session expired. Please request a new reset link.');
-        setIsLoading(false);
-        return;
-      }
-
-      console.log('[ResetPassword] 3. calling updateUser...');
+      console.log('[ResetPassword] calling updateUser...');
       const { data, error: err } = await supabase.auth.updateUser({ password });
-      console.log('[ResetPassword] 4. updateUser done | error:', err?.message ?? 'none', '| user:', data?.user?.email ?? 'none');
+      console.log('[ResetPassword] updateUser done | error:', err?.message ?? 'none | user:', data?.user?.email ?? 'none');
 
       if (err) {
         setError(err.message);
