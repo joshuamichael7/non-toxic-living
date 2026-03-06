@@ -236,14 +236,14 @@ export default function SignUpScreen() {
                 {t('auth.agreeToTerms')}{' '}
                 <Text
                   style={{ color: colors.oxygen, fontWeight: '600' }}
-                  onPress={() => Linking.openURL('https://nontoxicliving.netlify.app/privacy')}
+                  onPress={() => Linking.openURL('https://notoxlife.app/privacy')}
                 >
                   {t('auth.privacyPolicy')}
                 </Text>
                 {' '}{t('auth.and')}{' '}
                 <Text
                   style={{ color: colors.oxygen, fontWeight: '600' }}
-                  onPress={() => Linking.openURL('https://nontoxicliving.netlify.app/terms')}
+                  onPress={() => Linking.openURL('https://notoxlife.app/terms')}
                 >
                   {t('auth.termsOfService')}
                 </Text>

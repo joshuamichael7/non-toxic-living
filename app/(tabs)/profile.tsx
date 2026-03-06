@@ -74,7 +74,7 @@ export default function ProfileScreen() {
     { title: t('profile.language'), icon: 'language-outline' as const, subtitle: currentLanguageLabel, onPress: () => setShowLanguagePicker(true) },
     { title: t('profile.helpSupport'), icon: 'help-circle-outline' as const, onPress: () => router.push('/help') },
     { title: t('profile.about'), icon: 'information-circle-outline' as const, onPress: () => router.push('/about') },
-    ...(user ? [{ title: t('profile.deleteAccount'), icon: 'trash-outline' as const, onPress: () => Linking.openURL('https://nontoxicliving.netlify.app/delete-account'), destructive: true }] : []),
+    ...(user ? [{ title: t('profile.deleteAccount'), icon: 'trash-outline' as const, onPress: () => Linking.openURL('https://notoxlife.app/delete-account'), destructive: true }] : []),
   ];
 
   const handleSignOut = async () => {
