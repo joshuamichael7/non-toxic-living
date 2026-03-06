@@ -37,6 +37,7 @@ export default function ResetPasswordScreen() {
   // Use onAuthStateChange so we react immediately when setSession fires, rather than
   // awaiting getSession() which can hang if no session exists yet.
   useEffect(() => {
+    console.log('[ResetPassword] useEffect mounted');
     let resolved = false;
 
     function markReady() {

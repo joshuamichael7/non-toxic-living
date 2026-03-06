@@ -21,25 +21,36 @@ let _recoveryInProgress = false;
 
 /** Extract tokens from a deep link URL and set the Supabase session */
 async function handleAuthDeepLink(url: string) {
+  console.log('[Layout] handleAuthDeepLink called:', url.substring(0, 80));
   const fragment = url.split('#')[1];
-  if (!fragment) return;
+  if (!fragment) {
+    console.log('[Layout] handleAuthDeepLink: no fragment, skipping');
+    return;
+  }
 
   const params = new URLSearchParams(fragment);
   const accessToken = params.get('access_token');
   const refreshToken = params.get('refresh_token');
   const type = params.get('type');
+  console.log('[Layout] handleAuthDeepLink: type=', type, 'hasTokens=', !!(accessToken && refreshToken));
 
   // Set flag synchronously before the first await so the navigation effect
   // (which fires when SIGNED_IN lands) sees it and skips the tabs redirect.
   if (type === 'recovery') {
     _recoveryInProgress = true;
+    console.log('[Layout] _recoveryInProgress = true');
   }
 
   if (accessToken && refreshToken) {
-    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    console.log('[Layout] calling setSession...');
+    const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    console.log('[Layout] setSession done, error:', error?.message ?? 'none');
     if (type === 'recovery') {
+      console.log('[Layout] navigateToResetPassword callback exists:', !!_navigateToResetPassword);
       _navigateToResetPassword?.();
     }
+  } else {
+    console.log('[Layout] handleAuthDeepLink: missing tokens, skipping setSession');
   }
 }
 
