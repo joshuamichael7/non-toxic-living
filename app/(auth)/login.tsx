@@ -179,7 +179,7 @@ export default function LoginScreen() {
                 onPress={async () => {
                   if (!email.trim()) { setError(t('auth.emailRequired')); return; }
                   setMagicLinkLoading(true);
-                  await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: 'nontoxicliving://auth/callback' } });
+                  await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: 'nontoxicliving://' } });
                   setMagicLinkLoading(false);
                   setMagicLinkSent(true);
                 }}

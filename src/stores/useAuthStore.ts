@@ -85,8 +85,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
+    // Clear state immediately so UI updates without waiting for the network call,
+    // which can hang if Supabase's internal async lock is held by a background refresh.
     set({ session: null, user: null });
+    supabase.auth.signOut().catch(() => {});
   },
 
   clearError: () => set({ error: null }),
