@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import * as Linking from 'expo-linking';
 
 import { supabase } from '@/lib/supabase';
+import { consumeRecoveryToken } from '@/lib/recoverySession';
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
 const colors = {
   canvas: '#E8E8E8',
@@ -33,46 +38,70 @@ export default function ResetPasswordScreen() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  // Wait for the recovery session to be established by _layout.tsx's handleAuthDeepLink.
-  // Use onAuthStateChange so we react immediately when setSession fires, rather than
-  // awaiting getSession() which can hang if no session exists yet.
+  // Holds the raw access token from the recovery deep link.
+  // We bypass supabase.auth entirely to avoid its internal async lock, which
+  // can hang indefinitely when /auth/v1/user is slow and corrupt auth state.
+  const recoveryTokenRef = useRef<string | null>(null);
+
   useEffect(() => {
     console.log('[ResetPassword] useEffect mounted');
     let resolved = false;
 
-    function markReady() {
+    function markReady(token: string) {
       if (!resolved) {
         resolved = true;
+        recoveryTokenRef.current = token;
+        console.log('[ResetPassword] markReady — token obtained, showing form');
         setSessionReady(true);
       }
     }
 
-    // React to any auth event that provides a session — covers:
-    // SIGNED_IN (warm start, deep link fires while app is open)
-    // PASSWORD_RECOVERY (Supabase-specific recovery event)
-    // INITIAL_SESSION (cold start — subscriber fires immediately with existing session)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[ResetPassword] onAuthStateChange:', event, session?.user?.email ?? 'no session');
-      if (session) {
-        markReady();
-      }
+    function parseRecoveryToken(url: string): string | null {
+      const fragment = url.split('#')[1];
+      if (!fragment) return null;
+      const params = new URLSearchParams(fragment);
+      const type = params.get('type');
+      const at = params.get('access_token');
+      console.log('[ResetPassword] parseRecoveryToken: type=', type, 'hasToken=', !!at);
+      return (type === 'recovery' && at) ? at : null;
+    }
+
+    // 1. Warm-start: token stored by handleAuthDeepLink in _layout.tsx before
+    //    this screen mounted (Linking event fires before the screen renders).
+    const stored = consumeRecoveryToken();
+    if (stored) {
+      console.log('[ResetPassword] got token from store (warm-start)');
+      markReady(stored);
+    }
+
+    // 2. Cold-start: app was opened by the deep link; parse the launch URL.
+    if (!resolved) {
+      Linking.getInitialURL().then((url) => {
+        console.log('[ResetPassword] getInitialURL:', url ? url.substring(0, 80) : 'null');
+        if (!url) return;
+        const token = parseRecoveryToken(url);
+        if (token) markReady(token);
+      });
+    }
+
+    // 3. Edge case: deep link fires while screen is already open (e.g. user
+    //    requests a second reset without leaving the screen).
+    const linkSub = Linking.addEventListener('url', ({ url }) => {
+      console.log('[ResetPassword] Linking url event:', url.substring(0, 80));
+      const token = parseRecoveryToken(url);
+      if (token) markReady(token);
     });
 
-    // Also check immediately in case setSession already ran before this screen mounted
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('[ResetPassword] getSession on mount:', session?.user?.email ?? 'no session');
-      if (session) markReady();
-    }).catch((e) => console.log('[ResetPassword] getSession error:', e));
-
-    // Show an error after 15s instead of spinning forever
+    // Show error after 15s instead of spinning forever
     const timeout = setTimeout(() => {
       if (!resolved) {
+        console.log('[ResetPassword] timeout — no recovery token received');
         setError('Reset link expired or invalid. Please request a new one.');
       }
     }, 15000);
 
     return () => {
-      subscription.unsubscribe();
+      linkSub.remove();
       clearTimeout(timeout);
     };
   }, []);
@@ -93,16 +122,46 @@ export default function ResetPasswordScreen() {
       return;
     }
 
+    const token = recoveryTokenRef.current;
+    if (!token) {
+      setError('Session expired. Please request a new reset link.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      console.log('[ResetPassword] calling updateUser...');
-      const { data, error: err } = await supabase.auth.updateUser({ password });
-      console.log('[ResetPassword] updateUser done | error:', err?.message ?? 'none | user:', data?.user?.email ?? 'none');
+      // Use a raw fetch with the recovery access token instead of going through
+      // supabase.auth.updateUser(), which acquires the internal JS lock.
+      // That lock can be held indefinitely by the setSession call that was made
+      // earlier, deadlocking all subsequent auth operations.
+      console.log('[ResetPassword] calling PUT /auth/v1/user directly...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-      if (err) {
-        setError(err.message);
-      } else {
+      const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'apikey': supabaseAnonKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      console.log('[ResetPassword] PUT /auth/v1/user status:', response.status);
+
+      if (response.ok) {
+        console.log('[ResetPassword] password updated successfully');
+        // Sign out locally so the user re-authenticates with the new password.
+        // scope:'local' clears the session without a network call.
+        await supabase.auth.signOut({ scope: 'local' });
         setDone(true);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        console.log('[ResetPassword] error response:', errData);
+        setError(errData.msg || errData.message || `Update failed (${response.status}). Please try again.`);
       }
     } catch (e: any) {
       console.log('[ResetPassword] THREW:', e?.name, e?.message ?? e);
@@ -145,15 +204,18 @@ export default function ResetPasswordScreen() {
                 <Text style={{ fontSize: 17, fontWeight: '700', color: colors.safe, textAlign: 'center' }}>
                   {t('auth.passwordUpdated')}
                 </Text>
+                <Text style={{ fontSize: 14, color: colors.inkSecondary, textAlign: 'center' }}>
+                  Please sign in with your new password.
+                </Text>
                 <Pressable
-                  onPress={() => router.replace('/(tabs)')}
+                  onPress={() => router.replace('/(auth)/login')}
                   style={{
                     marginTop: 8, backgroundColor: colors.oxygen, borderRadius: 14,
                     paddingVertical: 14, paddingHorizontal: 32,
                   }}
                 >
                   <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
-                    {t('auth.continue')}
+                    {t('auth.backToSignIn')}
                   </Text>
                 </Pressable>
               </View>

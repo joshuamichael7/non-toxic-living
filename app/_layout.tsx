@@ -13,13 +13,22 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { initializePurchases, loginUser, logoutUser } from '@/services/purchases/RevenueCatService';
 import { supabase } from '@/lib/supabase';
+import { storeRecoveryToken } from '@/lib/recoverySession';
 
-let _navigateToResetPassword: (() => void) | null = null;
-// Set to true before setSession() so the navigation effect doesn't redirect
-// to tabs while a password recovery deep link is being processed.
+// Set to true when a password recovery deep link is being processed so the
+// navigation effect doesn't redirect to tabs mid-flow.
 let _recoveryInProgress = false;
 
-/** Extract tokens from a deep link URL and set the Supabase session */
+/** Extract tokens from a deep link URL.
+ *
+ *  For recovery links: store the access token for the reset-password screen to
+ *  consume and set _recoveryInProgress — but do NOT call setSession.
+ *  Calling setSession hangs on a network call to /auth/v1/user which holds the
+ *  Supabase JS internal async lock, blocks all subsequent auth calls, and can
+ *  cause spurious SIGNED_OUT events that corrupt the auth client state.
+ *
+ *  For all other links (email confirmation etc.): call setSession as normal.
+ */
 async function handleAuthDeepLink(url: string) {
   console.log('[Layout] handleAuthDeepLink called:', url.substring(0, 80));
   const fragment = url.split('#')[1];
@@ -34,21 +43,19 @@ async function handleAuthDeepLink(url: string) {
   const type = params.get('type');
   console.log('[Layout] handleAuthDeepLink: type=', type, 'hasTokens=', !!(accessToken && refreshToken));
 
-  // Set flag synchronously before the first await so the navigation effect
-  // (which fires when SIGNED_IN lands) sees it and skips the tabs redirect.
-  if (type === 'recovery') {
+  if (type === 'recovery' && accessToken) {
+    // Store token for the reset-password screen to consume, then let Expo
+    // Router handle navigation to /(auth)/reset-password via the URL path.
     _recoveryInProgress = true;
-    console.log('[Layout] _recoveryInProgress = true');
+    console.log('[Layout] recovery deep link — storing token, NOT calling setSession');
+    storeRecoveryToken(accessToken);
+    return;
   }
 
   if (accessToken && refreshToken) {
     console.log('[Layout] calling setSession...');
     const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
     console.log('[Layout] setSession done, error:', error?.message ?? 'none');
-    if (type === 'recovery') {
-      console.log('[Layout] navigateToResetPassword callback exists:', !!_navigateToResetPassword);
-      _navigateToResetPassword?.();
-    }
   } else {
     console.log('[Layout] handleAuthDeepLink: missing tokens, skipping setSession');
   }
@@ -92,12 +99,10 @@ export default function RootLayout() {
 
     init();
 
-    // Handle deep links for email confirmation
-    // Check if app was opened via deep link
+    // Handle deep links for email confirmation / password recovery
     Linking.getInitialURL().then((url) => {
       if (url) handleAuthDeepLink(url);
     });
-    // Listen for deep links while app is open
     const linkingSub = Linking.addEventListener('url', ({ url }) => {
       handleAuthDeepLink(url);
     });
@@ -124,21 +129,19 @@ export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
 
-  // Register navigation callback for password recovery deep links
-  useEffect(() => {
-    _navigateToResetPassword = () => {
-      _recoveryInProgress = false;
-      router.push('/(auth)/reset-password' as any);
-    };
-    return () => { _navigateToResetPassword = null; };
-  }, [router]);
-
   // Navigate based on auth state changes
   useEffect(() => {
     if (!isReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const isResettingPassword = segments.includes('reset-password');
+
+    // Clear recovery flag once we've left the reset-password screen so that
+    // subsequent normal sign-ins (after the reset) redirect to tabs correctly.
+    if (_recoveryInProgress && !isResettingPassword) {
+      console.log('[Layout] left reset-password screen, clearing _recoveryInProgress');
+      _recoveryInProgress = false;
+    }
 
     if (user && inAuthGroup && !isResettingPassword && !_recoveryInProgress) {
       // User just signed in — go to tabs (but not during password recovery)
