@@ -253,7 +253,7 @@ export default function ProfileScreen() {
         {/* App Version */}
         <View style={{ paddingHorizontal: 24, marginTop: 16, alignItems: 'center' }}>
           <Text style={{ color: colors.inkMuted, fontSize: 13, fontWeight: '500' }}>
-            {t('profile.version', { version: '1.1.0' })}
+            {t('profile.version', { version: '1.1.1' })}
           </Text>
         </View>
       </ScrollView>
