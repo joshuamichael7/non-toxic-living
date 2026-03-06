@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import * as Linking from 'expo-linking';
 
-import { supabase } from '@/lib/supabase';
 import { consumeRecoveryToken } from '@/lib/recoverySession';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
@@ -154,9 +153,6 @@ export default function ResetPasswordScreen() {
 
       if (response.ok) {
         console.log('[ResetPassword] password updated successfully');
-        // Sign out locally so the user re-authenticates with the new password.
-        // scope:'local' clears the session without a network call.
-        await supabase.auth.signOut({ scope: 'local' });
         setDone(true);
       } else {
         const errData = await response.json().catch(() => ({}));
