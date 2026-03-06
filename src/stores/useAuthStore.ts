@@ -31,8 +31,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
       });
 
-      // Listen for auth state changes
-      supabase.auth.onAuthStateChange((_event, session) => {
+      // Listen for auth state changes.
+      // Guard SIGNED_OUT: a pending signOut() can fire SIGNED_OUT after a new
+      // SIGNED_IN (user signs out then back in before signOut acquires the lock).
+      // In that case the store already has the new user — don't clear it.
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' && get().user) {
+          console.log('[Auth] Ignoring stale SIGNED_OUT — user already signed in');
+          return;
+        }
         set({
           session,
           user: session?.user ?? null,
@@ -87,12 +94,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signOut: async () => {
     // Clear state immediately for instant UI feedback.
     set({ session: null, user: null });
-    // scope: 'local' clears the session from AsyncStorage without making a
-    // server call, so it never hangs on Supabase's internal async lock.
-    // The server-side token expires naturally (1 hour). This also means we
-    // don't leave a fire-and-forget signOut() racing against subsequent
-    // setSession() calls (e.g. magic link sign-in), which was causing stale state.
-    await supabase.auth.signOut({ scope: 'local' });
+    // scope: 'local' clears AsyncStorage without a server call so the Supabase JS
+    // async lock is released quickly. Fire-and-forget because the SIGNED_OUT handler
+    // in onAuthStateChange guards against stale events that arrive after a new sign-in.
+    supabase.auth.signOut({ scope: 'local' }).catch(() => {});
   },
 
   clearError: () => set({ error: null }),
