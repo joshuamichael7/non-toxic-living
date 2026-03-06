@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import * as Linking from 'expo-linking';
 
 import { supabase } from '@/lib/supabase';
 
@@ -29,8 +30,48 @@ export default function ResetPasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  // Ensure the recovery session is established before allowing password update.
+  // _layout.tsx calls setSession from the deep link, but there's a race condition
+  // on cold start — so we also do it here as a guarantee.
+  useEffect(() => {
+    async function ensureSession() {
+      // Check if session is already set (e.g. _layout.tsx beat us to it)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSessionReady(true);
+        return;
+      }
+
+      // Fall back: parse tokens from the initial URL ourselves
+      const url = await Linking.getInitialURL();
+      if (url) {
+        const fragment = url.split('#')[1];
+        if (fragment) {
+          const params = new URLSearchParams(fragment);
+          const accessToken = params.get('access_token');
+          const refreshToken = params.get('refresh_token');
+          if (accessToken && refreshToken) {
+            const { error: sessionErr } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (!sessionErr) {
+              setSessionReady(true);
+              return;
+            }
+          }
+        }
+      }
+
+      setError('Reset link expired or invalid. Please request a new one.');
+    }
+
+    ensureSession();
+  }, []);
 
   const handleReset = async () => {
     setError(null);
@@ -49,13 +90,17 @@ export default function ResetPasswordScreen() {
     }
 
     setIsLoading(true);
-    const { error: err } = await supabase.auth.updateUser({ password });
-    setIsLoading(false);
-
-    if (err) {
-      setError(err.message);
-    } else {
-      setDone(true);
+    try {
+      const { error: err } = await supabase.auth.updateUser({ password });
+      if (err) {
+        setError(err.message);
+      } else {
+        setDone(true);
+      }
+    } catch (e: any) {
+      setError(e?.message ?? 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,58 +161,68 @@ export default function ResetPasswordScreen() {
                   </View>
                 )}
 
-                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
-                  {t('auth.newPassword')}
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.canvas, borderRadius: 14, marginBottom: 16 }}>
-                  <TextInput
-                    style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: colors.ink }}
-                    placeholder={t('auth.newPassword')}
-                    placeholderTextColor={colors.inkMuted}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                    autoFocus
-                  />
-                  <Pressable onPress={() => setShowPassword(!showPassword)} style={{ paddingRight: 16 }}>
-                    <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color={colors.inkMuted} />
-                  </Pressable>
-                </View>
+                {!sessionReady && !error && (
+                  <View style={{ alignItems: 'center', paddingVertical: 16 }}>
+                    <ActivityIndicator color={colors.oxygen} />
+                  </View>
+                )}
 
-                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
-                  {t('auth.confirmPassword')}
-                </Text>
-                <TextInput
-                  style={{
-                    backgroundColor: colors.canvas, borderRadius: 14, paddingHorizontal: 16,
-                    paddingVertical: 14, fontSize: 16, color: colors.ink, marginBottom: 24,
-                  }}
-                  placeholder={t('auth.confirmPassword')}
-                  placeholderTextColor={colors.inkMuted}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showPassword}
-                />
-
-                <Pressable
-                  onPress={handleReset}
-                  disabled={isLoading}
-                  style={{
-                    backgroundColor: colors.oxygen, borderRadius: 16,
-                    paddingVertical: 16, alignItems: 'center',
-                    opacity: isLoading ? 0.6 : 1,
-                    shadowColor: colors.oxygen, shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.3, shadowRadius: 16,
-                  }}
-                >
-                  {isLoading ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
-                      {t('auth.updatePassword')}
+                {sessionReady && (
+                  <>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+                      {t('auth.newPassword')}
                     </Text>
-                  )}
-                </Pressable>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.canvas, borderRadius: 14, marginBottom: 16 }}>
+                      <TextInput
+                        style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: colors.ink }}
+                        placeholder={t('auth.newPassword')}
+                        placeholderTextColor={colors.inkMuted}
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry={!showPassword}
+                        autoFocus
+                      />
+                      <Pressable onPress={() => setShowPassword(!showPassword)} style={{ paddingRight: 16 }}>
+                        <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color={colors.inkMuted} />
+                      </Pressable>
+                    </View>
+
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+                      {t('auth.confirmPassword')}
+                    </Text>
+                    <TextInput
+                      style={{
+                        backgroundColor: colors.canvas, borderRadius: 14, paddingHorizontal: 16,
+                        paddingVertical: 14, fontSize: 16, color: colors.ink, marginBottom: 24,
+                      }}
+                      placeholder={t('auth.confirmPassword')}
+                      placeholderTextColor={colors.inkMuted}
+                      value={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      secureTextEntry={!showPassword}
+                    />
+
+                    <Pressable
+                      onPress={handleReset}
+                      disabled={isLoading}
+                      style={{
+                        backgroundColor: colors.oxygen, borderRadius: 16,
+                        paddingVertical: 16, alignItems: 'center',
+                        opacity: isLoading ? 0.6 : 1,
+                        shadowColor: colors.oxygen, shadowOffset: { width: 0, height: 8 },
+                        shadowOpacity: 0.3, shadowRadius: 16,
+                      }}
+                    >
+                      {isLoading ? (
+                        <ActivityIndicator color="white" />
+                      ) : (
+                        <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
+                          {t('auth.updatePassword')}
+                        </Text>
+                      )}
+                    </Pressable>
+                  </>
+                )}
               </View>
             )}
           </View>
