@@ -65,8 +65,11 @@ export function ScanQuotaTracker() {
         <Text style={{ fontSize: 28, fontWeight: '900', color: colors.ink, marginBottom: 4 }}>
           {credits}
         </Text>
-        <Text style={{ fontSize: 14, color: colors.inkSecondary, marginBottom: 14 }}>
+        <Text style={{ fontSize: 14, color: colors.inkSecondary, marginBottom: 2 }}>
           {t('credits.balance', { count: credits })}
+        </Text>
+        <Text style={{ fontSize: 12, color: colors.inkMuted, marginBottom: 14 }}>
+          1 credit per scan · never expire
         </Text>
 
         {/* Low credits prompt */}

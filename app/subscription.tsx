@@ -178,6 +178,9 @@ export default function CreditsScreen() {
           <Text style={{ fontSize: 15, color: colors.inkSecondary, marginTop: 4 }}>
             scans remaining
           </Text>
+          <Text style={{ fontSize: 12, color: colors.inkMuted, marginTop: 4 }}>
+            1 credit = 1 scan
+          </Text>
 
           {isOnTrial && (
             <View style={{
