@@ -105,8 +105,11 @@ export default function ResetPasswordScreen() {
         setDone(true);
       }
     } catch (e: any) {
-      console.log('[ResetPassword] THREW:', e?.message ?? e);
-      setError(e?.message ?? 'Something went wrong. Please try again.');
+      console.log('[ResetPassword] THREW:', e?.name, e?.message ?? e);
+      const msg = e?.name === 'AbortError'
+        ? 'Request timed out. Please check your connection and try again.'
+        : (e?.message ?? 'Something went wrong. Please try again.');
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
