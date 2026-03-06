@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': 'كلمتا المرور غير متطابقتين',
   'auth.passwordMinLength': 'يجب أن تكون كلمة المرور 6 أحرف على الأقل',
   'auth.checkEmail': 'تحقق من بريدك الإلكتروني للحصول على رابط التأكيد',
+  'auth.setNewPassword': 'تعيين كلمة مرور جديدة',
+  'auth.setNewPasswordDesc': 'أدخل كلمة مرورك الجديدة أدناه.',
+  'auth.newPassword': 'كلمة المرور الجديدة',
+  'auth.updatePassword': 'تحديث كلمة المرور',
+  'auth.passwordUpdated': 'تم تحديث كلمة المرور بنجاح!',
+  'auth.continue': 'متابعة',
 
   // Language picker
   'language.title': 'اللغة',

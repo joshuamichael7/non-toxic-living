@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': '비밀번호가 일치하지 않습니다',
   'auth.passwordMinLength': '비밀번호는 최소 6자 이상이어야 합니다',
   'auth.checkEmail': '확인 링크가 포함된 이메일을 확인해주세요',
+  'auth.setNewPassword': '새 비밀번호 설정',
+  'auth.setNewPasswordDesc': '아래에 새 비밀번호를 입력하세요.',
+  'auth.newPassword': '새 비밀번호',
+  'auth.updatePassword': '비밀번호 업데이트',
+  'auth.passwordUpdated': '비밀번호가 성공적으로 업데이트되었습니다!',
+  'auth.continue': '계속',
 
   // Language picker
   'language.title': '언어',

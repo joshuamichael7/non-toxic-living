@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': 'Las contraseñas no coinciden',
   'auth.passwordMinLength': 'La contraseña debe tener al menos 6 caracteres',
   'auth.checkEmail': 'Revisa tu correo electrónico para un enlace de confirmación',
+  'auth.setNewPassword': 'Establecer nueva contraseña',
+  'auth.setNewPasswordDesc': 'Ingresa tu nueva contraseña a continuación.',
+  'auth.newPassword': 'Nueva contraseña',
+  'auth.updatePassword': 'Actualizar contraseña',
+  'auth.passwordUpdated': '¡Contraseña actualizada con éxito!',
+  'auth.continue': 'Continuar',
 
   // Language picker
   'language.title': 'Idioma',

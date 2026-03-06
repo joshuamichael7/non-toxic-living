@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': 'पासवर्ड मेल नहीं खाते',
   'auth.passwordMinLength': 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए',
   'auth.checkEmail': 'पुष्टि लिंक के लिए अपना ईमेल जांचें',
+  'auth.setNewPassword': 'नया पासवर्ड सेट करें',
+  'auth.setNewPasswordDesc': 'नीचे अपना नया पासवर्ड दर्ज करें।',
+  'auth.newPassword': 'नया पासवर्ड',
+  'auth.updatePassword': 'पासवर्ड अपडेट करें',
+  'auth.passwordUpdated': 'पासवर्ड सफलतापूर्वक अपडेट किया गया!',
+  'auth.continue': 'जारी रखें',
 
   // Language picker
   'language.title': 'भाषा',

@@ -14,18 +14,24 @@ import { useCreditStore } from '@/stores/useSubscriptionStore';
 import { initializePurchases, loginUser, logoutUser } from '@/services/purchases/RevenueCatService';
 import { supabase } from '@/lib/supabase';
 
+let _navigateToResetPassword: (() => void) | null = null;
+
 /** Extract tokens from a deep link URL and set the Supabase session */
-function handleAuthDeepLink(url: string) {
-  // The URL arrives as nontoxicliving://auth/callback#access_token=...&refresh_token=...
+async function handleAuthDeepLink(url: string) {
   const fragment = url.split('#')[1];
   if (!fragment) return;
 
   const params = new URLSearchParams(fragment);
   const accessToken = params.get('access_token');
   const refreshToken = params.get('refresh_token');
+  const type = params.get('type');
 
   if (accessToken && refreshToken) {
-    supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    if (type === 'recovery') {
+      // Navigate to the reset password screen
+      _navigateToResetPassword?.();
+    }
   }
 }
 
@@ -99,6 +105,12 @@ export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
 
+  // Register navigation callback for password recovery deep links
+  useEffect(() => {
+    _navigateToResetPassword = () => router.push('/(auth)/reset-password');
+    return () => { _navigateToResetPassword = null; };
+  }, [router]);
+
   // Navigate based on auth state changes
   useEffect(() => {
     if (!isReady) return;
@@ -127,6 +139,7 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)/reset-password" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen
             name="result/[id]"
             options={{

@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': 'Les mots de passe ne correspondent pas',
   'auth.passwordMinLength': 'Le mot de passe doit contenir au moins 6 caractères',
   'auth.checkEmail': 'Vérifiez votre e-mail pour un lien de confirmation',
+  'auth.setNewPassword': 'Définir un nouveau mot de passe',
+  'auth.setNewPasswordDesc': 'Entrez votre nouveau mot de passe ci-dessous.',
+  'auth.newPassword': 'Nouveau mot de passe',
+  'auth.updatePassword': 'Mettre à jour le mot de passe',
+  'auth.passwordUpdated': 'Mot de passe mis à jour avec succès !',
+  'auth.continue': 'Continuer',
 
   // Language picker
   'language.title': 'Langue',

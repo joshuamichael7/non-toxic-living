@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': '两次输入的密码不一致',
   'auth.passwordMinLength': '密码至少需要6个字符',
   'auth.checkEmail': '请查看您的电子邮件以获取确认链接',
+  'auth.setNewPassword': '设置新密码',
+  'auth.setNewPasswordDesc': '在下方输入您的新密码。',
+  'auth.newPassword': '新密码',
+  'auth.updatePassword': '更新密码',
+  'auth.passwordUpdated': '密码更新成功！',
+  'auth.continue': '继续',
 
   // Language picker
   'language.title': '语言',

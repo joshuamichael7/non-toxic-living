@@ -165,6 +165,12 @@ export default {
   'auth.and': 'and',
   'auth.termsOfService': 'Terms of Service',
   'auth.mustAcceptTerms': 'You must accept the Privacy Policy and Terms of Service',
+  'auth.setNewPassword': 'Set New Password',
+  'auth.setNewPasswordDesc': 'Enter your new password below.',
+  'auth.newPassword': 'New Password',
+  'auth.updatePassword': 'Update Password',
+  'auth.passwordUpdated': 'Password updated successfully!',
+  'auth.continue': 'Continue',
 
   // Language picker
   'language.title': 'Language',

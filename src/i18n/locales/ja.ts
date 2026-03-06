@@ -158,6 +158,12 @@ export default {
   'auth.passwordMismatch': 'パスワードが一致しません',
   'auth.passwordMinLength': 'パスワードは6文字以上である必要があります',
   'auth.checkEmail': '確認リンクのメールをご確認ください',
+  'auth.setNewPassword': '新しいパスワードを設定',
+  'auth.setNewPasswordDesc': '以下に新しいパスワードを入力してください。',
+  'auth.newPassword': '新しいパスワード',
+  'auth.updatePassword': 'パスワードを更新',
+  'auth.passwordUpdated': 'パスワードが正常に更新されました！',
+  'auth.continue': '続ける',
 
   // Language picker
   'language.title': '言語',

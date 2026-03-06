@@ -21,45 +21,46 @@ const colors = {
   error: '#EF4444',
 };
 
-export default function ForgotPasswordScreen() {
+export default function ResetPasswordScreen() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [done, setDone] = useState(false);
 
   const handleReset = async () => {
     setError(null);
-    if (!email.trim()) {
-      setError(t('auth.emailRequired'));
+
+    if (!password) {
+      setError(t('auth.passwordRequired'));
+      return;
+    }
+    if (password.length < 6) {
+      setError(t('auth.passwordMinLength'));
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError(t('auth.passwordMismatch'));
       return;
     }
 
     setIsLoading(true);
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: 'nontoxicliving://auth/reset-password',
-    });
+    const { error: err } = await supabase.auth.updateUser({ password });
     setIsLoading(false);
 
     if (err) {
       setError(err.message);
     } else {
-      setSent(true);
+      setDone(true);
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
-      <Pressable
-        onPress={() => router.back()}
-        style={{ position: 'absolute', top: 60, left: 20, zIndex: 10, padding: 8 }}
-        hitSlop={12}
-      >
-        <Ionicons name="arrow-back" size={28} color={colors.inkSecondary} />
-      </Pressable>
-
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: 'center' }}>
@@ -69,37 +70,34 @@ export default function ForgotPasswordScreen() {
                 backgroundColor: colors.oxygenGlow,
                 alignItems: 'center', justifyContent: 'center', marginBottom: 20,
               }}>
-                <Ionicons name="key" size={40} color={colors.oxygen} />
+                <Ionicons name="lock-closed" size={40} color={colors.oxygen} />
               </View>
               <Text style={{ fontSize: 28, fontWeight: '800', color: colors.ink }}>
-                {t('auth.forgotPassword')}
+                {t('auth.setNewPassword')}
               </Text>
-              <Text style={{ fontSize: 15, color: colors.inkSecondary, textAlign: 'center', marginTop: 8, lineHeight: 22 }}>
-                {t('auth.forgotPasswordDesc')}
+              <Text style={{ fontSize: 15, color: colors.inkSecondary, textAlign: 'center', marginTop: 8 }}>
+                {t('auth.setNewPasswordDesc')}
               </Text>
             </View>
 
-            {sent ? (
+            {done ? (
               <View style={{
                 backgroundColor: colors.safeLight, borderRadius: 20, padding: 24,
                 alignItems: 'center', gap: 12,
               }}>
                 <Ionicons name="checkmark-circle" size={48} color={colors.safe} />
                 <Text style={{ fontSize: 17, fontWeight: '700', color: colors.safe, textAlign: 'center' }}>
-                  {t('auth.resetEmailSent')}
-                </Text>
-                <Text style={{ fontSize: 14, color: colors.inkSecondary, textAlign: 'center', lineHeight: 20 }}>
-                  {t('auth.resetEmailDesc')}
+                  {t('auth.passwordUpdated')}
                 </Text>
                 <Pressable
-                  onPress={() => router.replace('/(auth)/login')}
+                  onPress={() => router.replace('/(tabs)')}
                   style={{
                     marginTop: 8, backgroundColor: colors.oxygen, borderRadius: 14,
                     paddingVertical: 14, paddingHorizontal: 32,
                   }}
                 >
                   <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
-                    {t('auth.backToSignIn')}
+                    {t('auth.continue')}
                   </Text>
                 </Pressable>
               </View>
@@ -119,21 +117,36 @@ export default function ForgotPasswordScreen() {
                 )}
 
                 <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
-                  {t('auth.email')}
+                  {t('auth.newPassword')}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.canvas, borderRadius: 14, marginBottom: 16 }}>
+                  <TextInput
+                    style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: colors.ink }}
+                    placeholder={t('auth.newPassword')}
+                    placeholderTextColor={colors.inkMuted}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoFocus
+                  />
+                  <Pressable onPress={() => setShowPassword(!showPassword)} style={{ paddingRight: 16 }}>
+                    <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color={colors.inkMuted} />
+                  </Pressable>
+                </View>
+
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+                  {t('auth.confirmPassword')}
                 </Text>
                 <TextInput
                   style={{
                     backgroundColor: colors.canvas, borderRadius: 14, paddingHorizontal: 16,
                     paddingVertical: 14, fontSize: 16, color: colors.ink, marginBottom: 24,
                   }}
-                  placeholder={t('auth.email')}
+                  placeholder={t('auth.confirmPassword')}
                   placeholderTextColor={colors.inkMuted}
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  autoCorrect={false}
-                  autoFocus
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showPassword}
                 />
 
                 <Pressable
@@ -151,7 +164,7 @@ export default function ForgotPasswordScreen() {
                     <ActivityIndicator color="white" />
                   ) : (
                     <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
-                      {t('auth.sendResetLink')}
+                      {t('auth.updatePassword')}
                     </Text>
                   )}
                 </Pressable>
