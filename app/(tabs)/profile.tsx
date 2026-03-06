@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
+import Constants from 'expo-constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -256,7 +257,7 @@ export default function ProfileScreen() {
         {/* App Version */}
         <View style={{ paddingHorizontal: 24, marginTop: 16, alignItems: 'center' }}>
           <Text style={{ color: colors.inkMuted, fontSize: 13, fontWeight: '500' }}>
-            {t('profile.version', { version: '1.1.1' })}
+            {t('profile.version', { version: Constants.expoConfig?.version ?? '1.1.2' })}
           </Text>
         </View>
       </ScrollView>

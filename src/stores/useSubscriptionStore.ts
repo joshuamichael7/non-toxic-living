@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface CreditState {
   credits: number;
@@ -11,7 +12,10 @@ interface CreditState {
 }
 
 async function fetchCredits(): Promise<number> {
-  const { data: { user } } = await supabase.auth.getUser();
+  // Use the auth store as the source of truth rather than supabase.auth.getUser().
+  // The Supabase JS client can still hold the previous session internally when
+  // signOut() is fire-and-forget, causing fetchCredits to return the wrong user's data.
+  const user = useAuthStore.getState().user;
   if (!user) return 0;
 
   const { data } = await (supabase as any)

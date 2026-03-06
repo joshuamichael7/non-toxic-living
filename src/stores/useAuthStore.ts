@@ -92,11 +92,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    // Clear state immediately for instant UI feedback.
+    // Clear auth state immediately for instant UI feedback.
     set({ session: null, user: null });
+    // Reset credits to 0 immediately. fetchCredits() reads the auth store user,
+    // so now that user is null it will return 0 — but calling initialize() here
+    // ensures the credit store updates without waiting for the delayed SIGNED_OUT event.
+    const { useCreditStore } = await import('@/stores/useSubscriptionStore');
+    useCreditStore.getState().initialize();
     // scope: 'local' clears AsyncStorage without a server call so the Supabase JS
     // async lock is released quickly. Fire-and-forget because the SIGNED_OUT handler
-    // in onAuthStateChange guards against stale events that arrive after a new sign-in.
+    // guards against stale events that arrive after a new sign-in.
     supabase.auth.signOut({ scope: 'local' }).catch(() => {});
   },
 
