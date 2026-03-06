@@ -107,7 +107,7 @@ export default function RootLayout() {
 
   // Register navigation callback for password recovery deep links
   useEffect(() => {
-    _navigateToResetPassword = () => router.replace('/reset-password' as any);
+    _navigateToResetPassword = () => router.push('/(auth)/reset-password' as any);
     return () => { _navigateToResetPassword = null; };
   }, [router]);
 
@@ -140,7 +140,6 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)/reset-password" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen
             name="result/[id]"
             options={{
