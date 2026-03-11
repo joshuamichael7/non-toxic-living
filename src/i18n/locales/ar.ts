@@ -40,7 +40,7 @@ export default {
   // Scan screen
   'scan.title': 'مسح منتج',
   'scan.subtitle': 'التقط صورة لملصق المكونات وسنحللها بحثًا عن السموم',
-  'scan.openCamera': 'فتح الكاميرا',
+  'scan.openCamera': 'مسح',
   'scan.tip': 'نصيحة: ركّز على قائمة المكونات للحصول على أدق النتائج',
   'scan.reading': 'قراءة الملصق...',
   'scan.analyzing': 'جارٍ التحليل...',
@@ -164,6 +164,10 @@ export default {
   'auth.updatePassword': 'تحديث كلمة المرور',
   'auth.passwordUpdated': 'تم تحديث كلمة المرور بنجاح!',
   'auth.continue': 'متابعة',
+  'auth.changePassword': 'تغيير كلمة المرور',
+  'auth.sessionExpiredTitle': 'انتهت صلاحية الجلسة',
+  'auth.sessionExpiredDesc': 'لأسباب أمنية، يتطلب تغيير كلمة المرور تسجيل الدخول من جديد. سجّل الخروج ثم أعد تسجيل الدخول.',
+  'auth.signOutAndIn': 'تسجيل الخروج وإعادة الدخول',
 
   // Language picker
   'language.title': 'اللغة',
@@ -185,6 +189,9 @@ export default {
   'store.findAtStore': 'البحث في متجر',
 
   // Scan - No label option
+  'scan.cameraPermTitle': 'الوصول إلى الكاميرا',
+  'scan.cameraPermDesc': 'يستخدم NoTox الكاميرا لالتقاط صور ملصقات المكونات وتحليلها بحثاً عن مواد سامة محتملة.',
+  'scan.cameraPermContinue': 'متابعة',
   'scan.noLabel': 'لا توجد ملصق؟ صِفه',
   'scan.setStore': 'Set store',
 

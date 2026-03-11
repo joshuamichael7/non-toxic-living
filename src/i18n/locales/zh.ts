@@ -40,7 +40,7 @@ export default {
   // Scan screen
   'scan.title': '扫描产品',
   'scan.subtitle': '拍一张成分标签的照片，我们将为您分析其中的毒素',
-  'scan.openCamera': '打开相机',
+  'scan.openCamera': '扫描',
   'scan.tip': '提示：对准成分列表以获得最准确的结果',
   'scan.reading': '正在读取标签...',
   'scan.analyzing': '正在分析...',
@@ -164,6 +164,10 @@ export default {
   'auth.updatePassword': '更新密码',
   'auth.passwordUpdated': '密码更新成功！',
   'auth.continue': '继续',
+  'auth.changePassword': '更改密码',
+  'auth.sessionExpiredTitle': '会话已过期',
+  'auth.sessionExpiredDesc': '出于安全原因，更改密码需要重新登录。请退出后重新登录，然后再试。',
+  'auth.signOutAndIn': '退出并重新登录',
 
   // Language picker
   'language.title': '语言',
@@ -185,6 +189,9 @@ export default {
   'store.findAtStore': '在商店查找',
 
   // Scan - No label option
+  'scan.cameraPermTitle': '相机权限',
+  'scan.cameraPermDesc': 'NoTox 使用您的摄像头拍摄成分标签，并分析其中可能存在的毒素。',
+  'scan.cameraPermContinue': '继续',
   'scan.noLabel': '没有标签？描述一下',
   'scan.setStore': 'Set store',
 

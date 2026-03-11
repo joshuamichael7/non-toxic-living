@@ -40,7 +40,7 @@ export default {
   // Scan screen
   'scan.title': 'उत्पाद स्कैन करें',
   'scan.subtitle': 'सामग्री लेबल की फोटो लें और हम इसे विषाक्त पदार्थों के लिए विश्लेषित करेंगे',
-  'scan.openCamera': 'कैमरा खोलें',
+  'scan.openCamera': 'स्कैन',
   'scan.tip': 'सलाह: सबसे सटीक परिणामों के लिए सामग्री सूची पर फोकस करें',
   'scan.reading': 'लेबल पढ़ रहे हैं...',
   'scan.analyzing': 'विश्लेषण हो रहा है...',
@@ -164,6 +164,10 @@ export default {
   'auth.updatePassword': 'पासवर्ड अपडेट करें',
   'auth.passwordUpdated': 'पासवर्ड सफलतापूर्वक अपडेट किया गया!',
   'auth.continue': 'जारी रखें',
+  'auth.changePassword': 'पासवर्ड बदलें',
+  'auth.sessionExpiredTitle': 'सत्र समाप्त हो गया',
+  'auth.sessionExpiredDesc': 'सुरक्षा के लिए पासवर्ड बदलने के लिए दोबारा साइन इन करना होगा। साइन आउट करें और दोबारा साइन इन करें।',
+  'auth.signOutAndIn': 'साइन आउट करके साइन इन करें',
 
   // Language picker
   'language.title': 'भाषा',
@@ -185,6 +189,9 @@ export default {
   'store.findAtStore': 'दुकान में खोजें',
 
   // Scan - No label option
+  'scan.cameraPermTitle': 'कैमरा एक्सेस',
+  'scan.cameraPermDesc': 'NoTox आपके कैमरे का उपयोग सामग्री लेबल की फोटो लेने और संभावित विषाक्त पदार्थों के लिए उनका विश्लेषण करने के लिए करता है।',
+  'scan.cameraPermContinue': 'जारी रखें',
   'scan.noLabel': 'कोई लेबल नहीं? इसका वर्णन करें',
   'scan.setStore': 'Set store',
 

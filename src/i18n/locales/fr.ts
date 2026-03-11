@@ -40,7 +40,7 @@ export default {
   // Scan screen
   'scan.title': 'Scanner un produit',
   'scan.subtitle': 'Prenez une photo de l\'étiquette des ingrédients et nous l\'analyserons pour détecter les toxines',
-  'scan.openCamera': 'Ouvrir l\'appareil photo',
+  'scan.openCamera': 'Scanner',
   'scan.tip': 'Conseil : Concentrez-vous sur la liste des ingrédients pour des résultats plus précis',
   'scan.reading': 'Lecture de l\'étiquette...',
   'scan.analyzing': 'Analyse en cours...',
@@ -164,6 +164,10 @@ export default {
   'auth.updatePassword': 'Mettre à jour le mot de passe',
   'auth.passwordUpdated': 'Mot de passe mis à jour avec succès !',
   'auth.continue': 'Continuer',
+  'auth.changePassword': 'Changer le mot de passe',
+  'auth.sessionExpiredTitle': 'Session expirée',
+  'auth.sessionExpiredDesc': 'Pour des raisons de sécurité, changer votre mot de passe nécessite une nouvelle connexion. Déconnectez-vous puis reconnectez-vous.',
+  'auth.signOutAndIn': 'Se déconnecter et se reconnecter',
 
   // Language picker
   'language.title': 'Langue',
@@ -185,6 +189,9 @@ export default {
   'store.findAtStore': 'Trouver en magasin',
 
   // Scan - No label option
+  'scan.cameraPermTitle': 'Accès à la caméra',
+  'scan.cameraPermDesc': 'NoTox utilise votre caméra pour photographier les étiquettes d\'ingrédients et les analyser pour détecter des toxines potentielles.',
+  'scan.cameraPermContinue': 'Continuer',
   'scan.noLabel': 'Pas d\'étiquette ? Décrivez-le',
   'scan.setStore': 'Set store',
 

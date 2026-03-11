@@ -73,6 +73,7 @@ export default function ProfileScreen() {
     ...(user ? [
       { title: t('profile.scanHistory'), icon: 'time-outline' as const, onPress: () => router.push('/history') },
       { title: t('profile.myFavorites'), icon: 'heart-outline' as const, onPress: () => router.push('/history?filter=favorites') },
+      { title: t('auth.changePassword'), icon: 'key-outline' as const, onPress: () => router.push('/change-password' as any) },
     ] : []),
     { title: t('profile.avoidList'), icon: 'warning-outline' as const, onPress: () => router.push('/avoid-list') },
     { title: t('profile.language'), icon: 'language-outline' as const, subtitle: currentLanguageLabel, onPress: () => setShowLanguagePicker(true) },

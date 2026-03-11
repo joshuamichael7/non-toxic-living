@@ -40,7 +40,7 @@ export default {
   // Scan screen
   'scan.title': '제품 스캔',
   'scan.subtitle': '성분 라벨 사진을 찍으면 독소를 분석해드립니다',
-  'scan.openCamera': '카메라 열기',
+  'scan.openCamera': '스캔',
   'scan.tip': '팁: 가장 정확한 결과를 위해 성분 목록에 초점을 맞추세요',
   'scan.reading': '라벨 읽는 중...',
   'scan.analyzing': '분석 중...',
@@ -164,6 +164,10 @@ export default {
   'auth.updatePassword': '비밀번호 업데이트',
   'auth.passwordUpdated': '비밀번호가 성공적으로 업데이트되었습니다!',
   'auth.continue': '계속',
+  'auth.changePassword': '비밀번호 변경',
+  'auth.sessionExpiredTitle': '세션 만료',
+  'auth.sessionExpiredDesc': '보안을 위해 비밀번호 변경 시 다시 로그인이 필요합니다. 로그아웃 후 다시 로그인해 주세요.',
+  'auth.signOutAndIn': '로그아웃 후 재로그인',
 
   // Language picker
   'language.title': '언어',
@@ -185,6 +189,9 @@ export default {
   'store.findAtStore': '매장에서 찾기',
 
   // Scan - No label option
+  'scan.cameraPermTitle': '카메라 접근 권한',
+  'scan.cameraPermDesc': 'NoTox는 카메라를 사용하여 성분 레이블을 촬영하고 잠재적인 독소를 분석합니다.',
+  'scan.cameraPermContinue': '계속',
   'scan.noLabel': '라벨이 없나요? 설명하세요',
   'scan.setStore': 'Set store',
 

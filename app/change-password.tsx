@@ -1,0 +1,237 @@
+import { useState } from 'react';
+import { View, Text, TextInput, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+
+import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+const colors = {
+  canvas: '#E8E8E8',
+  glassSolid: '#F0F0F0',
+  glassBorder: 'rgba(255, 255, 255, 0.6)',
+  oxygen: '#0EA5E9',
+  oxygenGlow: 'rgba(14, 165, 233, 0.3)',
+  ink: '#1A1A1A',
+  inkSecondary: '#64748B',
+  inkMuted: '#94A3B8',
+  safe: '#10B981',
+  safeLight: 'rgba(16, 185, 129, 0.15)',
+  error: '#EF4444',
+};
+
+export default function ChangePasswordScreen() {
+  const { t } = useTranslation();
+  const router = useRouter();
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  const handleUpdate = async () => {
+    setError(null);
+    setSessionExpired(false);
+
+    if (!password) {
+      setError(t('auth.passwordRequired'));
+      return;
+    }
+    if (password.length < 6) {
+      setError(t('auth.passwordMinLength'));
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError(t('auth.passwordMismatch'));
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) {
+        // 401 = expired/invalid token; AuthSessionMissingError = no session at all
+        const isSessionIssue =
+          updateError.status === 401 ||
+          updateError.name === 'AuthSessionMissingError' ||
+          updateError.message?.toLowerCase().includes('session') ||
+          updateError.message?.toLowerCase().includes('jwt') ||
+          updateError.message?.toLowerCase().includes('expired');
+        if (isSessionIssue) {
+          setSessionExpired(true);
+        } else {
+          setError(updateError.message);
+        }
+      } else {
+        setDone(true);
+      }
+    } catch (e: any) {
+      setError(e?.message ?? 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await useAuthStore.getState().signOut();
+    router.replace('/(auth)/login');
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.canvas }}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: 'center' }}>
+            {/* Back button */}
+            <Pressable
+              onPress={() => router.back()}
+              style={{ position: 'absolute', top: 16, left: 24, padding: 4 }}
+              hitSlop={8}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.ink} />
+            </Pressable>
+
+            <View style={{ alignItems: 'center', marginBottom: 40 }}>
+              <View style={{
+                width: 80, height: 80, borderRadius: 28,
+                backgroundColor: colors.oxygenGlow,
+                alignItems: 'center', justifyContent: 'center', marginBottom: 20,
+              }}>
+                <Ionicons name="lock-closed" size={40} color={colors.oxygen} />
+              </View>
+              <Text style={{ fontSize: 28, fontWeight: '800', color: colors.ink }}>
+                {t('auth.changePassword')}
+              </Text>
+              <Text style={{ fontSize: 15, color: colors.inkSecondary, textAlign: 'center', marginTop: 8 }}>
+                {t('auth.setNewPasswordDesc')}
+              </Text>
+            </View>
+
+            {sessionExpired ? (
+              <View style={{
+                backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 24, padding: 24,
+                borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.2)', alignItems: 'center', gap: 12,
+              }}>
+                <Ionicons name="lock-closed-outline" size={40} color={colors.error} />
+                <Text style={{ fontSize: 17, fontWeight: '700', color: colors.ink, textAlign: 'center' }}>
+                  {t('auth.sessionExpiredTitle')}
+                </Text>
+                <Text style={{ fontSize: 14, color: colors.inkSecondary, textAlign: 'center', lineHeight: 20 }}>
+                  {t('auth.sessionExpiredDesc')}
+                </Text>
+                <Pressable
+                  onPress={handleSignOut}
+                  style={{
+                    marginTop: 4, backgroundColor: colors.error, borderRadius: 14,
+                    paddingVertical: 14, paddingHorizontal: 32,
+                  }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
+                    {t('auth.signOutAndIn')}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : done ? (
+              <View style={{
+                backgroundColor: colors.safeLight, borderRadius: 20, padding: 24,
+                alignItems: 'center', gap: 12,
+              }}>
+                <Ionicons name="checkmark-circle" size={48} color={colors.safe} />
+                <Text style={{ fontSize: 17, fontWeight: '700', color: colors.safe, textAlign: 'center' }}>
+                  {t('auth.passwordUpdated')}
+                </Text>
+                <Pressable
+                  onPress={() => router.back()}
+                  style={{
+                    marginTop: 8, backgroundColor: colors.oxygen, borderRadius: 14,
+                    paddingVertical: 14, paddingHorizontal: 32,
+                  }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '700', fontSize: 15 }}>
+                    {t('common.close')}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={{
+                backgroundColor: colors.glassSolid, borderRadius: 24, padding: 24,
+                borderWidth: 1, borderColor: colors.glassBorder,
+              }}>
+                {error && (
+                  <View style={{
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 12,
+                    padding: 12, marginBottom: 16, flexDirection: 'row', alignItems: 'center',
+                  }}>
+                    <Ionicons name="alert-circle" size={20} color={colors.error} />
+                    <Text style={{ color: colors.error, marginLeft: 8, flex: 1, fontWeight: '500' }}>{error}</Text>
+                  </View>
+                )}
+
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+                  {t('auth.newPassword')}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.canvas, borderRadius: 14, marginBottom: 16 }}>
+                  <TextInput
+                    style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: colors.ink }}
+                    placeholder={t('auth.newPassword')}
+                    placeholderTextColor={colors.inkMuted}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoFocus
+                    returnKeyType="next"
+                  />
+                  <Pressable onPress={() => setShowPassword(!showPassword)} style={{ paddingRight: 16 }}>
+                    <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color={colors.inkMuted} />
+                  </Pressable>
+                </View>
+
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8 }}>
+                  {t('auth.confirmPassword')}
+                </Text>
+                <TextInput
+                  style={{
+                    backgroundColor: colors.canvas, borderRadius: 14, paddingHorizontal: 16,
+                    paddingVertical: 14, fontSize: 16, color: colors.ink, marginBottom: 24,
+                  }}
+                  placeholder={t('auth.confirmPassword')}
+                  placeholderTextColor={colors.inkMuted}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="done"
+                  onSubmitEditing={handleUpdate}
+                />
+
+                <Pressable
+                  onPress={handleUpdate}
+                  disabled={isLoading}
+                  style={{
+                    backgroundColor: colors.oxygen, borderRadius: 16,
+                    paddingVertical: 16, alignItems: 'center',
+                    opacity: isLoading ? 0.6 : 1,
+                    shadowColor: colors.oxygen, shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.3, shadowRadius: 16,
+                  }}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>
+                      {t('auth.updatePassword')}
+                    </Text>
+                  )}
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}

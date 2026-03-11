@@ -41,6 +41,7 @@ export default function ScanScreen() {
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [scanError, setScanError] = useState<string | null>(null);
   const [quotaModalVisible, setQuotaModalVisible] = useState(false);
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -49,15 +50,25 @@ export default function ScanScreen() {
 
   const isProcessing = scanStage !== 'idle' && scanStage !== 'error';
 
-  // Reset state when screen is focused
+  // Reset state when screen is focused; show camera permission prompt if not yet requested
   useFocusEffect(
     useCallback(() => {
       setScanStage('idle');
       setScanError(null);
       isCapturingRef.current = false;
       pulseAnim.setValue(1);
+      ImagePicker.getCameraPermissionsAsync().then(({ status }) => {
+        if (status === 'undetermined') {
+          setShowPermissionPrompt(true);
+        }
+      });
     }, [pulseAnim])
   );
+
+  const handlePermissionContinue = async () => {
+    await ImagePicker.requestCameraPermissionsAsync();
+    setShowPermissionPrompt(false);
+  };
 
   // Check credits before opening camera or describe screen
   const handleQuotaCheck = (): boolean => {
@@ -374,6 +385,55 @@ export default function ScanScreen() {
         visible={quotaModalVisible}
         onClose={() => setQuotaModalVisible(false)}
       />
+
+      {/* Camera permission pre-prompt (shown before OS dialog, per App Store guidelines) */}
+      {showPermissionPrompt && (
+        <View style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: colors.canvas,
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 32,
+          zIndex: 200,
+        }}>
+          <View style={{
+            width: 96,
+            height: 96,
+            borderRadius: 32,
+            backgroundColor: colors.oxygenGlow,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 28,
+          }}>
+            <Ionicons name="camera-outline" size={48} color={colors.oxygen} />
+          </View>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: colors.ink, textAlign: 'center', marginBottom: 16 }}>
+            {t('scan.cameraPermTitle')}
+          </Text>
+          <Text style={{ fontSize: 15, color: colors.inkSecondary, textAlign: 'center', lineHeight: 24, marginBottom: 40 }}>
+            {t('scan.cameraPermDesc')}
+          </Text>
+          <Pressable
+            onPress={handlePermissionContinue}
+            style={{
+              backgroundColor: colors.oxygen,
+              borderRadius: 16,
+              paddingVertical: 18,
+              alignSelf: 'stretch',
+              alignItems: 'center',
+              shadowColor: colors.oxygen,
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.35,
+              shadowRadius: 16,
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: '800', fontSize: 18 }}>
+              {t('scan.cameraPermContinue')}
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

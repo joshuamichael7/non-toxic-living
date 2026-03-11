@@ -12,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'NoTox',
   slug: 'non-toxic-living',
-  version: '1.1.3',
+  version: '1.1.4',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'nontoxicliving',

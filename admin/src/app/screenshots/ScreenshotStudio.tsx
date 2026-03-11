@@ -469,7 +469,7 @@ function ScanScreen({ width }: { width: number }) {
         Take a photo of the ingredient label and we&apos;ll analyze it for toxins
       </div>
 
-      {/* Open Camera button */}
+      {/* Scan button */}
       <button style={{
         width:'100%', maxWidth: isTab ? 400 : 340, padding:'20px 0',
         background:C.oxygen, color:C.white, border:'none', borderRadius:20,
@@ -478,7 +478,7 @@ function ScanScreen({ width }: { width: number }) {
         boxShadow:`0 10px 20px ${C.oxygenGlow}`,
         marginBottom:12,
       }}>
-        <IconCamera size={22} /> Open Camera
+        <IconCamera size={22} /> Scan
       </button>
 
       {/* No label button */}
