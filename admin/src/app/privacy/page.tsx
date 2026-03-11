@@ -69,7 +69,7 @@ export default function PrivacyPage() {
       <main className="py-20 px-6">
         <div className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-[--site-text-muted]">Last updated: February 9, 2026</p>
+          <p className="mt-2 text-sm text-[--site-text-muted]">Last updated: March 11, 2026</p>
 
           <div className="mt-12 space-y-10 text-[--site-text-secondary] leading-relaxed">
             <section>
@@ -103,6 +103,46 @@ export default function PrivacyPage() {
                   Store or Google Play. We do not process or store payment card information.
                 </li>
               </ul>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-bold text-[--site-text]">Health and Wellness Data</h2>
+              <p className="mt-3">
+                NoTox is a product safety and ingredient analysis app. In the course of providing this
+                service, we access and collect the following health-related information:
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-6">
+                <li>
+                  <strong className="text-[--site-text]">Product ingredient data:</strong> Text extracted from product labels
+                  (food, personal care, household products, etc.) is analyzed to identify potentially
+                  harmful ingredients and assign a safety score.
+                </li>
+                <li>
+                  <strong className="text-[--site-text]">Safety scores and health concerns:</strong> The results of ingredient
+                  analysis — including safety scores, flagged ingredients, and associated health concerns — are
+                  stored as part of your scan history.
+                </li>
+                <li>
+                  <strong className="text-[--site-text]">Product preferences:</strong> Products you save, add to your avoid list,
+                  or mark as favorites are stored to personalize your experience.
+                </li>
+              </ul>
+              <p className="mt-3">
+                <strong className="text-[--site-text]">How this health-related data is used:</strong>
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-6">
+                <li>To deliver ingredient safety analysis and generate safety scores for scanned products.</li>
+                <li>To display your personal scan history and saved products within the app.</li>
+                <li>To suggest safer product alternatives based on your scan activity.</li>
+                <li>To improve the accuracy and coverage of our ingredient database over time.</li>
+              </ul>
+              <p className="mt-3">
+                This health-related data is <strong className="text-[--site-text]">never sold</strong> to
+                third parties, never used for advertising or marketing purposes, and never shared with
+                insurance companies, employers, or any other party that could use it to make decisions
+                about you. NoTox does not provide medical advice; all analysis is for informational
+                purposes only.
+              </p>
             </section>
 
             <section>

@@ -1,0 +1,36 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath('com.android.tools.build:gradle')
+    classpath('com.facebook.react:react-native-gradle-plugin')
+    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
+  // Force ML Kit text-recognition to 16.0.1 which includes 16 KB page size support.
+  // The @react-native-ml-kit/text-recognition npm package pins 16.0.0 which fails
+  // Google Play's 16 KB compliance check.
+  configurations.all {
+    resolutionStrategy {
+      force 'com.google.mlkit:text-recognition:16.0.1'
+      force 'com.google.mlkit:text-recognition-chinese:16.0.1'
+      force 'com.google.mlkit:text-recognition-devanagari:16.0.1'
+      force 'com.google.mlkit:text-recognition-japanese:16.0.1'
+      force 'com.google.mlkit:text-recognition-korean:16.0.1'
+    }
+  }
+}
+
+apply plugin: "expo-root-project"
+apply plugin: "com.facebook.react.rootproject"
