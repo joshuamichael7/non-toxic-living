@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: 'What do the safety scores mean?',
-    a: 'Scores range from 0 to 100. Products scoring 67–100 are considered Safe with no significant concerns. Scores of 34–66 indicate Caution — some ingredients are worth noting. Scores of 0–33 mean the product contains ingredients linked to health concerns.',
+    a: 'Scores range from 0 to 100 across four tiers. Safe (80–100): clean formula with no significant concerns. Okay (67–79): generally acceptable with minor ingredients worth knowing about. Caution (34–66): contains ingredients linked to potential health concerns. Toxic (0–33): contains ingredients with known health risks — consider avoiding or swapping.',
   },
   {
     q: 'What types of products can I scan?',
@@ -24,16 +24,20 @@ const faqs = [
     a: 'The app reads ingredient labels in many languages including English, Korean, Japanese, Chinese, Spanish, French, Arabic, and Hindi. The app interface is also available in all of these languages.',
   },
   {
-    q: 'How do I upgrade or manage my subscription?',
-    a: "Go to Profile in the app and tap \"Go Premium\" (or \"Manage Subscription\" if you already have a plan). You can also manage your subscription through your device's Settings app under Subscriptions.",
+    q: 'How does the credit system work?',
+    a: 'Every new account gets 10 free scans to try the app — no credit card required. When you run out, you can purchase a credit pack: 200 scans for $3.99 or 500 scans for $7.99. Credits never expire, so you can use them at your own pace.',
+  },
+  {
+    q: 'How do I buy more scan credits?',
+    a: 'Go to Profile in the app and tap "Buy Credits" (or tap "Out of Scan Credits" when prompted). You\'ll see both packs — 200 scans ($3.99) and 500 scans ($7.99). After purchase your credits are added instantly.',
+  },
+  {
+    q: 'Do credits expire?',
+    a: 'No. Credits never expire. There are no monthly resets or time limits — your scans are yours to use whenever you need them.',
   },
   {
     q: 'How do I restore my purchases on a new device?',
-    a: "Open the app, go to Profile, tap \"Go Premium\" or \"Manage Subscription\", then scroll down and tap \"Restore Purchases\". Make sure you're signed in with the same Apple ID or Google account used for the original purchase.",
-  },
-  {
-    q: 'How do I cancel my subscription?',
-    a: "You can cancel anytime through your device's subscription settings. On iPhone, go to Settings → your name → Subscriptions → NoTox → Cancel. On Android, go to Google Play Store → your profile → Payments & subscriptions → Subscriptions.",
+    a: "Open the app, go to Profile, tap \"Buy Credits\", then scroll down and tap \"Restore Purchases\". Make sure you're signed in with the same Apple ID or Google account used for the original purchase. Your credits will be restored automatically.",
   },
   {
     q: 'Is my data private?',
