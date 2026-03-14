@@ -130,127 +130,211 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* Phone mockup showing actual app result screen */}
-          <div className="mt-16 flex justify-center">
-            {/* Phone frame */}
+          {/* Phone mockup showing actual app result screen — 3 phones */}
+          <div className="mt-16 flex items-end justify-center gap-4">
+
+            {/* ── Left phone: Okay score (67) + Summary ── */}
             <div
-              className="relative w-[280px] sm:w-[320px] rounded-[40px] border-[6px] p-2 overflow-hidden"
-              style={{ borderColor: '#333', background: '#E8E8E8' }}
+              className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
+              style={{
+                width: 180,
+                borderColor: '#2A2A2A',
+                background: '#EBEBEB',
+                transform: 'rotate(-5deg) translateY(24px)',
+                flexShrink: 0,
+              }}
             >
               {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[26px] rounded-b-2xl z-10" style={{ background: '#333' }} />
-
-              {/* Screen content */}
-              <div className="rounded-[32px] overflow-hidden" style={{ background: '#E8E8E8' }}>
-                {/* Status bar area */}
-                <div className="h-[42px]" />
-
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
+              {/* Screen */}
+              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+                {/* Status bar */}
+                <div style={{ height: 28 }} />
                 {/* App header */}
-                <div className="flex items-center justify-between px-4 py-2">
-                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                    <span className="text-[10px]" style={{ color: '#1A1A1A' }}>✕</span>
+                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Scan Result</span>
-                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                    <span className="text-[10px]" style={{ color: '#1A1A1A' }}>↗</span>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
                   </div>
                 </div>
-
                 {/* Score hero card */}
-                <div className="mx-3 mt-2 rounded-[24px] p-5 flex flex-col items-center" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                  {/* Score ring */}
-                  <div
-                    className="w-[80px] h-[80px] rounded-[28px] flex items-center justify-center mb-3"
-                    style={{
-                      background: 'rgba(245, 158, 11, 0.15)',
-                      border: '3px solid #F59E0B',
-                      boxShadow: '0 6px 16px rgba(245, 158, 11, 0.3)',
-                    }}
-                  >
-                    <span className="text-[32px] font-extrabold" style={{ color: '#F59E0B' }}>34</span>
+                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 18, padding: '10px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <div className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: '20%', background: 'rgba(132,204,22,0.12)', border: '2.5px solid #84CC16', marginBottom: 6 }}>
+                    <span className="font-extrabold" style={{ fontSize: 20, color: '#84CC16' }}>67</span>
                   </div>
-                  <p className="text-[16px] font-extrabold text-center" style={{ color: '#1A1A1A' }}>Cheetos Crunchy</p>
-                  <p className="text-[10px] font-medium mt-0.5" style={{ color: '#64748B' }}>Frito-Lay</p>
-                  <div className="mt-2 flex items-center gap-1 rounded-[8px] px-2.5 py-1" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
-                    <span className="text-[9px]">⚠️</span>
-                    <span className="text-[9px] font-bold" style={{ color: '#F59E0B' }}>Caution</span>
+                  <p className="font-bold text-center" style={{ fontSize: 8, color: '#1A1A1A', marginBottom: 2 }}>Fluoride-Free Whitening Toothpaste</p>
+                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 5 }}>Tom&apos;s of Maine</p>
+                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #84CC16', background: 'rgba(132,204,22,0.1)' }}>
+                    <span style={{ fontSize: 7 }}>✅</span>
+                    <span className="font-bold" style={{ fontSize: 7, color: '#84CC16' }}>Okay</span>
                   </div>
                 </div>
-
                 {/* Summary card */}
-                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(14, 165, 233, 0.3)' }}>
-                      <span className="text-[8px]">📋</span>
+                <div style={{ margin: '6px 8px 0', borderRadius: 14, padding: '8px 9px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <div className="flex items-center" style={{ gap: 5, marginBottom: 4 }}>
+                    <div className="flex items-center justify-center" style={{ width: 16, height: 16, borderRadius: 5, background: 'rgba(14,165,233,0.2)' }}>
+                      <span style={{ fontSize: 7 }}>📋</span>
                     </div>
-                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Summary</span>
+                    <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em' }}>Summary</span>
                   </div>
-                  <p className="text-[9px] leading-[14px] font-medium" style={{ color: '#1A1A1A' }}>
-                    Contains several artificial additives and highly processed ingredients that may have negative health effects.
+                  <p style={{ fontSize: 7, lineHeight: '11px', color: '#1A1A1A' }}>
+                    A solid choice with no fluoride and mostly natural ingredients. A few minor additives are present but nothing alarming.
                   </p>
                 </div>
-
-                {/* Expert take card (oxygen blue) */}
-                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5" style={{ background: '#0EA5E9', boxShadow: '0 6px 16px rgba(14, 165, 233, 0.3)' }}>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                      <span className="text-[8px]">💬</span>
-                    </div>
-                    <span className="text-[8px] font-bold uppercase tracking-wider text-white">Our Take</span>
-                  </div>
-                  <p className="text-[9px] leading-[14px] font-medium text-white">
-                    &quot;I keep these out of my house. The artificial colors and MSG derivatives aren&apos;t worth it when there are better options.&quot;
-                  </p>
-                </div>
-
-                {/* Concerns peek */}
-                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5 mb-4" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
-                      <span className="text-[8px]">⚠️</span>
-                    </div>
-                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Flagged Ingredients</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
-                      <span className="text-[9px] font-semibold" style={{ color: '#F59E0B' }}>Yellow 6</span>
-                      <span className="text-[7px]" style={{ color: '#64748B' }}>Medium</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid #F59E0B' }}>
-                      <span className="text-[9px] font-semibold" style={{ color: '#F59E0B' }}>Red 40</span>
-                      <span className="text-[7px]" style={{ color: '#64748B' }}>Medium</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                      <span className="text-[9px] font-semibold" style={{ color: '#64748B' }}>MSG</span>
-                      <span className="text-[7px]" style={{ color: '#94A3B8' }}>Low</span>
-                    </div>
+                {/* Positives */}
+                <div style={{ margin: '6px 8px 0', borderRadius: 14, padding: '8px 9px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em', display: 'block', marginBottom: 4 }}>Positives</span>
+                  <div className="flex flex-col" style={{ gap: 4 }}>
+                    {['No fluoride', 'Natural mint flavor', 'No SLS'].map((item) => (
+                      <div key={item} className="flex items-center rounded-full" style={{ gap: 4, paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, border: '1px solid #10B981', background: 'rgba(16,185,129,0.08)', borderRadius: 50 }}>
+                        <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
+                        <span style={{ fontSize: 7, color: '#10B981' }}>{item}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                {/* Recommended swaps */}
-                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5 mb-4" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
-                      <span className="text-[8px]">🔄</span>
-                    </div>
-                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Safer Swaps</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10B981' }}>
-                      <span className="text-[9px] font-semibold" style={{ color: '#10B981' }}>Hippeas Chickpea Puffs</span>
-                      <span className="text-[7px] font-bold" style={{ color: '#10B981' }}>92</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10B981' }}>
-                      <span className="text-[9px] font-semibold" style={{ color: '#10B981' }}>LesserEvil Popcorn</span>
-                      <span className="text-[7px] font-bold" style={{ color: '#10B981' }}>88</span>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Bottom safe area */}
-                <div className="h-[20px]" />
+                <div style={{ height: 16 }} />
               </div>
             </div>
+
+            {/* ── Center phone: Caution score (34) + Our Take + Concerns ── */}
+            <div
+              className="relative rounded-[32px] border-[5px] overflow-hidden"
+              style={{
+                width: 200,
+                borderColor: '#2A2A2A',
+                background: '#EBEBEB',
+                flexShrink: 0,
+                zIndex: 10,
+              }}
+            >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
+              {/* Screen */}
+              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+                {/* Status bar */}
+                <div style={{ height: 28 }} />
+                {/* App header */}
+                <div className="flex items-center justify-between" style={{ paddingLeft: 11, paddingRight: 11, paddingTop: 6, paddingBottom: 6 }}>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 24, height: 24, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 9, color: '#1A1A1A' }}>✕</span>
+                  </div>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 24, height: 24, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 9, color: '#1A1A1A' }}>↗</span>
+                  </div>
+                </div>
+                {/* Score hero card */}
+                <div className="flex flex-col items-center" style={{ margin: '0 9px', marginTop: 6, borderRadius: 18, padding: '12px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <div className="flex items-center justify-center" style={{ width: 60, height: 60, borderRadius: '20%', background: 'rgba(245,158,11,0.12)', border: '2.5px solid #F59E0B', marginBottom: 7 }}>
+                    <span className="font-extrabold" style={{ fontSize: 24, color: '#F59E0B' }}>34</span>
+                  </div>
+                  <p className="font-bold text-center" style={{ fontSize: 11, color: '#1A1A1A', marginBottom: 2 }}>Fried Noodle</p>
+                  <p style={{ fontSize: 9, color: '#64748B', marginBottom: 6 }}>Unknown</p>
+                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 8, paddingRight: 8, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #F59E0B', background: 'rgba(245,158,11,0.1)' }}>
+                    <span style={{ fontSize: 8 }}>⚠️</span>
+                    <span className="font-bold" style={{ fontSize: 8, color: '#F59E0B' }}>Caution</span>
+                  </div>
+                </div>
+                {/* Our Take card */}
+                <div style={{ margin: '7px 9px 0', borderRadius: 14, padding: '9px 10px', background: '#0EA5E9' }}>
+                  <div className="flex items-center" style={{ gap: 5, marginBottom: 5 }}>
+                    <div className="flex items-center justify-center" style={{ width: 18, height: 18, borderRadius: 6, background: 'rgba(255,255,255,0.2)' }}>
+                      <span style={{ fontSize: 8 }}>💬</span>
+                    </div>
+                    <span className="font-bold uppercase" style={{ fontSize: 7, color: 'white', letterSpacing: '0.1em' }}>Our Take</span>
+                  </div>
+                  <p style={{ fontSize: 8, lineHeight: '12px', color: 'white' }}>
+                    &quot;Highly processed with MSG and artificial flavor enhancers. Worth switching to a cleaner alternative.&quot;
+                  </p>
+                </div>
+                {/* Concerns card */}
+                <div style={{ margin: '7px 9px 0', borderRadius: 14, padding: '9px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Concerns</span>
+                  <div style={{ marginBottom: 5 }}>
+                    <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+                      <span className="font-bold" style={{ fontSize: 8, color: '#1A1A1A' }}>MSG</span>
+                      <div className="rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, border: '1px solid #F59E0B', background: 'rgba(245,158,11,0.08)' }}>
+                        <span style={{ fontSize: 6, color: '#F59E0B', fontWeight: 600 }}>Medium</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: 7, color: '#64748B', lineHeight: '11px' }}>Flavor enhancer linked to headaches and overconsumption in sensitive individuals.</p>
+                  </div>
+                </div>
+                {/* Bottom safe area */}
+                <div style={{ height: 16 }} />
+              </div>
+            </div>
+
+            {/* ── Right phone: Better Alternatives ── */}
+            <div
+              className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
+              style={{
+                width: 180,
+                borderColor: '#2A2A2A',
+                background: '#EBEBEB',
+                transform: 'rotate(5deg) translateY(24px)',
+                flexShrink: 0,
+              }}
+            >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
+              {/* Screen */}
+              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+                {/* Status bar */}
+                <div style={{ height: 28 }} />
+                {/* App header */}
+                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
+                  </div>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
+                  </div>
+                </div>
+                {/* Better Alternatives header */}
+                <div className="flex items-center justify-between" style={{ margin: '8px 8px 6px' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em' }}>Better Alternatives</span>
+                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)' }}>
+                    <span style={{ fontSize: 6 }}>🏪</span>
+                    <span style={{ fontSize: 6, color: '#0EA5E9', fontWeight: 600 }}>Find at a store</span>
+                  </div>
+                </div>
+                {/* Swap rows */}
+                {[
+                  { score: 91, name: 'Organic Bone Broth', brand: 'Bonafide Provisions' },
+                  { score: 88, name: 'Organic Chicken Broth', brand: 'Pacific Foods' },
+                  { score: 85, name: 'Organic Lentil Soup', brand: "Amy's Kitchen" },
+                ].map((swap) => (
+                  <div
+                    key={swap.name}
+                    className="flex items-center justify-between"
+                    style={{ margin: '0 8px 5px', borderRadius: 12, padding: '7px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}
+                  >
+                    <div className="flex items-center" style={{ gap: 6 }}>
+                      <div className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: '20%', background: 'rgba(16,185,129,0.1)', border: '2px solid #10B981', flexShrink: 0 }}>
+                        <span className="font-bold" style={{ fontSize: 10, color: '#10B981' }}>{swap.score}</span>
+                      </div>
+                      <div>
+                        <p className="font-bold" style={{ fontSize: 7, color: '#1A1A1A', lineHeight: '10px' }}>{swap.name}</p>
+                        <p style={{ fontSize: 6, color: '#64748B', marginTop: 1 }}>{swap.brand}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-center" style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(14,165,233,0.15)', flexShrink: 0 }}>
+                      <span style={{ fontSize: 8, color: '#0EA5E9' }}>›</span>
+                    </div>
+                  </div>
+                ))}
+                {/* Bottom safe area */}
+                <div style={{ height: 16 }} />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
