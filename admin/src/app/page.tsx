@@ -133,11 +133,12 @@ export default function LandingPage() {
           {/* Phone mockup showing actual app result screen — 3 phones */}
           <div className="mt-16 flex items-center justify-center gap-4">
 
-            {/* ── Left phone: Okay score (67) + Summary ── */}
+            {/* ── Left phone: Okay score (67) + Summary + Positives ── */}
             <div
               className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
                 width: 190,
+                height: 520,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
                 flexShrink: 0,
@@ -146,7 +147,7 @@ export default function LandingPage() {
               {/* Notch */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
               {/* Screen */}
-              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
                 {/* Status bar */}
                 <div style={{ height: 28 }} />
                 {/* App header */}
@@ -154,49 +155,47 @@ export default function LandingPage() {
                   <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
                     <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
                   <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
                     <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
                   </div>
                 </div>
                 {/* Score hero card */}
-                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 18, padding: '10px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                  <div className="flex items-center justify-center" style={{ width: 52, height: 52, borderRadius: '20%', background: 'rgba(132,204,22,0.12)', border: '2.5px solid #84CC16', marginBottom: 6 }}>
-                    <span className="font-extrabold" style={{ fontSize: 20, color: '#84CC16' }}>67</span>
+                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 20, padding: '12px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  <div className="flex items-center justify-center" style={{ width: 54, height: 54, borderRadius: '22%', background: 'rgba(132,204,22,0.12)', border: '3px solid #84CC16', marginBottom: 7 }}>
+                    <span className="font-extrabold" style={{ fontSize: 22, color: '#84CC16' }}>67</span>
                   </div>
                   <p className="font-bold text-center" style={{ fontSize: 8, color: '#1A1A1A', marginBottom: 2 }}>Fluoride-Free Whitening Toothpaste</p>
-                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 5 }}>Tom&apos;s of Maine</p>
+                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 6 }}>Tom&apos;s of Maine</p>
                   <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #84CC16', background: 'rgba(132,204,22,0.1)' }}>
                     <span style={{ fontSize: 7 }}>✅</span>
                     <span className="font-bold" style={{ fontSize: 7, color: '#84CC16' }}>Okay</span>
                   </div>
                 </div>
                 {/* Summary card */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 14, padding: '8px 9px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                  <div className="flex items-center" style={{ gap: 5, marginBottom: 4 }}>
+                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '9px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  <div className="flex items-center" style={{ gap: 5, marginBottom: 5 }}>
                     <div className="flex items-center justify-center" style={{ width: 16, height: 16, borderRadius: 5, background: 'rgba(14,165,233,0.2)' }}>
                       <span style={{ fontSize: 7 }}>📋</span>
                     </div>
-                    <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em' }}>Summary</span>
+                    <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em' }}>Summary</span>
                   </div>
                   <p style={{ fontSize: 7, lineHeight: '11px', color: '#1A1A1A' }}>
                     A solid choice with no fluoride and mostly natural ingredients. A few minor additives are present but nothing alarming.
                   </p>
                 </div>
                 {/* Positives */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 14, padding: '8px 9px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em', display: 'block', marginBottom: 4 }}>Positives</span>
+                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '9px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em', display: 'block', marginBottom: 5 }}>Positives</span>
                   <div className="flex flex-col" style={{ gap: 4 }}>
                     {['No fluoride', 'Natural mint flavor', 'No SLS'].map((item) => (
-                      <div key={item} className="flex items-center rounded-full" style={{ gap: 4, paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, border: '1px solid #10B981', background: 'rgba(16,185,129,0.08)', borderRadius: 50 }}>
+                      <div key={item} className="flex items-center" style={{ gap: 4, paddingLeft: 8, paddingRight: 8, paddingTop: 4, paddingBottom: 4, border: '1px solid #10B981', background: 'rgba(16,185,129,0.08)', borderRadius: 50 }}>
                         <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
                         <span style={{ fontSize: 7, color: '#10B981' }}>{item}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-                {/* Bottom safe area */}
-                <div style={{ height: 16 }} />
               </div>
             </div>
 
@@ -205,6 +204,7 @@ export default function LandingPage() {
               className="relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
                 width: 190,
+                height: 520,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
                 flexShrink: 0,
@@ -213,48 +213,48 @@ export default function LandingPage() {
               {/* Notch */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
               {/* Screen */}
-              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
                 {/* Status bar */}
                 <div style={{ height: 28 }} />
                 {/* App header */}
-                <div className="flex items-center justify-between" style={{ paddingLeft: 11, paddingRight: 11, paddingTop: 6, paddingBottom: 6 }}>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 24, height: 24, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 9, color: '#1A1A1A' }}>✕</span>
+                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 24, height: 24, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 9, color: '#1A1A1A' }}>↗</span>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
+                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
                   </div>
                 </div>
                 {/* Score hero card */}
-                <div className="flex flex-col items-center" style={{ margin: '0 9px', marginTop: 6, borderRadius: 18, padding: '12px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                  <div className="flex items-center justify-center" style={{ width: 60, height: 60, borderRadius: '20%', background: 'rgba(245,158,11,0.12)', border: '2.5px solid #F59E0B', marginBottom: 7 }}>
-                    <span className="font-extrabold" style={{ fontSize: 24, color: '#F59E0B' }}>34</span>
+                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 20, padding: '12px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  <div className="flex items-center justify-center" style={{ width: 54, height: 54, borderRadius: '22%', background: 'rgba(245,158,11,0.12)', border: '3px solid #F59E0B', marginBottom: 7 }}>
+                    <span className="font-extrabold" style={{ fontSize: 22, color: '#F59E0B' }}>34</span>
                   </div>
-                  <p className="font-bold text-center" style={{ fontSize: 11, color: '#1A1A1A', marginBottom: 2 }}>Fried Noodle</p>
-                  <p style={{ fontSize: 9, color: '#64748B', marginBottom: 6 }}>Unknown</p>
-                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 8, paddingRight: 8, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #F59E0B', background: 'rgba(245,158,11,0.1)' }}>
-                    <span style={{ fontSize: 8 }}>⚠️</span>
-                    <span className="font-bold" style={{ fontSize: 8, color: '#F59E0B' }}>Caution</span>
+                  <p className="font-bold text-center" style={{ fontSize: 8, color: '#1A1A1A', marginBottom: 2 }}>Fried Noodle</p>
+                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 6 }}>Unknown</p>
+                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #F59E0B', background: 'rgba(245,158,11,0.1)' }}>
+                    <span style={{ fontSize: 7 }}>⚠️</span>
+                    <span className="font-bold" style={{ fontSize: 7, color: '#F59E0B' }}>Caution</span>
                   </div>
                 </div>
                 {/* Our Take card */}
-                <div style={{ margin: '7px 9px 0', borderRadius: 14, padding: '9px 10px', background: '#0EA5E9' }}>
+                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '10px 10px', background: '#0EA5E9' }}>
                   <div className="flex items-center" style={{ gap: 5, marginBottom: 5 }}>
-                    <div className="flex items-center justify-center" style={{ width: 18, height: 18, borderRadius: 6, background: 'rgba(255,255,255,0.2)' }}>
-                      <span style={{ fontSize: 8 }}>💬</span>
+                    <div className="flex items-center justify-center" style={{ width: 16, height: 16, borderRadius: 5, background: 'rgba(255,255,255,0.2)' }}>
+                      <span style={{ fontSize: 7 }}>💬</span>
                     </div>
-                    <span className="font-bold uppercase" style={{ fontSize: 7, color: 'white', letterSpacing: '0.1em' }}>Our Take</span>
+                    <span className="font-bold uppercase" style={{ fontSize: 6, color: 'white', letterSpacing: '0.08em' }}>Our Take</span>
                   </div>
-                  <p style={{ fontSize: 8, lineHeight: '12px', color: 'white' }}>
+                  <p style={{ fontSize: 7, lineHeight: '11px', color: 'white' }}>
                     &quot;Highly processed with MSG and artificial flavor enhancers. Worth switching to a cleaner alternative.&quot;
                   </p>
                 </div>
                 {/* Concerns card */}
-                <div style={{ margin: '7px 9px 0', borderRadius: 14, padding: '9px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>Concerns</span>
-                  <div style={{ marginBottom: 5 }}>
-                    <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '10px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Concerns</span>
+                  <div>
+                    <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
                       <span className="font-bold" style={{ fontSize: 8, color: '#1A1A1A' }}>MSG</span>
                       <div className="rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, border: '1px solid #F59E0B', background: 'rgba(245,158,11,0.08)' }}>
                         <span style={{ fontSize: 6, color: '#F59E0B', fontWeight: 600 }}>Medium</span>
@@ -263,8 +263,6 @@ export default function LandingPage() {
                     <p style={{ fontSize: 7, color: '#64748B', lineHeight: '11px' }}>Flavor enhancer linked to headaches and overconsumption in sensitive individuals.</p>
                   </div>
                 </div>
-                {/* Bottom safe area */}
-                <div style={{ height: 16 }} />
               </div>
             </div>
 
@@ -273,6 +271,7 @@ export default function LandingPage() {
               className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
                 width: 190,
+                height: 520,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
                 flexShrink: 0,
@@ -281,7 +280,7 @@ export default function LandingPage() {
               {/* Notch */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
               {/* Screen */}
-              <div className="overflow-hidden" style={{ background: '#EBEBEB' }}>
+              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
                 {/* Status bar */}
                 <div style={{ height: 28 }} />
                 {/* App header */}
@@ -289,25 +288,25 @@ export default function LandingPage() {
                   <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
                     <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
                   <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
                     <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
                   </div>
                 </div>
                 {/* Partial score card peeking — "scrolled past" effect */}
-                <div style={{ margin: '0 8px 6px', borderRadius: '0 0 14px 14px', padding: '6px 9px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                <div style={{ margin: '0 8px 6px', borderRadius: '0 0 20px 20px', padding: '6px 9px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
                   <div className="flex items-center justify-center gap-2">
                     <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #10B981', background: 'rgba(16,185,129,0.1)' }}>
                       <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
                       <span className="font-bold" style={{ fontSize: 7, color: '#10B981' }}>Safe</span>
                     </div>
-                    <span className="font-bold" style={{ fontSize: 8, color: '#1A1A1A' }}>Tom&apos;s of Maine Toothpaste</span>
+                    <span className="font-bold" style={{ fontSize: 7, color: '#1A1A1A' }}>Tom&apos;s of Maine Toothpaste</span>
                   </div>
                 </div>
                 {/* Better Alternatives header */}
-                <div className="flex items-center justify-between" style={{ margin: '2px 8px 6px' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em' }}>Better Alternatives</span>
-                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)' }}>
+                <div className="flex items-center justify-between" style={{ margin: '2px 8px 7px' }}>
+                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em' }}>Better Alternatives</span>
+                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)', border: '1px solid rgba(14,165,233,0.3)' }}>
                     <span style={{ fontSize: 6 }}>🏪</span>
                     <span style={{ fontSize: 6, color: '#0EA5E9', fontWeight: 600 }}>Find at a store</span>
                   </div>
@@ -322,10 +321,10 @@ export default function LandingPage() {
                   <div
                     key={swap.name}
                     className="flex items-center justify-between"
-                    style={{ margin: '0 8px 5px', borderRadius: 12, padding: '7px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}
+                    style={{ margin: '0 8px 5px', borderRadius: 12, padding: '7px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
                   >
                     <div className="flex items-center" style={{ gap: 6 }}>
-                      <div className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: '20%', background: 'rgba(16,185,129,0.1)', border: '2px solid #10B981', flexShrink: 0 }}>
+                      <div className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: '22%', background: 'rgba(16,185,129,0.1)', border: '2px solid #10B981', flexShrink: 0 }}>
                         <span className="font-bold" style={{ fontSize: 10, color: '#10B981' }}>{swap.score}</span>
                       </div>
                       <div>
@@ -338,8 +337,6 @@ export default function LandingPage() {
                     </div>
                   </div>
                 ))}
-                {/* Bottom safe area */}
-                <div style={{ height: 16 }} />
               </div>
             </div>
 
