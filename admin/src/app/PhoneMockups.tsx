@@ -400,10 +400,10 @@ export function PhoneMockups() {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 16 }}>
       <Phone className="hidden sm:block">
-        <OkayScreen />
+        <CautionScreen />
       </Phone>
       <Phone>
-        <CautionScreen />
+        <OkayScreen />
       </Phone>
       <Phone className="hidden sm:block">
         <PositivesSwapsScreen />
