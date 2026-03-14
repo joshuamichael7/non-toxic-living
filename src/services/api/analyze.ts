@@ -215,7 +215,7 @@ export async function searchCombined(
     name: s.name,
     brand: s.brand,
     score: s.score,
-    verdict: s.score >= 67 ? 'safe' : s.score >= 34 ? 'caution' : 'toxic',
+    verdict: s.score >= 80 ? 'safe' : s.score >= 67 ? 'okay' : s.score >= 34 ? 'caution' : 'toxic',
     summary: s.why_better,
     source: 'swap' as const,
     category: s.category,
