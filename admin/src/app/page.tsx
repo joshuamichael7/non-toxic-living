@@ -130,213 +130,197 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* Phone mockup showing actual app result screen — 3 phones */}
-          <div className="mt-16 flex items-center justify-center gap-4">
+          {/* Phone mockups — 3 phones matching app screenshots exactly */}
+          <div className="mt-16 flex items-center justify-center gap-3">
 
-            {/* ── Left phone: Okay score (67) + Summary + Positives ── */}
-            <div
-              className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
-              style={{
-                width: 190,
-                height: 520,
-                borderColor: '#2A2A2A',
-                background: '#EBEBEB',
-                flexShrink: 0,
-              }}
-            >
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
-              {/* Screen */}
-              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
+            {/* Reusable phone shell styles */}
+            {/* ── Phone 1: Score 67 Okay + Summary (IMG_2364) ── */}
+            <div className="hidden sm:block relative overflow-hidden" style={{ width: 190, height: 520, borderRadius: 32, border: '5px solid #2A2A2A', background: '#EBEBEB', flexShrink: 0 }}>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={{ width: 80, height: 18, background: '#2A2A2A', borderRadius: '0 0 12px 12px' }} />
+              <div style={{ height: '100%', background: '#EBEBEB', display: 'flex', flexDirection: 'column' }}>
                 {/* Status bar */}
-                <div style={{ height: 28 }} />
-                {/* App header */}
-                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
+                <div style={{ height: 26 }} />
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
-                  </div>
-                </div>
-                {/* Score hero card */}
-                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 20, padding: '12px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <div className="flex items-center justify-center" style={{ width: 54, height: 54, borderRadius: '22%', background: 'rgba(132,204,22,0.12)', border: '3px solid #84CC16', marginBottom: 7 }}>
-                    <span className="font-extrabold" style={{ fontSize: 22, color: '#84CC16' }}>67</span>
-                  </div>
-                  <p className="font-bold text-center" style={{ fontSize: 8, color: '#1A1A1A', marginBottom: 2 }}>Fluoride-Free Whitening Toothpaste</p>
-                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 6 }}>Tom&apos;s of Maine</p>
-                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #84CC16', background: 'rgba(132,204,22,0.1)' }}>
-                    <span style={{ fontSize: 7 }}>✅</span>
-                    <span className="font-bold" style={{ fontSize: 7, color: '#84CC16' }}>Okay</span>
+                  <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, color: '#1A1A1A' }}>⬆</span>
                   </div>
                 </div>
-                {/* Summary card */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '9px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <div className="flex items-center" style={{ gap: 5, marginBottom: 5 }}>
-                    <div className="flex items-center justify-center" style={{ width: 16, height: 16, borderRadius: 5, background: 'rgba(14,165,233,0.2)' }}>
-                      <span style={{ fontSize: 7 }}>📋</span>
+                {/* Scrollable content */}
+                <div style={{ flex: 1, overflow: 'hidden', paddingBottom: 2 }}>
+                  {/* Score card */}
+                  <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '14px 10px 12px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ width: 62, height: 62, borderRadius: 17, background: 'rgba(132,204,22,0.18)', border: '3px solid #84CC16', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                      <span style={{ fontSize: 26, fontWeight: 900, color: '#84CC16' }}>67</span>
                     </div>
-                    <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em' }}>Summary</span>
-                  </div>
-                  <p style={{ fontSize: 7, lineHeight: '11px', color: '#1A1A1A' }}>
-                    A solid choice with no fluoride and mostly natural ingredients. A few minor additives are present but nothing alarming.
-                  </p>
-                </div>
-                {/* Positives */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '9px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em', display: 'block', marginBottom: 5 }}>Positives</span>
-                  <div className="flex flex-col" style={{ gap: 4 }}>
-                    {['No fluoride', 'Natural mint flavor', 'No SLS'].map((item) => (
-                      <div key={item} className="flex items-center" style={{ gap: 4, paddingLeft: 8, paddingRight: 8, paddingTop: 4, paddingBottom: 4, border: '1px solid #10B981', background: 'rgba(16,185,129,0.08)', borderRadius: 50 }}>
-                        <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
-                        <span style={{ fontSize: 7, color: '#10B981' }}>{item}</span>
+                    <p style={{ fontSize: 10, fontWeight: 800, color: '#111', textAlign: 'center', marginBottom: 2 }}>Fluoride-Free Whitening Toothpaste</p>
+                    <p style={{ fontSize: 8, color: '#64748B', marginBottom: 7 }}>Tom&apos;s of Maine</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderRadius: 50, paddingLeft: 10, paddingRight: 10, paddingTop: 4, paddingBottom: 4, border: '1.5px solid #84CC16', background: 'rgba(132,204,22,0.1)' }}>
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#84CC16', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 7, color: 'white', fontWeight: 700 }}>✓</span>
                       </div>
-                    ))}
+                      <span style={{ fontSize: 8, fontWeight: 700, color: '#84CC16' }}>Okay</span>
+                    </div>
+                  </div>
+                  {/* Summary card */}
+                  <div style={{ margin: '6px 8px 0', borderRadius: 18, padding: '10px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: '#BAE6FD', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 9 }}>📋</span>
+                      </div>
+                      <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Summary</span>
+                    </div>
+                    <p style={{ fontSize: 7, lineHeight: '11px', color: '#1A1A1A' }}>This toothpaste has a clean ingredient list with no harmful additives. It avoids fluoride, which some consumers prefer, and uses natural flavors. However, it contains sodium lauryl sulfate, which may be a concern for some.</p>
+                  </div>
+                </div>
+                {/* Bottom bar */}
+                <div style={{ padding: '8px 10px', background: '#F0F0F0', borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, color: '#1A1A1A' }}>♡</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: '#1A1A1A' }}>Save</span>
+                  </div>
+                  <div style={{ background: '#0EA5E9', borderRadius: 16, paddingLeft: 12, paddingRight: 12, paddingTop: 6, paddingBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 8, color: 'white' }}>⌾</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>Scan Again</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── Center phone: Caution score (34) + Our Take + Concerns ── */}
-            <div
-              className="relative rounded-[32px] border-[5px] overflow-hidden"
-              style={{
-                width: 190,
-                height: 520,
-                borderColor: '#2A2A2A',
-                background: '#EBEBEB',
-                flexShrink: 0,
-              }}
-            >
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
-              {/* Screen */}
-              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
-                {/* Status bar */}
-                <div style={{ height: 28 }} />
-                {/* App header */}
-                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
+            {/* ── Phone 2: Score 34 Caution + Summary (IMG_2362) ── */}
+            <div className="relative overflow-hidden" style={{ width: 190, height: 520, borderRadius: 32, border: '5px solid #2A2A2A', background: '#EBEBEB', flexShrink: 0 }}>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={{ width: 80, height: 18, background: '#2A2A2A', borderRadius: '0 0 12px 12px' }} />
+              <div style={{ height: '100%', background: '#EBEBEB', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ height: 26 }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
+                  <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, color: '#1A1A1A' }}>⬆</span>
                   </div>
                 </div>
-                {/* Score hero card */}
-                <div className="flex flex-col items-center" style={{ margin: '0 8px', marginTop: 6, borderRadius: 20, padding: '12px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <div className="flex items-center justify-center" style={{ width: 54, height: 54, borderRadius: '22%', background: 'rgba(245,158,11,0.12)', border: '3px solid #F59E0B', marginBottom: 7 }}>
-                    <span className="font-extrabold" style={{ fontSize: 22, color: '#F59E0B' }}>34</span>
-                  </div>
-                  <p className="font-bold text-center" style={{ fontSize: 8, color: '#1A1A1A', marginBottom: 2 }}>Fried Noodle</p>
-                  <p style={{ fontSize: 7, color: '#64748B', marginBottom: 6 }}>Unknown</p>
-                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #F59E0B', background: 'rgba(245,158,11,0.1)' }}>
-                    <span style={{ fontSize: 7 }}>⚠️</span>
-                    <span className="font-bold" style={{ fontSize: 7, color: '#F59E0B' }}>Caution</span>
-                  </div>
-                </div>
-                {/* Our Take card */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '10px 10px', background: '#0EA5E9' }}>
-                  <div className="flex items-center" style={{ gap: 5, marginBottom: 5 }}>
-                    <div className="flex items-center justify-center" style={{ width: 16, height: 16, borderRadius: 5, background: 'rgba(255,255,255,0.2)' }}>
-                      <span style={{ fontSize: 7 }}>💬</span>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  {/* Score card */}
+                  <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '14px 10px 12px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ width: 62, height: 62, borderRadius: 17, background: 'rgba(245,158,11,0.18)', border: '3px solid #F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                      <span style={{ fontSize: 26, fontWeight: 900, color: '#F59E0B' }}>34</span>
                     </div>
-                    <span className="font-bold uppercase" style={{ fontSize: 6, color: 'white', letterSpacing: '0.08em' }}>Our Take</span>
-                  </div>
-                  <p style={{ fontSize: 7, lineHeight: '11px', color: 'white' }}>
-                    &quot;Highly processed with MSG and artificial flavor enhancers. Worth switching to a cleaner alternative.&quot;
-                  </p>
-                </div>
-                {/* Concerns card */}
-                <div style={{ margin: '6px 8px 0', borderRadius: 20, padding: '10px 10px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Concerns</span>
-                  <div>
-                    <div className="flex items-center justify-between" style={{ marginBottom: 4 }}>
-                      <span className="font-bold" style={{ fontSize: 8, color: '#1A1A1A' }}>MSG</span>
-                      <div className="rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, border: '1px solid #F59E0B', background: 'rgba(245,158,11,0.08)' }}>
-                        <span style={{ fontSize: 6, color: '#F59E0B', fontWeight: 600 }}>Medium</span>
+                    <p style={{ fontSize: 10, fontWeight: 800, color: '#111', textAlign: 'center', marginBottom: 2 }}>Fried Noodle</p>
+                    <p style={{ fontSize: 8, color: '#64748B', marginBottom: 7 }}>Unknown</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, borderRadius: 50, paddingLeft: 10, paddingRight: 10, paddingTop: 4, paddingBottom: 4, border: '1.5px solid #F59E0B', background: 'rgba(245,158,11,0.1)' }}>
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 7, color: 'white', fontWeight: 700 }}>!</span>
                       </div>
+                      <span style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B' }}>Caution</span>
                     </div>
-                    <p style={{ fontSize: 7, color: '#64748B', lineHeight: '11px' }}>Flavor enhancer linked to headaches and overconsumption in sensitive individuals.</p>
+                  </div>
+                  {/* Summary card */}
+                  <div style={{ margin: '6px 8px 0', borderRadius: 18, padding: '10px 10px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: '#BAE6FD', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 9 }}>📋</span>
+                      </div>
+                      <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Summary</span>
+                    </div>
+                    <p style={{ fontSize: 7, lineHeight: '11px', color: '#1A1A1A' }}>This product contains several additives and flavor enhancers that may raise concerns, particularly for children. The presence of monosodium glutamate (MSG) and various flavoring agents could be problematic for sensitive individuals.</p>
+                  </div>
+                  {/* Peeking blue button edge */}
+                  <div style={{ margin: '6px 8px 0', borderRadius: 14, height: 12, background: '#0EA5E9' }} />
+                </div>
+                {/* Bottom bar */}
+                <div style={{ padding: '8px 10px', background: '#F0F0F0', borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, color: '#1A1A1A' }}>♡</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: '#1A1A1A' }}>Save</span>
+                  </div>
+                  <div style={{ background: '#0EA5E9', borderRadius: 16, paddingLeft: 12, paddingRight: 12, paddingTop: 6, paddingBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 8, color: 'white' }}>⌾</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>Scan Again</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── Right phone: Better Alternatives (scrolled down view) ── */}
-            <div
-              className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
-              style={{
-                width: 190,
-                height: 520,
-                borderColor: '#2A2A2A',
-                background: '#EBEBEB',
-                flexShrink: 0,
-              }}
-            >
-              {/* Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 rounded-b-2xl" style={{ width: 90, height: 20, background: '#2A2A2A' }} />
-              {/* Screen */}
-              <div style={{ background: '#EBEBEB', height: '100%', overflow: 'hidden' }}>
-                {/* Status bar */}
-                <div style={{ height: 28 }} />
-                {/* App header */}
-                <div className="flex items-center justify-between" style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>✕</span>
+            {/* ── Phone 3: Positives + Better Alternatives scrolled (IMG_2366) ── */}
+            <div className="hidden sm:block relative overflow-hidden" style={{ width: 190, height: 520, borderRadius: 32, border: '5px solid #2A2A2A', background: '#EBEBEB', flexShrink: 0 }}>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10" style={{ width: 80, height: 18, background: '#2A2A2A', borderRadius: '0 0 12px 12px' }} />
+              <div style={{ height: '100%', background: '#EBEBEB', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ height: 26 }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#1A1A1A' }}>✕</span>
                   </div>
-                  <span className="font-semibold uppercase" style={{ fontSize: 7, color: '#94A3B8', letterSpacing: '0.08em' }}>Analysis Result</span>
-                  <div className="flex items-center justify-center rounded-[8px]" style={{ width: 22, height: 22, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
-                    <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
+                  <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Analysis Result</span>
+                  <div style={{ width: 26, height: 26, borderRadius: 8, background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 10, color: '#1A1A1A' }}>⬆</span>
                   </div>
                 </div>
-                {/* Partial score card peeking — "scrolled past" effect */}
-                <div style={{ margin: '0 8px 6px', borderRadius: '0 0 20px 20px', padding: '6px 9px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #10B981', background: 'rgba(16,185,129,0.1)' }}>
-                      <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
-                      <span className="font-bold" style={{ fontSize: 7, color: '#10B981' }}>Safe</span>
-                    </div>
-                    <span className="font-bold" style={{ fontSize: 7, color: '#1A1A1A' }}>Tom&apos;s of Maine Toothpaste</span>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  {/* POSITIVES label */}
+                  <div style={{ padding: '6px 10px 4px' }}>
+                    <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Positives</span>
                   </div>
-                </div>
-                {/* Better Alternatives header */}
-                <div className="flex items-center justify-between" style={{ margin: '2px 8px 7px' }}>
-                  <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.08em' }}>Better Alternatives</span>
-                  <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)', border: '1px solid rgba(14,165,233,0.3)' }}>
-                    <span style={{ fontSize: 6 }}>🏪</span>
-                    <span style={{ fontSize: 6, color: '#0EA5E9', fontWeight: 600 }}>Find at a store</span>
-                  </div>
-                </div>
-                {/* Swap rows */}
-                {[
-                  { score: 91, name: 'Organic Bone Broth', brand: 'Bonafide Provisions' },
-                  { score: 88, name: 'Organic Chicken Broth', brand: 'Pacific Foods' },
-                  { score: 85, name: 'Organic Lentil Soup', brand: "Amy's Kitchen" },
-                  { score: 84, name: 'Chicken Bone Broth', brand: 'Kettle & Fire' },
-                ].map((swap) => (
-                  <div
-                    key={swap.name}
-                    className="flex items-center justify-between"
-                    style={{ margin: '0 8px 5px', borderRadius: 12, padding: '7px 8px', background: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
-                  >
-                    <div className="flex items-center" style={{ gap: 6 }}>
-                      <div className="flex items-center justify-center" style={{ width: 30, height: 30, borderRadius: '22%', background: 'rgba(16,185,129,0.1)', border: '2px solid #10B981', flexShrink: 0 }}>
-                        <span className="font-bold" style={{ fontSize: 10, color: '#10B981' }}>{swap.score}</span>
+                  {/* Positive pills */}
+                  {[
+                    'Fluoride-free formula caters to diverse customer preferences',
+                    'Natural flavor from peppermint oil',
+                    'No artificial flavors, sweeteners, or dyes',
+                    'BPA-free tube and recyclable packaging',
+                  ].map((item) => (
+                    <div key={item} style={{ margin: '0 8px 4px', borderRadius: 10, padding: '6px 8px', border: '1.5px solid #10B981', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <div style={{ width: 13, height: 13, borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: 7, color: 'white', fontWeight: 700 }}>✓</span>
                       </div>
-                      <div>
-                        <p className="font-bold" style={{ fontSize: 7, color: '#1A1A1A', lineHeight: '10px' }}>{swap.name}</p>
-                        <p style={{ fontSize: 6, color: '#64748B', marginTop: 1 }}>{swap.brand}</p>
+                      <span style={{ fontSize: 7, color: '#10B981', fontWeight: 500, lineHeight: '10px' }}>{item}</span>
+                    </div>
+                  ))}
+                  {/* BETTER ALTERNATIVES header */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px 4px' }}>
+                    <span style={{ fontSize: 7, fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Better Alternatives</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, borderRadius: 50, paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)' }}>
+                      <span style={{ fontSize: 7 }}>🏪</span>
+                      <span style={{ fontSize: 6, fontWeight: 600, color: '#0EA5E9' }}>Find at a store</span>
+                    </div>
+                  </div>
+                  {/* Swap cards */}
+                  {[
+                    { score: 85, name: 'Antiplaque & Whitening Fluoride-Free Toothpaste', brand: "Tom's of Maine" },
+                    { score: 75, name: 'Fluoride-Free Antiplaque Toothpaste', brand: "Tom's of Maine" },
+                    { score: 84, name: 'Silly Strawberry Kids Fluoride-Free Toothpaste', brand: "Tom's of Maine" },
+                  ].map((swap) => (
+                    <div key={swap.name} style={{ margin: '0 8px 5px', borderRadius: 14, padding: '7px 8px', background: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(16,185,129,0.15)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981' }}>{swap.score}</span>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 7, fontWeight: 700, color: '#111', lineHeight: '10px' }}>{swap.name}</p>
+                          <p style={{ fontSize: 6, color: '#64748B', marginTop: 1 }}>{swap.brand}</p>
+                        </div>
+                      </div>
+                      <div style={{ width: 22, height: 22, borderRadius: 7, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: 10, color: '#0EA5E9', fontWeight: 700 }}>→</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-center" style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(14,165,233,0.15)', flexShrink: 0 }}>
-                      <span style={{ fontSize: 8, color: '#0EA5E9' }}>›</span>
-                    </div>
+                  ))}
+                </div>
+                {/* Bottom bar */}
+                <div style={{ padding: '8px 10px', background: '#F0F0F0', borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, color: '#1A1A1A' }}>♡</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: '#1A1A1A' }}>Save</span>
                   </div>
-                ))}
+                  <div style={{ background: '#0EA5E9', borderRadius: 16, paddingLeft: 12, paddingRight: 12, paddingTop: 6, paddingBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 8, color: 'white' }}>⌾</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'white' }}>Scan Again</span>
+                  </div>
+                </div>
               </div>
             </div>
 
