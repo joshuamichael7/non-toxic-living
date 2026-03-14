@@ -131,16 +131,15 @@ export default function LandingPage() {
           </div>
 
           {/* Phone mockup showing actual app result screen — 3 phones */}
-          <div className="mt-16 flex items-end justify-center gap-4">
+          <div className="mt-16 flex items-center justify-center gap-4">
 
             {/* ── Left phone: Okay score (67) + Summary ── */}
             <div
               className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
-                width: 180,
+                width: 190,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
-                transform: 'rotate(-5deg) translateY(24px)',
                 flexShrink: 0,
               }}
             >
@@ -205,11 +204,10 @@ export default function LandingPage() {
             <div
               className="relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
-                width: 200,
+                width: 190,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
                 flexShrink: 0,
-                zIndex: 10,
               }}
             >
               {/* Notch */}
@@ -270,14 +268,13 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* ── Right phone: Better Alternatives ── */}
+            {/* ── Right phone: Better Alternatives (scrolled down view) ── */}
             <div
               className="hidden sm:block relative rounded-[32px] border-[5px] overflow-hidden"
               style={{
-                width: 180,
+                width: 190,
                 borderColor: '#2A2A2A',
                 background: '#EBEBEB',
-                transform: 'rotate(5deg) translateY(24px)',
                 flexShrink: 0,
               }}
             >
@@ -297,8 +294,18 @@ export default function LandingPage() {
                     <span style={{ fontSize: 8, color: '#1A1A1A' }}>↗</span>
                   </div>
                 </div>
+                {/* Partial score card peeking — "scrolled past" effect */}
+                <div style={{ margin: '0 8px 6px', borderRadius: '0 0 14px 14px', padding: '6px 9px 8px', background: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 7, paddingRight: 7, paddingTop: 3, paddingBottom: 3, border: '1.5px solid #10B981', background: 'rgba(16,185,129,0.1)' }}>
+                      <span style={{ fontSize: 7, color: '#10B981' }}>✓</span>
+                      <span className="font-bold" style={{ fontSize: 7, color: '#10B981' }}>Safe</span>
+                    </div>
+                    <span className="font-bold" style={{ fontSize: 8, color: '#1A1A1A' }}>Tom&apos;s of Maine Toothpaste</span>
+                  </div>
+                </div>
                 {/* Better Alternatives header */}
-                <div className="flex items-center justify-between" style={{ margin: '8px 8px 6px' }}>
+                <div className="flex items-center justify-between" style={{ margin: '2px 8px 6px' }}>
                   <span className="font-semibold uppercase" style={{ fontSize: 6, color: '#94A3B8', letterSpacing: '0.1em' }}>Better Alternatives</span>
                   <div className="flex items-center gap-1 rounded-full" style={{ paddingLeft: 6, paddingRight: 6, paddingTop: 3, paddingBottom: 3, background: 'rgba(14,165,233,0.15)' }}>
                     <span style={{ fontSize: 6 }}>🏪</span>
@@ -310,6 +317,7 @@ export default function LandingPage() {
                   { score: 91, name: 'Organic Bone Broth', brand: 'Bonafide Provisions' },
                   { score: 88, name: 'Organic Chicken Broth', brand: 'Pacific Foods' },
                   { score: 85, name: 'Organic Lentil Soup', brand: "Amy's Kitchen" },
+                  { score: 84, name: 'Chicken Bone Broth', brand: 'Kettle & Fire' },
                 ].map((swap) => (
                   <div
                     key={swap.name}
