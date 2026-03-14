@@ -17,8 +17,9 @@ export function formatPrice(cents: number): string {
 /**
  * Get verdict from score
  */
-export function getVerdict(score: number): 'safe' | 'caution' | 'toxic' {
-  if (score >= 67) return 'safe';
+export function getVerdict(score: number): 'safe' | 'okay' | 'caution' | 'toxic' {
+  if (score >= 80) return 'safe';
+  if (score >= 67) return 'okay';
   if (score >= 34) return 'caution';
   return 'toxic';
 }

@@ -227,6 +227,26 @@ export default function LandingPage() {
                   </div>
                 </div>
 
+                {/* Recommended swaps */}
+                <div className="mx-3 mt-2.5 rounded-[18px] p-3.5 mb-4" style={{ background: '#F0F0F0', border: '1px solid rgba(255,255,255,0.6)' }}>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-5 h-5 rounded-[6px] flex items-center justify-center" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                      <span className="text-[8px]">🔄</span>
+                    </div>
+                    <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Safer Swaps</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10B981' }}>
+                      <span className="text-[9px] font-semibold" style={{ color: '#10B981' }}>Hippeas Chickpea Puffs</span>
+                      <span className="text-[7px] font-bold" style={{ color: '#10B981' }}>92</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-[8px] px-2 py-1.5" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10B981' }}>
+                      <span className="text-[9px] font-semibold" style={{ color: '#10B981' }}>LesserEvil Popcorn</span>
+                      <span className="text-[7px] font-bold" style={{ color: '#10B981' }}>88</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Bottom safe area */}
                 <div className="h-[20px]" />
               </div>
@@ -339,11 +359,16 @@ export default function LandingPage() {
           <p className="mt-4 text-lg text-[--site-text-secondary]">
             Every product gets a clear safety score from 0 to 100. No guesswork.
           </p>
-          <div className="mt-14 grid gap-6 sm:grid-cols-3">
+          <div className="mt-14 grid gap-6 sm:grid-cols-4">
             <div className="rounded-2xl p-8 text-center border" style={{ borderColor: 'rgba(16, 185, 129, 0.2)', background: 'rgba(16, 185, 129, 0.06)' }}>
-              <div className="text-4xl font-extrabold" style={{ color: 'var(--color-safe)' }}>67–100</div>
+              <div className="text-4xl font-extrabold" style={{ color: 'var(--color-safe)' }}>80–100</div>
               <div className="mt-2 text-sm font-semibold" style={{ color: 'var(--color-safe)' }}>Safe</div>
               <p className="mt-3 text-sm text-[--site-text-secondary]">No significant concerns. Use with confidence.</p>
+            </div>
+            <div className="rounded-2xl p-8 text-center border" style={{ borderColor: 'rgba(132, 204, 22, 0.2)', background: 'rgba(132, 204, 22, 0.06)' }}>
+              <div className="text-4xl font-extrabold" style={{ color: '#84CC16' }}>67–79</div>
+              <div className="mt-2 text-sm font-semibold" style={{ color: '#84CC16' }}>Okay</div>
+              <p className="mt-3 text-sm text-[--site-text-secondary]">Generally fine, with minor things to note.</p>
             </div>
             <div className="rounded-2xl p-8 text-center border" style={{ borderColor: 'rgba(245, 158, 11, 0.2)', background: 'rgba(245, 158, 11, 0.06)' }}>
               <div className="text-4xl font-extrabold" style={{ color: 'var(--color-caution)' }}>34–66</div>
@@ -457,33 +482,53 @@ export default function LandingPage() {
       <section id="pricing" className="py-24 px-6 sm:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-extrabold sm:text-4xl leading-tight">
-            Start free. Upgrade anytime.
+            Pay once. Scan forever.
           </h2>
           <p className="mt-4 text-lg text-[--site-text-secondary]">
-            5 free scans every month. No credit card required.
+            10 free scans to get started. Buy more whenever you need them — credits never expire.
           </p>
           <div className="mt-14 grid gap-6 sm:grid-cols-3 text-left">
-            {/* Free */}
+            {/* Free trial */}
             <div
               className="rounded-2xl border p-7"
               style={{ borderColor: 'var(--color-site-border-light)', background: 'var(--color-site-surface)' }}
             >
-              <h3 className="font-bold text-[--site-text]">Free</h3>
+              <h3 className="font-bold text-[--site-text]">Free Trial</h3>
               <div className="mt-3 text-3xl font-extrabold text-[--site-text]">$0</div>
-              <p className="mt-1 text-sm text-[--site-text-muted]">Forever</p>
+              <p className="mt-1 text-sm text-[--site-text-muted]">No credit card required</p>
               <ul className="mt-6 space-y-3 text-sm text-[--site-text-secondary]">
                 <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 5 scans per month
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 10 scans included
                 </li>
                 <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Basic analysis
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Full ingredient analysis
                 </li>
                 <li className="flex items-center gap-2">
                   <span style={{ color: 'var(--color-safe)' }}>✓</span> Swap recommendations
                 </li>
               </ul>
             </div>
-            {/* Pro */}
+            {/* 200 pack */}
+            <div
+              className="rounded-2xl border p-7"
+              style={{ borderColor: 'var(--color-site-border-light)', background: 'var(--color-site-surface)' }}
+            >
+              <h3 className="font-bold text-[--site-text]">200 Scans</h3>
+              <div className="mt-3 text-3xl font-extrabold text-[--site-text]">$3.99</div>
+              <p className="mt-1 text-sm text-[--site-text-muted]">One-time purchase</p>
+              <ul className="mt-6 space-y-3 text-sm text-[--site-text-secondary]">
+                <li className="flex items-center gap-2">
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 200 scan credits
+                </li>
+                <li className="flex items-center gap-2">
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Credits never expire
+                </li>
+                <li className="flex items-center gap-2">
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Full ingredient analysis
+                </li>
+              </ul>
+            </div>
+            {/* 500 pack */}
             <div
               className="rounded-2xl border-2 p-7 relative"
               style={{ borderColor: 'var(--color-oxygen)', background: 'var(--color-site-surface)', boxShadow: '0 10px 40px -10px rgba(14, 165, 233, 0.2)' }}
@@ -492,47 +537,20 @@ export default function LandingPage() {
                 className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-semibold text-white"
                 style={{ background: 'var(--color-oxygen)' }}
               >
-                Most popular
+                Best value
               </div>
-              <h3 className="font-bold text-[--site-text]">Pro</h3>
-              <div className="mt-3 text-3xl font-extrabold text-[--site-text]">
-                $7.99<span className="text-base font-normal text-[--site-text-muted]">/mo</span>
-              </div>
-              <p className="mt-1 text-sm text-[--site-text-muted]">or $87.99/year (1 month free)</p>
+              <h3 className="font-bold text-[--site-text]">500 Scans</h3>
+              <div className="mt-3 text-3xl font-extrabold text-[--site-text]">$7.99</div>
+              <p className="mt-1 text-sm text-[--site-text-muted]">One-time purchase · 20% savings</p>
               <ul className="mt-6 space-y-3 text-sm text-[--site-text-secondary]">
                 <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 200 scans per month
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 500 scan credits
                 </li>
                 <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Detailed safety reports
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Credits never expire
                 </li>
                 <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Priority support
-                </li>
-              </ul>
-            </div>
-            {/* Power */}
-            <div
-              className="rounded-2xl border p-7"
-              style={{ borderColor: 'var(--color-site-border-light)', background: 'var(--color-site-surface)' }}
-            >
-              <h3 className="font-bold text-[--site-text]">Power</h3>
-              <div className="mt-3 text-3xl font-extrabold text-[--site-text]">
-                $14.99<span className="text-base font-normal text-[--site-text-muted]">/mo</span>
-              </div>
-              <p className="mt-1 text-sm text-[--site-text-muted]">or $164.99/year (1 month free)</p>
-              <ul className="mt-6 space-y-3 text-sm text-[--site-text-secondary]">
-                <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> 500 scans per month
-                </li>
-                <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Everything in Pro
-                </li>
-                <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Family sharing
-                </li>
-                <li className="flex items-center gap-2">
-                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Export reports
+                  <span style={{ color: 'var(--color-safe)' }}>✓</span> Full ingredient analysis
                 </li>
               </ul>
             </div>
@@ -570,7 +588,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="mt-6 text-sm text-[--site-text-muted]">
-            Free to try. No credit card required.
+            10 free scans included. No credit card required.
           </p>
         </div>
       </section>
