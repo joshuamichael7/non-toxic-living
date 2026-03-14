@@ -32,7 +32,7 @@ const PHONE_W = 414;
 const PHONE_H = 896;
 // Display size on landing page
 const DISPLAY_W = 230;
-const SCALE = DISPLAY_W / PHONE_W;          // ~0.556
+const SCALE = DISPLAY_W / PHONE_W;            // ~0.556
 const DISPLAY_H = Math.round(PHONE_H * SCALE); // ~498
 
 const font = 'var(--font-manrope), system-ui, -apple-system, sans-serif';
@@ -66,6 +66,9 @@ function IconShare() {
 function IconDoc() {
   return <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={C.oxygen} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>;
 }
+function IconChat() {
+  return <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>;
+}
 function IconCheck({ color = C.safe }: { color?: string }) {
   return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
 }
@@ -79,7 +82,7 @@ function IconScan() {
   return <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={C.white} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M4 8V4h4"/><path d="M20 8V4h-4"/><path d="M4 16v4h4"/><path d="M20 16v4h-4"/></svg>;
 }
 function IconHeart() {
-  return <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={C.inkSecondary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>;
+  return <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={C.inkSecondary} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>;
 }
 function IconStore() {
   return <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={C.oxygen} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1-4h16l1 4"/><path d="M3 9v10a1 1 0 001 1h16a1 1 0 001-1V9"/><path d="M9 21V12h6v9"/></svg>;
@@ -134,7 +137,7 @@ function VerdictPill({ score }: { score: number }) {
 
 function ResultHeader() {
   return (
-    <div style={{ display:'flex', alignItems:'center', padding:'12px 20px', borderBottom:`1px solid ${C.glassBorder}` }}>
+    <div style={{ display:'flex', alignItems:'center', padding:'12px 20px', borderBottom:`1px solid ${C.glassBorder}`, flexShrink:0 }}>
       <div style={{ width:44, height:44, borderRadius:14, background:C.glass, border:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
         <IconX />
       </div>
@@ -146,13 +149,16 @@ function ResultHeader() {
   );
 }
 
+/* Equal-width Save / Scan Again buttons — matching the actual app */
 function BottomBar() {
   return (
-    <div style={{ padding:'14px 20px 36px', background:C.glass, borderTop:`1px solid ${C.glassBorder}`, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexShrink:0 }}>
-      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'4px 16px' }}>
+    <div style={{ padding:'14px 20px 36px', background:C.glass, borderTop:`1px solid ${C.glassBorder}`, display:'flex', gap:12, flexShrink:0 }}>
+      {/* Save — equal width */}
+      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'16px 0', borderRadius:16, background:C.glass, border:`1.5px solid ${C.glassBorder}`, boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
         <IconHeart />
-        <span style={{ fontSize:11, fontWeight:600, color:C.inkSecondary, fontFamily:font }}>Save</span>
+        <span style={{ fontSize:16, fontWeight:700, color:C.inkSecondary, fontFamily:font }}>Save</span>
       </div>
+      {/* Scan Again — equal width */}
       <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'16px 0', borderRadius:16, background:C.oxygen, boxShadow:`0 6px 12px ${C.oxygenGlow}` }}>
         <IconScan />
         <span style={{ fontSize:16, fontWeight:700, color:C.white, fontFamily:font }}>Scan Again</span>
@@ -167,7 +173,8 @@ function OkayScreen() {
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <ResultHeader />
-      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:14, overflow:'hidden' }}>
+      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:14, overflowY:'hidden' }}>
+        {/* Score Hero */}
         <GlassCard style={{ borderRadius:32, padding:24, textAlign:'center' as const }}>
           <div style={{ display:'flex', justifyContent:'center', marginBottom:14 }}>
             <ScoreBadge score={score} size={100} />
@@ -179,6 +186,7 @@ function OkayScreen() {
           <VerdictPill score={score} />
         </GlassCard>
 
+        {/* Summary */}
         <GlassCard style={{ borderRadius:24, padding:20 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
             <div style={{ width:32, height:32, borderRadius:10, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -187,9 +195,37 @@ function OkayScreen() {
             <span style={{ fontSize:13, fontWeight:600, letterSpacing:0.3, color:C.inkSecondary, textTransform:'uppercase' as const, fontFamily:font }}>Summary</span>
           </div>
           <div style={{ fontSize:15, color:C.ink, lineHeight:1.6, fontWeight:500, fontFamily:font }}>
-            This toothpaste has a clean ingredient list with no harmful additives. It avoids fluoride and uses natural flavors. However, it contains sodium lauryl sulfate, which may be a concern for some.
+            Clean ingredient list with no harmful additives. Avoids fluoride and uses natural flavors. Contains sodium lauryl sulfate, which may be a concern for sensitive users.
           </div>
         </GlassCard>
+
+        {/* Our Take (blue card) */}
+        <div style={{ borderRadius:24, padding:20, background:C.oxygen, boxShadow:`0 8px 16px ${C.oxygenGlow}` }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+            <div style={{ width:32, height:32, borderRadius:10, background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <IconChat />
+            </div>
+            <span style={{ fontSize:13, fontWeight:700, letterSpacing:0.3, color:C.white, textTransform:'uppercase' as const, fontFamily:font }}>Our Take</span>
+          </div>
+          <div style={{ fontSize:15, color:C.white, lineHeight:1.6, fontWeight:500, fontFamily:font }}>
+            &ldquo;A solid choice for fluoride-free oral care. Clean formula, honest label — no nasty surprises.&rdquo;
+          </div>
+        </div>
+
+        {/* Positives */}
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {[
+            'Fluoride-free formula',
+            'No artificial sweeteners or dyes',
+            'Natural peppermint oil flavor',
+            'BPA-free, recyclable packaging',
+          ].map(p => (
+            <div key={p} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}` }}>
+              <IconCheck color={C.safe} />
+              <span style={{ fontSize:14, fontWeight:600, color:C.safe, fontFamily:font }}>{p}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -198,21 +234,28 @@ function OkayScreen() {
 /* ── Phone 2: Score 34 Caution — Fried Noodle ── */
 function CautionScreen() {
   const score = 34;
+  const concerns = [
+    { name: 'MSG (Monosodium Glutamate)', severity: 'Medium', desc: 'Flavor enhancer linked to headaches and sensitivity reactions in some individuals.' },
+    { name: 'Artificial Flavoring Agents', severity: 'Medium', desc: 'Broad category of synthetic chemicals; specific compounds not disclosed on label.' },
+    { name: 'TBHQ Preservative', severity: 'High', desc: 'Synthetic antioxidant; high doses linked to negative health effects in animal studies.' },
+  ];
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <ResultHeader />
-      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:14, overflow:'hidden' }}>
-        <GlassCard style={{ borderRadius:32, padding:24, textAlign:'center' as const }}>
-          <div style={{ display:'flex', justifyContent:'center', marginBottom:14 }}>
-            <ScoreBadge score={score} size={100} />
+      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:14, overflowY:'hidden' }}>
+        {/* Score Hero */}
+        <GlassCard style={{ borderRadius:32, padding:22, textAlign:'center' as const }}>
+          <div style={{ display:'flex', justifyContent:'center', marginBottom:12 }}>
+            <ScoreBadge score={score} size={96} />
           </div>
           <div style={{ fontSize:22, fontWeight:800, color:C.ink, marginBottom:4, lineHeight:1.3, fontFamily:font }}>
             Fried Noodle
           </div>
-          <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:14, fontFamily:font }}>Unknown</div>
+          <div style={{ fontSize:14, color:C.inkSecondary, fontWeight:500, marginBottom:12, fontFamily:font }}>Unknown</div>
           <VerdictPill score={score} />
         </GlassCard>
 
+        {/* Summary */}
         <GlassCard style={{ borderRadius:24, padding:20 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
             <div style={{ width:32, height:32, borderRadius:10, background:C.oxygenGlowSubtle, display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -221,12 +264,27 @@ function CautionScreen() {
             <span style={{ fontSize:13, fontWeight:600, letterSpacing:0.3, color:C.inkSecondary, textTransform:'uppercase' as const, fontFamily:font }}>Summary</span>
           </div>
           <div style={{ fontSize:15, color:C.ink, lineHeight:1.6, fontWeight:500, fontFamily:font }}>
-            This product contains several additives and flavor enhancers that may raise concerns, particularly for children. The presence of MSG and various flavoring agents could be problematic for sensitive individuals.
+            Contains several additives and flavor enhancers that may raise concerns, particularly for children and sensitive individuals.
           </div>
         </GlassCard>
 
-        {/* Peek of next section */}
-        <div style={{ height:18, borderRadius:12, background:C.oxygen, opacity:0.85 }} />
+        {/* Concerns */}
+        <div>
+          <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, marginBottom:10, fontFamily:font }}>
+            Concerns ({concerns.length})
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {concerns.map(c => (
+              <GlassCard key={c.name} style={{ padding:14, borderRadius:18 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+                  <span style={{ fontSize:14, fontWeight:700, color:C.ink, fontFamily:font }}>{c.name}</span>
+                  <span style={{ fontSize:11, fontWeight:600, color: c.severity === 'High' ? C.toxic : C.caution, background: c.severity === 'High' ? C.toxicLight : C.cautionLight, border:`1px solid ${c.severity === 'High' ? C.toxic : C.caution}`, borderRadius:8, padding:'3px 8px', whiteSpace:'nowrap' as const, fontFamily:font }}>{c.severity}</span>
+                </div>
+                <div style={{ fontSize:13, color:C.inkSecondary, lineHeight:1.4, fontFamily:font }}>{c.desc}</div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -235,23 +293,23 @@ function CautionScreen() {
 /* ── Phone 3: Positives + Better Alternatives ── */
 function PositivesSwapsScreen() {
   const positives = [
-    'Fluoride-free formula caters to diverse customer preferences',
+    'Fluoride-free formula caters to diverse preferences',
     'Natural flavor from peppermint oil',
     'No artificial flavors, sweeteners, or dyes',
     'BPA-free tube and recyclable packaging',
   ];
   const swaps = [
     { score: 85, name: 'Antiplaque & Whitening Fluoride-Free Toothpaste', brand: "Tom's of Maine" },
-    { score: 75, name: 'Fluoride-Free Antiplaque Toothpaste', brand: "Tom's of Maine" },
     { score: 84, name: 'Silly Strawberry Kids Fluoride-Free Toothpaste', brand: "Tom's of Maine" },
+    { score: 75, name: 'Fluoride-Free Antiplaque Toothpaste', brand: "Tom's of Maine" },
   ];
 
   return (
     <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <ResultHeader />
-      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:10, overflow:'hidden' }}>
+      <div style={{ flex:1, padding:'16px 20px', display:'flex', flexDirection:'column', gap:10, overflowY:'hidden' }}>
+        {/* Positives */}
         <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, fontFamily:font }}>Positives</div>
-
         <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {positives.map(p => (
             <div key={p} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:12, background:C.safeLight, border:`1px solid ${C.safe}` }}>
@@ -261,7 +319,8 @@ function PositivesSwapsScreen() {
           ))}
         </div>
 
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:4 }}>
+        {/* Better Alternatives header */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:6 }}>
           <div style={{ fontSize:13, fontWeight:600, color:C.inkSecondary, letterSpacing:0.5, textTransform:'uppercase' as const, fontFamily:font }}>Better Alternatives</div>
           <div style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 12px', borderRadius:20, background:C.oxygenGlowSubtle }}>
             <IconStore />
@@ -269,6 +328,7 @@ function PositivesSwapsScreen() {
           </div>
         </div>
 
+        {/* Swap cards */}
         <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {swaps.map(swap => (
             <GlassCard key={swap.name} style={{ padding:14, borderRadius:18, display:'flex', alignItems:'center', gap:12 }}>
@@ -288,7 +348,7 @@ function PositivesSwapsScreen() {
   );
 }
 
-/* ── Phone wrapper: device frame + scale ── */
+/* ── Phone wrapper: device frame + CSS scale ── */
 function Phone({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div
@@ -317,7 +377,7 @@ function Phone({ children, className = '' }: { children: React.ReactNode; classN
         borderRadius: 99,
         zIndex: 10,
       }} />
-      {/* Scaled screen content */}
+      {/* Full-size screen content scaled down */}
       <div style={{
         width: PHONE_W,
         height: PHONE_H,
