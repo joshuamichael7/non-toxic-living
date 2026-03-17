@@ -461,8 +461,8 @@ export default function ScanScreen() {
             <Text style={{ fontSize: 20, fontWeight: '800', color: colors.ink, marginBottom: 6 }}>
               What product is this?
             </Text>
-            <Text style={{ fontSize: 14, color: colors.inkSecondary, marginBottom: 24, lineHeight: 20 }}>
-              Helps us recommend the most relevant safer swaps.
+            <Text style={{ fontSize: 14, color: colors.inkSecondary, marginBottom: 24, lineHeight: 22 }}>
+              We&apos;ll analyze based on the ingredients regardless — but knowing the product name helps us recommend swaps that are actually the same type of product, not just something with similar ingredients.
             </Text>
 
             {/* Product Name */}
@@ -535,7 +535,7 @@ export default function ScanScreen() {
               style={{ paddingVertical: 14, alignItems: 'center' }}
             >
               <Text style={{ color: colors.inkSecondary, fontWeight: '600', fontSize: 15 }}>
-                Skip — analyze ingredients only
+                Skip
               </Text>
             </Pressable>
           </View>

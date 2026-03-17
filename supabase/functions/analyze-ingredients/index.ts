@@ -625,6 +625,7 @@ ${blocklist}
   "productName": "product name in ${responseLang} (translate if needed)",
   "brand": "from input or 'Unknown'",
   "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|sunscreen|haircare|oral_care|deodorant|soap|makeup|nail_care|cleaning|laundry|fragrance|cookware|storage|supplement|baby|toys|household|furniture|mattress|paint|garden|pet|clothing",
+  "subcategory": "The most specific product type — used to find accurate swap recommendations. Use one of: dish_soap|dishwasher_detergent|hand_soap|laundry_detergent|all_purpose_cleaner|bathroom_cleaner|floor_cleaner|glass_cleaner|surface_cleaner|stain_remover|body_wash|bar_soap|shampoo|conditioner|face_wash|moisturizer|lip_balm|baby_wipes|diapers|baby_formula|baby_lotion|baby_sunscreen|baby_shampoo|toothpaste|mouthwash|eye_makeup|lip_makeup|foundation|bug_spray|bug_repellent|sunscreen_spray|sunscreen_lotion|protein_powder|multivitamin|omega_supplement — or null if the category is already specific enough (e.g. deodorant, oral_care, sunscreen, cookware, clothing)",
   "score": 0-100 (higher = safer),
   "verdict": "safe|caution|toxic",
   "summary": "Brief analysis highlighting key concerns or positives",
@@ -740,7 +741,7 @@ ${ingredientText}`
     // =========================================================================
     // STEP 6: Get swap recommendations + coupons (filtered against blocklist)
     // =========================================================================
-    const swaps = await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score }, store, blockedProducts || [])
+    const swaps = await getSwapRecommendations(supabase, { category: analysis.category, subcategory: analysis.subcategory, score: analysis.score }, store, blockedProducts || [])
 
     // Fetch matching coupons for this category
     const coupons = await getCouponsForCategory(supabase, analysis.category)
@@ -877,54 +878,66 @@ function isBlockedSwap(
 }
 
 // Helper: Get swap recommendations
-// Uses category match + score sort — NOT ingredient vector similarity
-// (ingredient similarity finds similar products, not safer alternatives)
+// Uses subcategory (most specific) → category fallback + score sort.
+// No ingredient vector similarity — that finds similar-toxicity products, not safer alternatives.
 async function getSwapRecommendations(
   supabase: any,
-  product: { category?: string; score?: number },
+  product: { category?: string; subcategory?: string; score?: number },
   store?: string,
   blockedProducts: Array<{ name: string; brand: string | null; reason: string }> = []
 ): Promise<any[]> {
   try {
-    const categories = getRelatedCategories(product.category || '')
-
-    let query = supabase
-      .from('swaps')
-      .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
-      .in('category', categories)
-      .eq('is_active', true)
-      .gte('score', 70)
-      .order('score', { ascending: false })
-      .limit(15)
-
-    if (store) {
-      query = query.contains('available_stores', [store])
+    const runQuery = async (filterFn: (q: any) => any): Promise<any[]> => {
+      let q = filterFn(
+        supabase
+          .from('swaps')
+          .select('id, name, brand, score, affiliate_url, why_better, available_stores, category, subcategory')
+          .eq('is_active', true)
+          .gte('score', 70)
+          .order('score', { ascending: false })
+          .limit(15)
+      )
+      if (store) q = q.contains('available_stores', [store])
+      let { data } = await q
+      // If store filter returned nothing, retry without it
+      if (store && (!data || data.length === 0)) {
+        let q2 = filterFn(
+          supabase
+            .from('swaps')
+            .select('id, name, brand, score, affiliate_url, why_better, available_stores, category, subcategory')
+            .eq('is_active', true)
+            .gte('score', 70)
+            .order('score', { ascending: false })
+            .limit(15)
+        )
+        const { data: fallback } = await q2
+        data = fallback || []
+      }
+      return data || []
     }
 
-    let { data } = await query
+    let results: any[] = []
 
-    // If store filter returned nothing, retry without store filter
-    if (store && (!data || data.length === 0)) {
-      const { data: unfiltered } = await supabase
-        .from('swaps')
-        .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
-        .in('category', categories)
-        .eq('is_active', true)
-        .gte('score', 70)
-        .order('score', { ascending: false })
-        .limit(15)
-      data = unfiltered || []
+    // 1. Try exact subcategory match first (most specific)
+    if (product.subcategory) {
+      results = await runQuery((q: any) => q.eq('subcategory', product.subcategory))
+      console.log(`Swap subcategory match (${product.subcategory}): ${results.length} results`)
     }
 
-    let results: any[] = data || []
+    // 2. Fall back to category group if subcategory returned nothing
+    if (results.length === 0) {
+      const categories = getRelatedCategories(product.category || '')
+      results = await runQuery((q: any) => q.in('category', categories))
+      console.log(`Swap category match (${categories.join(',')}): ${results.length} results`)
 
-    // Sort: exact category match first, then by score descending
-    if (results.length > 0 && product.category) {
-      results.sort((a: any, b: any) => {
-        const aExact = a.category === product.category ? 0 : 1
-        const bExact = b.category === product.category ? 0 : 1
-        return aExact - bExact || b.score - a.score
-      })
+      // Sort: exact category match first, then score descending
+      if (results.length > 0 && product.category) {
+        results.sort((a: any, b: any) => {
+          const aExact = a.category === product.category ? 0 : 1
+          const bExact = b.category === product.category ? 0 : 1
+          return aExact - bExact || b.score - a.score
+        })
+      }
     }
 
     // Filter out blocked products
