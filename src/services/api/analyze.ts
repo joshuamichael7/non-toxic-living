@@ -70,6 +70,8 @@ export interface AnalyzeRequest {
   clientSteps?: PipelineStep[];
   language?: string;
   store?: string;
+  productName?: string;
+  brand?: string;
 }
 
 export interface QuotaExceededError {

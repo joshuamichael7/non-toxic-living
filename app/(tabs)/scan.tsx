@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Animated, Alert } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Animated, Alert, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -42,6 +42,13 @@ export default function ScanScreen() {
   const [scanError, setScanError] = useState<string | null>(null);
   const [quotaModalVisible, setQuotaModalVisible] = useState(false);
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
+
+  // Product info step (between OCR and analysis)
+  const [productInfoVisible, setProductInfoVisible] = useState(false);
+  const [pendingOcrResult, setPendingOcrResult] = useState<any>(null);
+  const [pendingPhoto, setPendingPhoto] = useState<any>(null);
+  const [productNameInput, setProductNameInput] = useState('');
+  const [brandInput, setBrandInput] = useState('');
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -96,85 +103,18 @@ export default function ScanScreen() {
     return true; // blocked
   };
 
-  // Open native camera and process the photo
-  const handleScan = async () => {
-    if (isCapturingRef.current || isProcessing) return;
-    if (requireAuth()) return;
+  const runAnalysis = async (ocrResult: any, photo: any, productNameOverride?: string, brandOverride?: string) => {
+    setScanStage('analyzing');
 
-    isCapturingRef.current = true;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-    // Pre-check credits before opening camera
-    const exceeded = handleQuotaCheck();
-    if (exceeded) {
-      isCapturingRef.current = false;
-      return;
-    }
-
-    setScanStage('capturing');
-    setScanError(null);
-    setError(null);
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.03, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ])
+    );
+    pulse.start();
 
     try {
-      // Request camera permission
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        setScanStage('error');
-        setScanError(t('scan.cameraPermissionDenied', 'Camera permission is required to scan products.'));
-        isCapturingRef.current = false;
-        return;
-      }
-
-      // Open native camera
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['images'],
-        quality: 0.8,
-        base64: true,
-        allowsEditing: false,
-      });
-
-      // User cancelled
-      if (result.canceled || !result.assets?.[0]) {
-        setScanStage('idle');
-        isCapturingRef.current = false;
-        return;
-      }
-
-      const photo = result.assets[0];
-      if (!photo.uri || !photo.base64) {
-        throw new Error('Failed to capture photo');
-      }
-
-      setImageUri(photo.uri);
-      console.log('Photo captured:', {
-        width: photo.width,
-        height: photo.height,
-        base64Size: `${(photo.base64.length / 1024).toFixed(0)}KB`,
-      });
-
-      // Start pulse animation for processing states
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.03, duration: 600, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-        ])
-      );
-      pulse.start();
-
-      setScanStage('reading');
-
-      // Run OCR pipeline on device
-      const ocrResult = await processImage(photo.uri);
-      console.log('OCR pipeline result:', {
-        source: ocrResult.ocrResult.source,
-        textLength: ocrResult.ocrResult.text.length,
-        shouldSendImage: ocrResult.shouldSendImage,
-        stepsCount: ocrResult.clientSteps.length,
-      });
-
-      setScanStage('analyzing');
-
-      // Send to Edge Function for analysis
       const language = usePreferencesStore.getState().language;
       const userId = useAuthStore.getState().user?.id;
       const store = usePreferencesStore.getState().preferredStore;
@@ -187,6 +127,8 @@ export default function ScanScreen() {
         language,
         userId,
         store: store ?? undefined,
+        productName: productNameOverride?.trim() || undefined,
+        brand: brandOverride?.trim() || undefined,
       });
 
       console.log('Analysis complete:', analysisResult.productName, '- Score:', analysisResult.score);
@@ -194,25 +136,23 @@ export default function ScanScreen() {
       pulse.stop();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setCurrentResult(analysisResult);
-      useCreditStore.getState().decrementCredit(); // optimistic UI update
+      useCreditStore.getState().decrementCredit();
 
       router.push('/result/scan');
     } catch (error) {
+      pulse.stop();
       console.error('Scan failed:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
       if (isQuotaExceededError(error)) {
         setScanStage('idle');
         setQuotaModalVisible(true);
-        // Sync credit store since server decremented to 0
         useCreditStore.getState().refreshCredits();
       } else {
         setScanStage('error');
         const msg = error instanceof Error ? error.message : 'Scan failed';
         setScanError(msg);
         setError(msg);
-
-        // Auto-reset after 3 seconds
         setTimeout(() => {
           setScanStage('idle');
           setScanError(null);
@@ -220,6 +160,110 @@ export default function ScanScreen() {
       }
     } finally {
       isCapturingRef.current = false;
+    }
+  };
+
+  const handleProductInfoConfirm = () => {
+    setProductInfoVisible(false);
+    if (pendingOcrResult && pendingPhoto) {
+      runAnalysis(pendingOcrResult, pendingPhoto, productNameInput, brandInput);
+    }
+  };
+
+  const handleProductInfoSkip = () => {
+    setProductInfoVisible(false);
+    if (pendingOcrResult && pendingPhoto) {
+      runAnalysis(pendingOcrResult, pendingPhoto);
+    }
+  };
+
+  const handleProductInfoDismiss = () => {
+    setProductInfoVisible(false);
+    isCapturingRef.current = false;
+    setScanStage('idle');
+  };
+
+  // Open native camera and process the photo
+  const handleScan = async () => {
+    if (isCapturingRef.current || isProcessing) return;
+    if (requireAuth()) return;
+
+    isCapturingRef.current = true;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    const exceeded = handleQuotaCheck();
+    if (exceeded) {
+      isCapturingRef.current = false;
+      return;
+    }
+
+    setScanStage('capturing');
+    setScanError(null);
+    setError(null);
+
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        setScanStage('error');
+        setScanError(t('scan.cameraPermissionDenied', 'Camera permission is required to scan products.'));
+        isCapturingRef.current = false;
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+        base64: true,
+        allowsEditing: false,
+      });
+
+      if (result.canceled || !result.assets?.[0]) {
+        setScanStage('idle');
+        isCapturingRef.current = false;
+        return;
+      }
+
+      const photo = result.assets[0];
+      if (!photo.uri || !photo.base64) {
+        throw new Error('Failed to capture photo');
+      }
+
+      setImageUri(photo.uri);
+
+      // Start pulse for reading stage
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.03, duration: 600, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+        ])
+      );
+      pulse.start();
+      setScanStage('reading');
+
+      const ocrResult = await processImage(photo.uri);
+      pulse.stop();
+      pulseAnim.setValue(1);
+
+      // Store pending data and show product info sheet
+      setPendingOcrResult(ocrResult);
+      setPendingPhoto(photo);
+      setProductNameInput('');
+      setBrandInput('');
+      setScanStage('idle');
+      setProductInfoVisible(true);
+      // Note: isCapturingRef stays true until analysis completes or user dismisses
+    } catch (error) {
+      console.error('Scan failed:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setScanStage('error');
+      const msg = error instanceof Error ? error.message : 'Scan failed';
+      setScanError(msg);
+      setError(msg);
+      isCapturingRef.current = false;
+      setTimeout(() => {
+        setScanStage('idle');
+        setScanError(null);
+      }, 3000);
     }
   };
 
@@ -380,6 +424,123 @@ export default function ScanScreen() {
           {t('scan.tip')}
         </Text>
       </View>
+
+      {/* Product Info Bottom Sheet */}
+      <Modal
+        visible={productInfoVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleProductInfoDismiss}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, justifyContent: 'flex-end' }}
+        >
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={handleProductInfoDismiss}
+          />
+          <View style={{
+            backgroundColor: colors.glassSolid,
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+            padding: 28,
+            paddingBottom: 40,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 20,
+          }}>
+            {/* Handle */}
+            <View style={{
+              width: 40, height: 4, borderRadius: 2,
+              backgroundColor: 'rgba(0,0,0,0.15)',
+              alignSelf: 'center', marginBottom: 24,
+            }} />
+
+            <Text style={{ fontSize: 20, fontWeight: '800', color: colors.ink, marginBottom: 6 }}>
+              What product is this?
+            </Text>
+            <Text style={{ fontSize: 14, color: colors.inkSecondary, marginBottom: 24, lineHeight: 20 }}>
+              Helps us recommend the most relevant safer swaps.
+            </Text>
+
+            {/* Product Name */}
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Product Name
+            </Text>
+            <TextInput
+              value={productNameInput}
+              onChangeText={setProductNameInput}
+              placeholder="e.g. Dawn Ultra Dish Soap"
+              placeholderTextColor={colors.inkSecondary}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 14,
+                padding: 16,
+                fontSize: 16,
+                color: colors.ink,
+                marginBottom: 16,
+                borderWidth: 1.5,
+                borderColor: 'rgba(0,0,0,0.08)',
+              }}
+              returnKeyType="next"
+              autoCapitalize="words"
+            />
+
+            {/* Brand */}
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Brand
+            </Text>
+            <TextInput
+              value={brandInput}
+              onChangeText={setBrandInput}
+              placeholder="e.g. Procter & Gamble"
+              placeholderTextColor={colors.inkSecondary}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 14,
+                padding: 16,
+                fontSize: 16,
+                color: colors.ink,
+                marginBottom: 28,
+                borderWidth: 1.5,
+                borderColor: 'rgba(0,0,0,0.08)',
+              }}
+              returnKeyType="done"
+              onSubmitEditing={handleProductInfoConfirm}
+              autoCapitalize="words"
+            />
+
+            {/* Buttons */}
+            <Pressable
+              onPress={handleProductInfoConfirm}
+              style={{
+                backgroundColor: colors.oxygen,
+                borderRadius: 16,
+                paddingVertical: 18,
+                alignItems: 'center',
+                marginBottom: 12,
+                shadowColor: colors.oxygen,
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.35,
+                shadowRadius: 12,
+              }}
+            >
+              <Text style={{ color: 'white', fontWeight: '800', fontSize: 17 }}>Analyze →</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={handleProductInfoSkip}
+              style={{ paddingVertical: 14, alignItems: 'center' }}
+            >
+              <Text style={{ color: colors.inkSecondary, fontWeight: '600', fontSize: 15 }}>
+                Skip — analyze ingredients only
+              </Text>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       <QuotaExceededModal
         visible={quotaModalVisible}

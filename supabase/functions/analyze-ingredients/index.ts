@@ -88,6 +88,8 @@ interface AnalyzeRequest {
   clientSteps?: PipelineStep[]
   language?: string
   store?: string
+  productName?: string
+  brand?: string
 }
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -148,7 +150,7 @@ Deno.serve(async (req) => {
       .join('\n')
 
     const body = await req.json() as AnalyzeRequest
-    const { text, imageBase64, ocrSource, ocrConfidence = 0.8, barcode, userId, forceRefresh, clientSteps, language = 'en', store } = body
+    const { text, imageBase64, ocrSource, ocrConfidence = 0.8, barcode, userId, forceRefresh, clientSteps, language = 'en', store, productName, brand } = body
     const responseLang = LANGUAGE_NAMES[language] || 'English'
 
     // Merge client-side pipeline steps
@@ -555,11 +557,14 @@ Focus on finding text starting with "Ingredients:", "성분:", "成분", or simi
 
     // Build context from extracted info
     const productContext = []
-    if (extractedInfo.productName) {
-      productContext.push(`Product: "${extractedInfo.productName}"`)
+    // User-provided product info takes top priority over AI-extracted
+    const resolvedProductName = productName || extractedInfo.productName
+    const resolvedBrand = brand || extractedInfo.brand
+    if (resolvedProductName) {
+      productContext.push(`Product: "${resolvedProductName}"`)
     }
-    if (extractedInfo.brand) {
-      productContext.push(`Brand: ${extractedInfo.brand}`)
+    if (resolvedBrand) {
+      productContext.push(`Brand: ${resolvedBrand}`)
     }
     if (extractedInfo.category) {
       productContext.push(`Category: ${extractedInfo.category}`)
@@ -735,7 +740,7 @@ ${ingredientText}`
     // =========================================================================
     // STEP 6: Get swap recommendations + coupons (filtered against blocklist)
     // =========================================================================
-    const swaps = await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score, embedding }, store, blockedProducts || [])
+    const swaps = await getSwapRecommendations(supabase, { category: analysis.category, score: analysis.score }, store, blockedProducts || [])
 
     // Fetch matching coupons for this category
     const coupons = await getCouponsForCategory(supabase, analysis.category)
@@ -872,90 +877,61 @@ function isBlockedSwap(
 }
 
 // Helper: Get swap recommendations
+// Uses category match + score sort — NOT ingredient vector similarity
+// (ingredient similarity finds similar products, not safer alternatives)
 async function getSwapRecommendations(
   supabase: any,
-  product: { category?: string; score?: number; embedding?: number[] | null },
+  product: { category?: string; score?: number },
   store?: string,
   blockedProducts: Array<{ name: string; brand: string | null; reason: string }> = []
 ): Promise<any[]> {
   try {
-    let results: any[] = []
+    const categories = getRelatedCategories(product.category || '')
 
-    if (product.embedding) {
-      const { data, error } = await supabase.rpc('get_swap_recommendations', {
-        product_category: product.category,
-        product_embedding: product.embedding,
-        min_score: 70,
-        match_count: 10, // Fetch extra to account for blocked items being filtered out
-        filter_store: store || null,
-      })
-      if (!error && data?.length > 0) results = data
+    let query = supabase
+      .from('swaps')
+      .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
+      .in('category', categories)
+      .eq('is_active', true)
+      .gte('score', 70)
+      .order('score', { ascending: false })
+      .limit(15)
 
-      // If store filter returned no results, try without store filter
-      if (!error && store && results.length === 0) {
-        const { data: unfilteredData } = await supabase.rpc('get_swap_recommendations', {
-          product_category: product.category,
-          product_embedding: product.embedding,
-          min_score: 70,
-          match_count: 10,
-          filter_store: null,
-        })
-        if (unfilteredData?.length > 0) results = unfilteredData
-      }
+    if (store) {
+      query = query.contains('available_stores', [store])
     }
 
-    if (results.length === 0) {
-      const categories = getRelatedCategories(product.category || '')
-      let query = supabase
+    let { data } = await query
+
+    // If store filter returned nothing, retry without store filter
+    if (store && (!data || data.length === 0)) {
+      const { data: unfiltered } = await supabase
         .from('swaps')
         .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
         .in('category', categories)
         .eq('is_active', true)
         .gte('score', 70)
         .order('score', { ascending: false })
-        .limit(10)
-
-      if (store) {
-        query = query.contains('available_stores', [store])
-      }
-
-      const { data } = await query
-
-      // If store filter returned no results, fall back to unfiltered
-      if (store && (!data || data.length === 0)) {
-        const { data: unfilteredData } = await supabase
-          .from('swaps')
-          .select('id, name, brand, score, affiliate_url, why_better, available_stores, category')
-          .in('category', categories)
-          .eq('is_active', true)
-          .gte('score', 70)
-          .order('score', { ascending: false })
-          .limit(10)
-        results = unfilteredData || []
-      } else {
-        results = data || []
-      }
-
-      // Sort: prefer exact category match, then related
-      if (results.length > 0 && product.category) {
-        results.sort((a: any, b: any) => {
-          const aExact = a.category === product.category ? 0 : 1
-          const bExact = b.category === product.category ? 0 : 1
-          return aExact - bExact || b.score - a.score
-        })
-      }
+        .limit(15)
+      data = unfiltered || []
     }
 
-    // Post-process: filter out blocked products
+    let results: any[] = data || []
+
+    // Sort: exact category match first, then by score descending
+    if (results.length > 0 && product.category) {
+      results.sort((a: any, b: any) => {
+        const aExact = a.category === product.category ? 0 : 1
+        const bExact = b.category === product.category ? 0 : 1
+        return aExact - bExact || b.score - a.score
+      })
+    }
+
+    // Filter out blocked products
     if (blockedProducts.length > 0) {
-      const beforeCount = results.length
       results = results.filter(swap => !isBlockedSwap(swap, blockedProducts))
-      if (results.length < beforeCount) {
-        console.log(`Blocklist filtered ${beforeCount - results.length} swap(s) from recommendations`)
-      }
     }
 
-    // Return top 5 after filtering
     return results.slice(0, 5)
   } catch (err) {
     console.warn('Failed to get swaps:', err)
