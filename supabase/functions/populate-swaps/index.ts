@@ -55,8 +55,8 @@ Deno.serve(async (req) => {
       // Step 2: Score each suggestion with our own analyzer
       const added: string[] = []
       for (const product of suggestions) {
-        if (!product.ewg_score || product.ewg_score > MAX_EWG_SCORE) {
-          console.log(`  Skipping ${product.name} — EWG score ${product.ewg_score} > ${MAX_EWG_SCORE}`)
+        if (!ewgPasses(product.ewg_score)) {
+          console.log(`  Skipping ${product.name} — EWG ${product.ewg_score} did not pass`)
           continue
         }
 
@@ -119,6 +119,26 @@ Deno.serve(async (req) => {
   })
 })
 
+// ─── EWG grade helpers ────────────────────────────────────────────────────────
+// EWG uses two grading systems:
+//   Skin Deep / Food Scores: numeric 1–10 (1 = best)
+//   Healthy Cleaning Guide:  letter A–F  (A = best)
+// We accept: 1, 2, 3, A, B, or "verified". Anything else fails.
+
+function normalizeEwg(raw: any): number | null {
+  if (raw === 'verified' || raw === 'EWG Verified') return 1
+  if (raw === 'A') return 1
+  if (raw === 'B') return 2
+  if (raw === 'C' || raw === 'D' || raw === 'F') return 99
+  const n = Number(raw)
+  return isNaN(n) ? null : n
+}
+
+function ewgPasses(raw: any): boolean {
+  const n = normalizeEwg(raw)
+  return n !== null && n <= MAX_EWG_SCORE
+}
+
 // ─── GPT: suggest safe products ──────────────────────────────────────────────
 
 async function suggestSafeProducts(
@@ -135,30 +155,36 @@ async function suggestSafeProducts(
 
 ${context}
 
+EWG uses TWO different rating systems depending on product type:
+- Personal care & food: NUMERIC score 1–10 on EWG Skin Deep or EWG Food Scores (1 = safest)
+- Cleaning products: LETTER grade A–F on EWG's Guide to Healthy Cleaning (A = safest)
+
 Requirements — ONLY suggest products that meet ALL of these:
-1. EWG score of 1, 2, or 3 on EWG Skin Deep (personal care) or EWG Food Scores (food) — OR are EWG Verified certified
-2. Clean, minimal ingredients with no known toxins, endocrine disruptors, or carcinogens
-3. Actually available to buy (Amazon, Whole Foods, Target, etc.)
-4. Specific branded products (not generic descriptions)
+1. EWG rating of 1, 2, or 3 (numeric) OR grade A or B (letter) — OR are EWG Verified certified
+2. You are highly confident this specific product exists on EWG with that rating (do NOT guess)
+3. Clean, minimal ingredients — no known toxins, endocrine disruptors, or carcinogens
+4. Actually available to buy (Amazon, Whole Foods, Target, etc.)
+5. Specific branded products with exact product names as they appear on EWG
 
-Respond with a JSON object: { "products": [ { "name": "...", "brand": "...", "ewg_score": 1-3 or "verified", "why_better": "...", "key_ingredients": "...", "available_stores": ["Amazon", "Whole Foods"] } ] }
+For the "ewg_score" field use: a number (1-3), a letter ("A" or "B"), or "verified".
+If you are not certain of the EWG rating, do NOT include the product.
+It is better to return fewer products than to include ones with uncertain ratings.
 
-Be conservative — if you are not confident a product meets EWG score ≤ 3, do not include it.`
+Respond with a JSON object: { "products": [ { "name": "...", "brand": "...", "ewg_score": 1-3 or "A"/"B" or "verified", "why_better": "...", "key_ingredients": "...", "available_stores": ["Amazon", "Whole Foods"] } ] }`
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     response_format: { type: 'json_object' },
-    temperature: 0.3,
+    temperature: 0.2,
   })
 
   try {
     const parsed = JSON.parse(response.choices[0].message.content || '{}')
-    const products = parsed.products || []
-    // Normalize ewg_score to a number (handle "verified" → 1)
-    return products.map((p: any) => ({
+    return (parsed.products || []).map((p: any) => ({
       ...p,
-      ewg_score: p.ewg_score === 'verified' ? 1 : Number(p.ewg_score),
+      ewg_score_raw: p.ewg_score,
+      ewg_score: normalizeEwg(p.ewg_score),
     }))
   } catch {
     return []
