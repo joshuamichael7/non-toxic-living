@@ -35,6 +35,7 @@ interface SwapData {
   name: string;
   brand: string;
   category: string;
+  subcategory: string;
   description: string;
   score: number;
   why_better: string;
@@ -55,6 +56,7 @@ const emptySwap: SwapData = {
   name: '',
   brand: '',
   category: 'food',
+  subcategory: '',
   description: '',
   score: 80,
   why_better: '',
@@ -74,9 +76,10 @@ const emptySwap: SwapData = {
 interface Props {
   initialData?: SwapData;
   isEditing?: boolean;
+  subcategories?: { name: string; category: string }[];
 }
 
-export function SwapForm({ initialData, isEditing }: Props) {
+export function SwapForm({ initialData, isEditing, subcategories = [] }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<SwapData>(initialData || emptySwap);
   const [saving, setSaving] = useState(false);
@@ -87,8 +90,10 @@ export function SwapForm({ initialData, isEditing }: Props) {
   const [ingredientInput, setIngredientInput] = useState('');
   const [productInput, setProductInput] = useState('');
   const [storeInput, setStoreInput] = useState('');
+  const [subcategoryInput, setSubcategoryInput] = useState('');
   const [showStoreDropdown, setShowStoreDropdown] = useState(false);
   const [showBadgeDropdown, setShowBadgeDropdown] = useState(false);
+  const [showSubcategoryDropdown, setShowSubcategoryDropdown] = useState(false);
 
   const update = (field: keyof SwapData, value: SwapData[keyof SwapData]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -106,6 +111,10 @@ export function SwapForm({ initialData, isEditing }: Props) {
 
   const filteredStores = COMMON_STORES.filter(
     (s) => s.toLowerCase().includes(storeInput.toLowerCase()) && !form.available_stores.includes(s)
+  );
+
+  const filteredSubcategories = subcategories.filter(
+    (s) => s.name.toLowerCase().includes(subcategoryInput.toLowerCase())
   );
 
   const filteredBadges = BADGE_OPTIONS.filter(
@@ -128,10 +137,21 @@ export function SwapForm({ initialData, isEditing }: Props) {
     setSaving(true);
     const supabase = createClient();
 
+    // If subcategory is new (not in existing list), add it to the subcategories table
+    const subcategoryValue = form.subcategory.trim() || null;
+    if (subcategoryValue && !subcategories.find(s => s.name === subcategoryValue)) {
+      await supabase.from('subcategories').insert({
+        name: subcategoryValue,
+        category: form.category,
+        source: 'manual',
+      }); // ON CONFLICT DO NOTHING handled by DB unique constraint
+    }
+
     const payload = {
       name: form.name.trim(),
       brand: form.brand.trim(),
       category: form.category,
+      subcategory: subcategoryValue,
       description: form.description.trim() || null,
       score: form.score,
       why_better: form.why_better.trim() || null,
@@ -209,6 +229,47 @@ export function SwapForm({ initialData, isEditing }: Props) {
                 <option key={cat} value={cat}>{cat.replace(/_/g, ' ')}</option>
               ))}
             </select>
+          </div>
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+            <input
+              type="text"
+              value={subcategoryInput || form.subcategory}
+              onChange={(e) => {
+                setSubcategoryInput(e.target.value);
+                update('subcategory', e.target.value);
+                setShowSubcategoryDropdown(true);
+              }}
+              onFocus={() => {
+                setSubcategoryInput(form.subcategory);
+                setShowSubcategoryDropdown(true);
+              }}
+              onBlur={() => setTimeout(() => { setShowSubcategoryDropdown(false); setSubcategoryInput(''); }, 200)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              placeholder="e.g. shampoo, tortilla, cookware..."
+            />
+            {form.subcategory && !subcategories.find(s => s.name === form.subcategory) && (
+              <p className="text-xs text-amber-600 mt-1">New subcategory — will be created on save</p>
+            )}
+            {showSubcategoryDropdown && filteredSubcategories.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                {filteredSubcategories.map((s) => (
+                  <button
+                    key={s.name}
+                    type="button"
+                    onMouseDown={() => {
+                      update('subcategory', s.name);
+                      setSubcategoryInput('');
+                      setShowSubcategoryDropdown(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <span>{s.name.replace(/_/g, ' ')}</span>
+                    <span className="text-xs text-gray-400">{s.category}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>

@@ -583,6 +583,30 @@ export default function ResultScreen() {
           </View>
         )}
 
+        {/* Better Alternatives — empty state for caution/toxic with no swaps */}
+        {(!result.swaps || result.swaps.length === 0) && (
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.inkSecondary, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 12 }}>
+              {t('result.betterAlternatives')}
+            </Text>
+            <View style={{
+              backgroundColor: colors.glassSolid,
+              borderRadius: 16,
+              padding: 16,
+              borderWidth: 1,
+              borderColor: colors.glassBorder,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}>
+              <Ionicons name="time-outline" size={22} color={colors.inkSecondary} />
+              <Text style={{ flex: 1, fontSize: 14, color: colors.inkSecondary, lineHeight: 20 }}>
+                {t('result.noSwapsYet')}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Better Alternatives */}
         {result.swaps && result.swaps.length > 0 && (
           <View style={{ paddingHorizontal: 20 }}>

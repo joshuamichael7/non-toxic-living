@@ -87,6 +87,7 @@ export default {
   'result.expertTake': '私たちの見解',
   'result.concerns': '懸念事項 ({{count}})',
   'result.positives': 'プラス面',
+  'result.noSwapsYet': 'このカテゴリの安全な代替品を準備中です — 後でまたご確認ください。',
   'result.betterAlternatives': 'より良い代替品',
   'result.save': '保存',
   'result.saved': '保存済み！',

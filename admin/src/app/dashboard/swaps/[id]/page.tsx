@@ -48,7 +48,7 @@ export default async function EditSwapPage({
   const { id } = await params;
   const supabase = await createServiceClient();
 
-  const [swapResult, couponsResult, featuredResult] = await Promise.all([
+  const [swapResult, couponsResult, featuredResult, subcategoriesResult] = await Promise.all([
     supabase.from('swaps').select('*').eq('id', id).single(),
     supabase
       .from('coupons')
@@ -60,6 +60,7 @@ export default async function EditSwapPage({
       .select('id, title, type, badge_text, discount_text, is_active, expires_at')
       .eq('swap_id', id)
       .order('sort_order', { ascending: true }),
+    supabase.from('subcategories').select('name, category').order('name'),
   ]);
 
   const swap = swapResult.data;
@@ -69,6 +70,7 @@ export default async function EditSwapPage({
 
   const linkedCoupons: LinkedCoupon[] = couponsResult.data || [];
   const linkedFeatured: LinkedFeaturedItem[] = featuredResult.data || [];
+  const subcategories = subcategoriesResult.data || [];
 
   return (
     <div>
@@ -78,11 +80,13 @@ export default async function EditSwapPage({
       </div>
       <SwapForm
         isEditing
+        subcategories={subcategories}
         initialData={{
           id: swap.id,
           name: swap.name,
           brand: swap.brand,
           category: swap.category,
+          subcategory: swap.subcategory || '',
           description: swap.description || '',
           score: swap.score,
           why_better: swap.why_better || '',

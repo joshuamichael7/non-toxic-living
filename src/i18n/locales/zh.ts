@@ -87,6 +87,7 @@ export default {
   'result.expertTake': '我们的看法',
   'result.concerns': '关注点 ({{count}})',
   'result.positives': '优点',
+  'result.noSwapsYet': '我们正在为此类产品开发更安全的替代品 — 请稍后查看。',
   'result.betterAlternatives': '更好的替代品',
   'result.save': '保存',
   'result.saved': '已保存！',

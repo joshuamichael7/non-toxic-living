@@ -189,10 +189,10 @@ export async function searchCombined(
     swapsQuery = swapsQuery.in('category', categories);
   } else {
     productsQuery = productsQuery.or(
-      `name.ilike.*${query}*,brand.ilike.*${query}*,category.ilike.*${query}*`,
+      `name.ilike.*${query}*,brand.ilike.*${query}*,category.ilike.*${query}*,subcategory.ilike.*${query}*`,
     );
     swapsQuery = swapsQuery.or(
-      `name.ilike.*${query}*,brand.ilike.*${query}*,category.ilike.*${query}*`,
+      `name.ilike.*${query}*,brand.ilike.*${query}*,category.ilike.*${query}*,subcategory.ilike.*${query}*`,
     );
   }
 

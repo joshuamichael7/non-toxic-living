@@ -141,13 +141,17 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch blocked products list
-    const { data: blockedProducts } = await supabase
-      .from('blocked_products')
-      .select('name, brand, reason')
+    // Fetch blocked products + subcategory list in parallel
+    const [{ data: blockedProducts }, { data: subcategoryRows }] = await Promise.all([
+      supabase.from('blocked_products').select('name, brand, reason'),
+      supabase.from('subcategories').select('name').order('name'),
+    ])
     const blocklist = (blockedProducts || [])
       .map(p => `- ${p.name}${p.brand ? ` (${p.brand})` : ''}: ${p.reason}`)
       .join('\n')
+    const subcategoryList = (subcategoryRows || []).map(r => r.name).join('|') ||
+      // fallback if table not yet populated
+      'dish_soap|laundry_detergent|shampoo|conditioner|body_wash|face_wash|moisturizer|toothpaste|deodorant|sunscreen_lotion|cooking_oil|bread|pasta|chips|coffee|tea|multivitamin|cookware|candle'
 
     const body = await req.json() as AnalyzeRequest
     const { text, imageBase64, ocrSource, ocrConfidence = 0.8, barcode, userId, forceRefresh, clientSteps, language = 'en', store, productName, brand } = body
@@ -625,7 +629,7 @@ ${blocklist}
   "productName": "product name in ${responseLang} (translate if needed)",
   "brand": "from input or 'Unknown'",
   "category": "food|beverage|snack|condiment|dairy|baby_food|personal_care|skincare|sunscreen|haircare|oral_care|deodorant|soap|makeup|nail_care|cleaning|laundry|fragrance|cookware|storage|supplement|baby|toys|household|furniture|mattress|paint|garden|pet|clothing",
-  "subcategory": "The most specific product type — used to find accurate swap recommendations. Use one of: dish_soap|dishwasher_detergent|hand_soap|laundry_detergent|all_purpose_cleaner|bathroom_cleaner|floor_cleaner|glass_cleaner|surface_cleaner|stain_remover|body_wash|bar_soap|shampoo|conditioner|face_wash|moisturizer|lip_balm|baby_wipes|diapers|baby_formula|baby_lotion|baby_sunscreen|baby_shampoo|toothpaste|mouthwash|eye_makeup|lip_makeup|foundation|bug_spray|bug_repellent|sunscreen_spray|sunscreen_lotion|protein_powder|multivitamin|omega_supplement — or null if the category is already specific enough (e.g. deodorant, oral_care, sunscreen, cookware, clothing)",
+  "subcategory": "The most specific product type — used to find accurate swap recommendations. Use one of: ${subcategoryList} — or null if none fits",
   "score": 0-100 (higher = safer),
   "verdict": "safe|caution|toxic",
   "summary": "Brief analysis highlighting key concerns or positives",
@@ -743,6 +747,15 @@ ${ingredientText}`
     // =========================================================================
     const swaps = await getSwapRecommendations(supabase, { category: analysis.category, subcategory: analysis.subcategory, score: analysis.score }, store, blockedProducts || [])
 
+    // Log a swap miss so populate-swaps can auto-fill this subcategory later
+    if (swaps.length === 0 && analysis.subcategory) {
+      supabase.rpc('log_swap_miss', {
+        p_subcategory: analysis.subcategory,
+        p_category: analysis.category || null,
+        p_product_name: analysis.productName || null,
+      }).then(() => {}).catch(() => {}) // fire-and-forget, don't block response
+    }
+
     // Fetch matching coupons for this category
     const coupons = await getCouponsForCategory(supabase, analysis.category)
 
@@ -815,10 +828,8 @@ function checkCacheFreshness(product: CachedProduct): boolean {
   return expiresAt > new Date()
 }
 
-// Category groups for fallback matching
-// When a product has a specific subcategory (e.g. "soap"), expand to related categories
+// Category groups — only used when NO subcategory was assigned at all
 const CATEGORY_GROUPS: Record<string, string[]> = {
-  // Personal care subcategories
   soap: ['soap', 'personal_care'],
   skincare: ['skincare', 'personal_care', 'sunscreen'],
   sunscreen: ['sunscreen', 'skincare', 'personal_care'],
@@ -828,33 +839,206 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
   makeup: ['makeup', 'personal_care', 'skincare'],
   nail_care: ['nail_care', 'personal_care'],
   personal_care: ['personal_care', 'soap', 'skincare', 'sunscreen', 'haircare', 'oral_care', 'deodorant', 'makeup', 'nail_care'],
-  // Cleaning subcategories
   laundry: ['laundry', 'cleaning'],
   cleaning: ['cleaning', 'laundry'],
   fragrance: ['fragrance', 'household'],
-  // Food subcategories
-  beverage: ['beverage', 'food'],
-  snack: ['snack', 'food'],
-  condiment: ['condiment', 'food'],
-  dairy: ['dairy', 'food'],
-  food: ['food', 'snack', 'beverage', 'condiment', 'dairy'],
-  // Baby/kids subcategories
-  baby_food: ['baby_food', 'baby', 'food'],
+  baby_food: ['baby_food', 'baby'],
   baby: ['baby', 'baby_food', 'toys'],
   toys: ['toys', 'baby'],
-  // Household subcategories
   furniture: ['furniture', 'household'],
   mattress: ['mattress', 'household', 'furniture'],
   paint: ['paint', 'household'],
   garden: ['garden', 'household'],
   household: ['household', 'fragrance', 'furniture', 'mattress', 'paint', 'garden'],
-  // Standalone categories
   pet: ['pet'],
   clothing: ['clothing'],
+  supplement: ['supplement'],
+  cookware: ['cookware', 'storage'],
+  storage: ['storage', 'cookware'],
+  // Broad food/snack/beverage/condiment — only when AI assigns no subcategory
+  food: ['food'],
+  snack: ['snack'],
+  beverage: ['beverage'],
+  condiment: ['condiment'],
+  dairy: ['dairy'],
+}
+
+// Subcategory-level fallback groups — tried before giving up when exact subcategory has no match.
+// Maps a subcategory to closely related subcategories (same product TYPE, not same broad category).
+// e.g. tortilla → bread/crackers, NOT beans or oats.
+const SUBCATEGORY_GROUPS: Record<string, string[]> = {
+  // Grain / bread products
+  tortilla: ['bread', 'crackers', 'pasta'],
+  bread: ['tortilla', 'crackers'],
+  crackers: ['bread', 'tortilla'],
+  pasta: ['noodles', 'bread'],
+  noodles: ['pasta', 'bread'],
+  cereal: ['oats', 'granola'],
+  oats: ['cereal', 'granola'],
+  granola: ['oats', 'cereal'],
+  // Oils
+  olive_oil: ['cooking_oil', 'avocado_oil', 'coconut_oil'],
+  avocado_oil: ['cooking_oil', 'olive_oil'],
+  coconut_oil: ['cooking_oil', 'olive_oil'],
+  ghee: ['butter', 'cooking_oil'],
+  butter: ['ghee', 'cooking_oil'],
+  cooking_oil: ['olive_oil', 'avocado_oil', 'coconut_oil'],
+  // Condiments
+  ketchup: ['mustard', 'hot_sauce', 'condiment'],
+  mustard: ['ketchup', 'hot_sauce', 'condiment'],
+  hot_sauce: ['ketchup', 'condiment'],
+  salad_dressing: ['vinegar', 'condiment'],
+  vinegar: ['salad_dressing', 'condiment'],
+  soy_sauce: ['condiment'],
+  pasta_sauce: ['condiment', 'soup'],
+  jam: ['condiment'],
+  honey: ['condiment', 'jam'],
+  maple_syrup: ['honey', 'condiment'],
+  // Dairy/alternatives
+  dairy_milk: ['plant_based_milk', 'yogurt'],
+  plant_based_milk: ['dairy_milk', 'yogurt'],
+  yogurt: ['dairy_milk', 'plant_based_milk'],
+  cheese: ['dairy_milk', 'yogurt'],
+  eggs: ['meat'],
+  // Protein
+  meat: ['seafood'],
+  seafood: ['meat'],
+  // Soup/broth
+  soup: ['canned_goods', 'pasta_sauce'],
+  canned_goods: ['soup', 'beans'],
+  beans: ['canned_goods', 'soup'],
+  // Snacks
+  chips: ['crackers', 'popcorn'],
+  popcorn: ['chips', 'crackers'],
+  cookies: ['granola_bar', 'chocolate'],
+  candy: ['chocolate'],
+  chocolate: ['candy', 'granola_bar'],
+  granola_bar: ['protein_bar', 'cookies'],
+  protein_bar: ['granola_bar'],
+  fruit_snack: ['granola_bar', 'snack'],
+  jerky: ['meat', 'snack'],
+  trail_mix: ['nuts', 'snack'],
+  nuts: ['trail_mix', 'nut_butter'],
+  nut_butter: ['nuts'],
+  // Beverages
+  coffee: ['tea'],
+  tea: ['coffee'],
+  kombucha: ['sparkling_water'],
+  soda: ['sparkling_water', 'juice'],
+  sparkling_water: ['kombucha', 'electrolyte_drink'],
+  juice: ['sparkling_water', 'soda'],
+  sports_drink: ['electrolyte_drink'],
+  electrolyte_drink: ['sports_drink', 'sparkling_water'],
+  protein_shake: ['protein_powder'],
+  plant_based_drink: ['plant_based_milk', 'sparkling_water'],
+  // Supplements
+  multivitamin: ['vitamin_d', 'vitamin_c', 'omega_3'],
+  vitamin_d: ['multivitamin'],
+  vitamin_c: ['multivitamin'],
+  vitamin_b: ['multivitamin'],
+  omega_3: ['fish_oil', 'multivitamin'],
+  fish_oil: ['omega_3'],
+  probiotic: ['multivitamin'],
+  prebiotic: ['probiotic'],
+  collagen: ['protein_powder'],
+  protein_powder: ['collagen', 'protein_bar'],
+  magnesium: ['multivitamin'],
+  melatonin: ['multivitamin'],
+  ashwagandha: ['multivitamin'],
+  turmeric: ['spices', 'multivitamin'],
+  // Personal care
+  shampoo: ['conditioner', 'hair_treatment'],
+  conditioner: ['shampoo', 'hair_treatment'],
+  hair_treatment: ['shampoo', 'conditioner'],
+  hair_mask: ['conditioner', 'hair_treatment'],
+  hair_oil: ['hair_serum', 'hair_treatment'],
+  hair_serum: ['hair_oil', 'hair_treatment'],
+  body_wash: ['bar_soap'],
+  bar_soap: ['body_wash', 'hand_soap'],
+  hand_soap: ['bar_soap', 'body_wash'],
+  face_wash: ['face_scrub', 'toner'],
+  face_scrub: ['face_wash'],
+  toner: ['face_wash', 'face_serum'],
+  face_serum: ['face_oil', 'moisturizer', 'toner'],
+  face_oil: ['face_serum', 'moisturizer'],
+  eye_cream: ['moisturizer', 'face_serum'],
+  face_mask: ['face_scrub', 'face_serum'],
+  moisturizer: ['face_serum', 'face_oil'],
+  lip_balm: ['moisturizer'],
+  deodorant: ['antiperspirant'],
+  antiperspirant: ['deodorant'],
+  sunscreen_lotion: ['sunscreen_stick', 'sunscreen_spray'],
+  sunscreen_spray: ['sunscreen_lotion', 'sunscreen_stick'],
+  sunscreen_stick: ['sunscreen_lotion'],
+  bug_spray: ['bug_repellent_lotion'],
+  bug_repellent_lotion: ['bug_spray'],
+  shaving_cream: ['deodorant'],
+  // Makeup
+  foundation: ['concealer', 'blush'],
+  concealer: ['foundation'],
+  mascara: ['eye_liner', 'eye_shadow'],
+  eye_liner: ['mascara', 'eye_shadow'],
+  eye_shadow: ['mascara', 'eye_liner'],
+  nail_polish: ['nail_polish_remover'],
+  nail_polish_remover: ['nail_polish'],
+  // Oral care
+  toothpaste: ['mouthwash', 'dental_floss'],
+  mouthwash: ['toothpaste'],
+  dental_floss: ['toothpaste'],
+  teeth_whitening: ['toothpaste'],
+  // Baby
+  baby_wipes: ['diapers', 'diaper_cream'],
+  diapers: ['baby_wipes', 'diaper_cream'],
+  diaper_cream: ['baby_lotion', 'baby_wipes'],
+  baby_shampoo: ['baby_body_wash'],
+  baby_body_wash: ['baby_shampoo'],
+  baby_lotion: ['moisturizer', 'diaper_cream'],
+  baby_sunscreen: ['sunscreen_lotion'],
+  // Cleaning
+  dish_soap: ['hand_soap', 'all_purpose_cleaner'],
+  dishwasher_detergent: ['dish_soap'],
+  laundry_detergent: ['fabric_softener', 'dryer_sheets'],
+  fabric_softener: ['dryer_sheets', 'laundry_detergent'],
+  dryer_sheets: ['fabric_softener', 'laundry_detergent'],
+  all_purpose_cleaner: ['surface_cleaner', 'bathroom_cleaner'],
+  bathroom_cleaner: ['all_purpose_cleaner', 'surface_cleaner'],
+  surface_cleaner: ['all_purpose_cleaner'],
+  glass_cleaner: ['surface_cleaner', 'all_purpose_cleaner'],
+  stain_remover: ['laundry_detergent', 'all_purpose_cleaner'],
+  mold_remover: ['bathroom_cleaner'],
+  carpet_cleaner: ['stain_remover', 'all_purpose_cleaner'],
+  drain_cleaner: ['all_purpose_cleaner'],
+  // Cookware/storage
+  cookware: ['bakeware', 'utensils'],
+  bakeware: ['cookware'],
+  utensils: ['cookware'],
+  food_storage: ['food_wrap', 'water_bottle'],
+  food_wrap: ['food_storage'],
+  water_bottle: ['food_storage'],
+  // Household
+  candle: ['diffuser_oil', 'air_freshener'],
+  diffuser_oil: ['candle', 'air_freshener'],
+  air_freshener: ['candle', 'diffuser_oil'],
+  air_purifier: ['air_freshener'],
+  pest_control: ['garden_pesticide'],
+  garden_pesticide: ['pest_control'],
+  // Pet
+  pet_food: ['pet_treat'],
+  pet_treat: ['pet_food'],
+  pet_shampoo: ['bar_soap'],
+  // Feminine care
+  feminine_care: [],
+  // First aid / medicine
+  first_aid: [],
+  medicine: [],
 }
 
 function getRelatedCategories(category: string): string[] {
   return CATEGORY_GROUPS[category] || [category]
+}
+
+function getRelatedSubcategories(subcategory: string): string[] {
+  return SUBCATEGORY_GROUPS[subcategory] || []
 }
 
 // Helper: Check if a swap matches a blocked product
@@ -918,19 +1102,27 @@ async function getSwapRecommendations(
 
     let results: any[] = []
 
-    // 1. Try exact subcategory match first (most specific)
     if (product.subcategory) {
+      // 1. Exact subcategory match (most specific — same product type)
       results = await runQuery((q: any) => q.eq('subcategory', product.subcategory))
       console.log(`Swap subcategory match (${product.subcategory}): ${results.length} results`)
-    }
 
-    // 2. Fall back to category group if subcategory returned nothing
-    if (results.length === 0) {
+      // 2. Related subcategories (e.g. tortilla → bread/crackers, NOT all of food)
+      if (results.length === 0) {
+        const relatedSubs = getRelatedSubcategories(product.subcategory)
+        if (relatedSubs.length > 0) {
+          results = await runQuery((q: any) => q.in('subcategory', relatedSubs))
+          console.log(`Swap related-subcategory match (${relatedSubs.join(',')}): ${results.length} results`)
+        }
+      }
+
+      // 3. If subcategory was assigned but nothing matched at all, return empty.
+      // Never fall back to broad category — irrelevant results are worse than no results.
+    } else {
+      // 4. No subcategory assigned — fall back to category group
       const categories = getRelatedCategories(product.category || '')
       results = await runQuery((q: any) => q.in('category', categories))
       console.log(`Swap category match (${categories.join(',')}): ${results.length} results`)
-
-      // Sort: exact category match first, then score descending
       if (results.length > 0 && product.category) {
         results.sort((a: any, b: any) => {
           const aExact = a.category === product.category ? 0 : 1

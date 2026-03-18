@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +38,10 @@ function TabIcon({ name, color, focused }: TabIconProps) {
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  // On Android, add the system nav bar height so the tab bar sits above it.
+  // iOS handles this automatically via the safe area, so no adjustment needed there.
+  const bottomInset = Platform.OS === 'android' ? insets.bottom : 0;
 
   return (
     <Tabs
@@ -53,9 +58,9 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.04,
           shadowRadius: 12,
-          height: 88,
+          height: 88 + bottomInset,
           paddingTop: 12,
-          paddingBottom: 28,
+          paddingBottom: 28 + bottomInset,
           position: 'absolute',
           bottom: 0,
           left: 0,

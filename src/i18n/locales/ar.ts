@@ -87,6 +87,7 @@ export default {
   'result.expertTake': 'رأينا',
   'result.concerns': 'مخاوف ({{count}})',
   'result.positives': 'الإيجابيات',
+  'result.noSwapsYet': 'نعمل على إيجاد بدائل أكثر أمانًا لهذا النوع من المنتجات — تحقق قريبًا.',
   'result.betterAlternatives': 'بدائل أفضل',
   'result.save': 'حفظ',
   'result.saved': 'تم الحفظ!',

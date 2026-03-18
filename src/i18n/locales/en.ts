@@ -87,6 +87,7 @@ export default {
   'result.expertTake': 'Our Take',
   'result.concerns': 'Concerns ({{count}})',
   'result.positives': 'Positives',
+  'result.noSwapsYet': 'We're building out safer alternatives for this product type — check back soon.',
   'result.betterAlternatives': 'Better Alternatives',
   'result.save': 'Save',
   'result.saved': 'Saved!',

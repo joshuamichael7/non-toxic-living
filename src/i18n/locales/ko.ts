@@ -87,6 +87,7 @@ export default {
   'result.expertTake': '우리의 의견',
   'result.concerns': '우려사항 ({{count}})',
   'result.positives': '긍정적 요소',
+  'result.noSwapsYet': '이 제품 유형에 대한 더 안전한 대체품을 준비 중입니다 — 곧 다시 확인해 주세요.',
   'result.betterAlternatives': '더 나은 대안',
   'result.save': '저장',
   'result.saved': '저장됨!',

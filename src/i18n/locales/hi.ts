@@ -87,6 +87,7 @@ export default {
   'result.expertTake': 'हमारी राय',
   'result.concerns': 'चिंताएं ({{count}})',
   'result.positives': 'सकारात्मक पहलू',
+  'result.noSwapsYet': 'हम इस उत्पाद प्रकार के लिए सुरक्षित विकल्प तैयार कर रहे हैं — जल्द वापस देखें।',
   'result.betterAlternatives': 'बेहतर विकल्प',
   'result.save': 'सहेजें',
   'result.saved': 'सहेजा गया!',
