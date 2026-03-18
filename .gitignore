@@ -47,6 +47,9 @@ coverage/
 supabase/functions/.env
 supabase/.temp/
 
+# One-time scripts (may contain API keys)
+scripts/
+
 # Admin panel
 admin/node_modules/
 admin/.next/
