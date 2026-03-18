@@ -10,6 +10,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import OpenAI from 'https://esm.sh/openai@4'
+import { verifyEwgScore } from '../_shared/ewg-verify.ts'
 
 const MIN_MISS_COUNT = 3   // only auto-populate after this many misses
 const MIN_SCORE = 75       // minimum score from our own analyzer
@@ -21,6 +22,7 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   const openaiKey  = Deno.env.get('OPENAI_API_KEY')!
+  const serperKey  = Deno.env.get('SERPER_API_KEY')!
 
   const supabase = createClient(supabaseUrl, supabaseKey)
   const openai   = new OpenAI({ apiKey: openaiKey })
@@ -55,10 +57,10 @@ Deno.serve(async (req) => {
       // Step 2: Score each suggestion with our own analyzer
       const added: string[] = []
       for (const product of suggestions) {
-        if (!ewgPasses(product.ewg_score)) {
-          console.log(`  Skipping ${product.name} — EWG ${product.ewg_score} did not pass`)
-          continue
-        }
+        // Verify EWG score via Serper (real Google search on ewg.org)
+        const ewg = await verifyEwgScore(product.name, product.brand, category || subcategory, serperKey)
+        console.log(`  EWG verify ${product.name}: ${ewg.reason}`)
+        if (!ewg.passed) continue
 
         const score = await scoreIngredients(openai, product)
         if (score < MIN_SCORE) {
